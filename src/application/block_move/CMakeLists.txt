@@ -1,5 +1,7 @@
 add_executable(ecp_block_move
 	ecp_t_block_move.cc
+	ecp_g_position_board.cc
+	ecp_g_block_reaching.cc
     ../visual_servoing/ib_eih_visual_servo.cc
     ../visual_servoing/visual_servo.cc
     ../visual_servoing/visual_servo_manager.cc

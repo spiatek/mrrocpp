@@ -8,10 +8,14 @@
 #ifndef ECP_G_POSITION_BOARD_H_
 #define ECP_G_POSITION_BOARD_H_
 
-#include "ecp_mp_g_position_board.h"
+#include "base/lib/configurator.h"
+#include "base/lib/sr/sr_ecp.h"
+#include "base/lib/typedefs.h"
+#include "base/ecp/ecp_task.h"
 
-#include "base/ecp/ecp_generator.h"
 #include "generator/ecp/ecp_g_newsmooth.h"
+
+#include "ecp_mp_g_position_board.h"
 
 namespace mrrocpp {
 namespace ecp {

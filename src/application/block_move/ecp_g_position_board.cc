@@ -10,12 +10,6 @@
 
 #include "ecp_g_position_board.h"
 
-#include "base/lib/configurator.h"
-#include "base/lib/sr/sr_ecp.h"
-#include "base/ecp/ecp_task.h"
-
-#include "base/lib/typedefs.h"
-
 namespace mrrocpp {
 namespace ecp {
 namespace common {
