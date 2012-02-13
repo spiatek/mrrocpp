@@ -4,9 +4,13 @@
 #include <list>
 #include <string>
 
-#include <gecode/int.hh>
+#if USE_GECODE
 
+#include <gecode/int.hh>
 #include "BlockPlanner.h"
+
+#endif //USE_GECODE
+
 #include "BlockPosition.h"
 
 typedef list<BlockPosition> block_position_list;

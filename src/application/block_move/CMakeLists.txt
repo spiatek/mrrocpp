@@ -1,3 +1,5 @@
+option (LIB_GECODE "Use Gecode library" ON)
+
 add_executable(ecp_block_move
 	ecp_t_block_move.cc
 	ecp_g_position_board.cc
@@ -16,13 +18,20 @@ add_executable(ecp_block_move
 
 target_link_libraries(ecp_block_move ecp_robot visual_servoing)
 
-include_directories(/usr/local/include/gecode)
-
-add_executable(mp_block_move
-	BlockPlanner.cc
-	mp_t_block_move.cc
-)
-
-target_link_libraries(mp_block_move mp gecodesearch gecodeint gecodekernel gecodesupport)
+if (LIB_GECODE)
+	include_directories(/usr/local/include/gecode)
+	set(USE_GECODE 1)	
+	add_executable(mp_block_move
+		BlockPlanner.cc
+		mp_t_block_move.cc
+	)
+	target_link_libraries(mp_block_move mp gecodesearch gecodeint gecodekernel gecodesupport)
+else (LIB_GECODE)
+	set(USE_GECODE 0)
+	add_executable(mp_block_move
+		mp_t_block_move.cc
+	)
+	target_link_libraries(mp_block_move mp)
+endif (LIB_GECODE)
 
 install(TARGETS mp_block_move DESTINATION bin)

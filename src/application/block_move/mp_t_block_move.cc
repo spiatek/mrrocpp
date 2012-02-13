@@ -16,9 +16,6 @@
 #include "base/lib/sr/srlib.h"
 #include "base/lib/configurator.h"
 
-//#include "robot/irp6_tfg/dp_tfg.h"
-//#include "robot/irp6p_tfg/mp_r_irp6p_tfg.h"
-//#include "robot/irp6p_tfg/const_irp6p_tfg.h"
 #include "robot/irp6p_m/const_irp6p_m.h"
 #include "robot/irp6p_m/mp_r_irp6p_m.h"
 
@@ -30,7 +27,6 @@
 
 #include "generator/ecp/tff_gripper_approach/ecp_mp_g_tff_gripper_approach.h"
 
-//#include "subtask/ecp_mp_st_gripper_opening.h"
 #include "generator/ecp/bias_edp_force/ecp_mp_g_bias_edp_force.h"
 
 #include "../visual_servoing/visual_servoing.h"
