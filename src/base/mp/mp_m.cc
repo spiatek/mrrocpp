@@ -252,6 +252,7 @@ int main(int argc, char *argv[], char **arge)
 				switch (error0)
 				{
 					case ECP_ERRORS:
+					case ROBOT_NOT_ACTIVATED:
 					case INVALID_ECP_PULSE_IN_MP_START_ALL:
 					case INVALID_ECP_PULSE_IN_MP_EXECUTE_ALL:
 					case INVALID_ECP_PULSE_IN_MP_TERMINATE_ALL:

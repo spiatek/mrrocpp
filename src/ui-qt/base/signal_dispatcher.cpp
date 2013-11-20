@@ -33,6 +33,11 @@ void SignalDispatcher::on_Synchronisation_triggered(mrrocpp::ui::common::UiRobot
 	interface.get_main_window()->ui_robot_action(robot, &mrrocpp::ui::common::UiRobot::synchronise);
 }
 
+void SignalDispatcher::on_UnSynchronisation_triggered(mrrocpp::ui::common::UiRobot *robot)
+{
+	interface.get_main_window()->ui_robot_action(robot, &mrrocpp::ui::common::UiRobot::unsynchronise);
+}
+
 void SignalDispatcher::on_Clear_Fault_triggered(mrrocpp::ui::common::UiRobot *robot)
 {
 	interface.get_main_window()->ui_robot_action(robot, &mrrocpp::ui::common::UiRobot::execute_clear_fault);

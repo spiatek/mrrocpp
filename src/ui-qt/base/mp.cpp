@@ -46,7 +46,8 @@ int Mp::MPup_int()
 
 				if (mp_state.pid > 0) {
 
-					mp_state.MP = (boost::shared_ptr <lib::agent::RemoteAgent>) new lib::agent::RemoteAgent(lib::MP_SECTION);
+					mp_state.MP =
+							(boost::shared_ptr <lib::agent::RemoteAgent>) new lib::agent::RemoteAgent(lib::MP_SECTION);
 					mp_state.pulse =
 							(boost::shared_ptr <lib::agent::OutputBuffer <char> >) new lib::agent::OutputBuffer <char>(*mp_state.MP, "MP_PULSE");
 
@@ -130,25 +131,23 @@ void Mp::MPslay()
 		// 	printf("mp pupa po kill\n");
 		mp_state.pid = -1;
 
-		BOOST_FOREACH(const robot_pair_t & robot_node, interface.robot_m)
-				{
-					robot_node.second->deactivate_ecp_trigger();
-				}
+		BOOST_FOREACH(const robot_pair_t & robot_node, interface.robot_m){
+		robot_node.second->deactivate_ecp_trigger();
+	}
 
-		// modyfikacja menu
+	// modyfikacja menu
 		interface.manage_interface();
 		interface.wgt_pc->process_control_window_init();
 
-		BOOST_FOREACH(const common::robot_pair_t & robot_node, interface.robot_m)
-				{
-					if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
-						robot_node.second->get_wgt_robot_pc()->process_control_window_init();
-					}
-				}
-		//wgt_pc->dwgt->raise();
-	} catch (...) {
-		interface.ui_state = 2;
+		BOOST_FOREACH(const common::robot_pair_t & robot_node, interface.robot_m){
+		if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
+			robot_node.second->get_wgt_robot_pc()->window_init();
+		}
 	}
+	//wgt_pc->dwgt->raise();
+} catch (...) {
+	interface.ui_state = 2;
+}
 }
 
 void Mp::pulse_start_mp()
@@ -160,21 +159,19 @@ void Mp::pulse_start_mp()
 			mp_state.state = ui::common::UI_MP_TASK_RUNNING; // czekanie na stop
 
 			// close_all_windows
-			BOOST_FOREACH(const ui::common::robot_pair_t & robot_node, interface.robot_m)
-					{
-						robot_node.second->close_all_windows();
-					}
+			BOOST_FOREACH(const ui::common::robot_pair_t & robot_node, interface.robot_m){
+			robot_node.second->close_all_windows();
+		}
 
 			execute_mp_pulse(MP_START);
 
 			interface.wgt_pc->process_control_window_init();
-			BOOST_FOREACH(const common::robot_pair_t & robot_node, interface.robot_m)
-					{
-						if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
-							robot_node.second->get_wgt_robot_pc()->process_control_window_init();
-						}
-					}
-			//wgt_pc->dwgt->raise();
+			BOOST_FOREACH(const common::robot_pair_t & robot_node, interface.robot_m){
+			if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
+				robot_node.second->get_wgt_robot_pc()->window_init();
+			}
+		}
+		//wgt_pc->dwgt->raise();
 			manage_interface();
 		}
 	} catch (...) {

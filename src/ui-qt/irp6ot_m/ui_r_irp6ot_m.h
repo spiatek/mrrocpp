@@ -72,8 +72,6 @@ public:
 	void create_ui_ecp_robot();
 	void edp_create_int_extra_operations();
 
-
-
 	void setup_menubar();
 
 };

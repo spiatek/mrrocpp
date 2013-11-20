@@ -146,10 +146,10 @@ void MenuBar::setupMenuBar(QMainWindow *mainWindow)
 	menuAll_Robots->addAction(actionall_Synchronisation);
 	menuAll_Robots->addAction(menuall_Preset_Positions->menuAction());
 	menuall_Preset_Positions->addAction(actionall_Synchro_Position);
-	menuall_Preset_Positions->addAction(actionall_Front_Position);
 	menuall_Preset_Positions->addAction(actionall_Position_0);
 	menuall_Preset_Positions->addAction(actionall_Position_1);
 	menuall_Preset_Positions->addAction(actionall_Position_2);
+	menuall_Preset_Positions->addAction(actionall_Front_Position);
 	menuTask->addAction(actionMP_Load);
 	menuTask->addAction(actionMP_Unload);
 	menuTask->addSeparator();

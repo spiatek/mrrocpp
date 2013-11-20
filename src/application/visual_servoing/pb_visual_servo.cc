@@ -46,7 +46,10 @@ void pb_visual_servo::retrieve_reading()
 			//			log_dbg("pb_visual_servo::retrieve_reading(): sensor->get_state() == discode_sensor::DSS_READING_RECEIVED.\n");
 
 			reading_t_minus_2 = reading_t_minus_1;
+			reading_t_minus_2_time = reading_t_minus_1_time;
+
 			reading_t_minus_1 = reading = sensor->retreive_reading <Types::Mrrocpp_Proxy::PBReading> ();
+			clock_gettime(CLOCK_REALTIME, &reading_t_minus_1_time);
 		}
 	} catch (exception &ex) {
 		log("pb_visual_servo::retrieve_reading(): %s\n", ex.what());
@@ -74,12 +77,12 @@ void pb_visual_servo::predict_reading()
 	lib::Homog_matrix hm0 = reading_t_minus_2.objectPosition;
 	lib::Homog_matrix hm1 = reading_t_minus_1.objectPosition;
 
-	int sec = reading_t_minus_1.processingStartSeconds - reading_t_minus_2.processingStartSeconds;
-	int nsec = reading_t_minus_1.processingStartNanoseconds - reading_t_minus_2.processingStartNanoseconds;
+	int sec = reading_t_minus_1_time.tv_sec - reading_t_minus_2_time.tv_sec;
+	int nsec = reading_t_minus_1_time.tv_nsec - reading_t_minus_2_time.tv_nsec;
 	double delta_t_1 = sec + 1e-9*nsec;
 
-	sec = ts.tv_sec - reading_t_minus_2.processingStartSeconds;
-	nsec = ts.tv_nsec - reading_t_minus_2.processingStartNanoseconds;
+	sec = ts.tv_sec - reading_t_minus_2_time.tv_sec;
+	nsec = ts.tv_nsec - reading_t_minus_2_time.tv_nsec;
 	double delta_t_2 = sec + 1e-9*nsec;
 
 	double t = delta_t_2 / delta_t_1;

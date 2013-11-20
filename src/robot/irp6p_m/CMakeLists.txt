@@ -15,6 +15,7 @@ if(COMEDILIB_FOUND)
 target_link_libraries(
         edp_irp6p_m
         ati6284KB
+        adis16362_imu
 )
 else(COMEDILIB_FOUND)
  # MacOS workaround
@@ -22,6 +23,7 @@ target_link_libraries(
         edp_irp6p_m
         # TODO zrobcie pusty czujnik
         ati3084KB
+ adis16362_imu
 )
 endif(COMEDILIB_FOUND)
 

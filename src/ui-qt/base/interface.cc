@@ -99,10 +99,9 @@ Interface::Interface() :
 
 Interface::~Interface()
 {
-	BOOST_FOREACH(robot_pair_t node, robot_m)
-			{
-				delete node.second;
-			}
+	BOOST_FOREACH(robot_pair_t node, robot_m){
+	delete node.second;
+}
 }
 
 void Interface::start_on_timer()
@@ -210,8 +209,8 @@ void Interface::timer_slot()
 			// FIXME: ?
 			sr_msg.process_type = lib::UNKNOWN_PROCESS_TYPE;
 
-			char process_name_buffer[NAME_LENGTH + 1];snprintf
-			(process_name_buffer, sizeof(process_name_buffer), "%-15s", sr_msg.process_name);
+			char process_name_buffer[NAME_LENGTH + 1];
+			snprintf(process_name_buffer, sizeof(process_name_buffer), "%-15s", sr_msg.process_name);
 
 			strcat(current_line, process_name_buffer);
 
@@ -262,34 +261,33 @@ void Interface::timer_slot()
 			boost::tokenizer <boost::char_separator <char> > tokens(text, sep);
 
 			bool first_it = true;
-			BOOST_FOREACH(const std::string & t, tokens)
-					{
+			BOOST_FOREACH(const std::string & t, tokens){
 
-						input = t.c_str();
+			input = t.c_str();
 
-						html_it(input, output);
+			html_it(input, output);
 
-						if (first_it) {
-							first_it = false;
+			if (first_it) {
+				first_it = false;
 
-							html_line += output + "</font>";
+				html_line += output + "</font>";
 
-						} else {
-							html_line =
-									"<font face=\"Monospace\" color=\"black\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; "
-											"&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"
-											"&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"
-											+ output + "</font>";
+			} else {
+				html_line =
+				"<font face=\"Monospace\" color=\"black\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; "
+				"&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"
+				"&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"
+				+ output + "</font>";
 
-							strcpy(current_line, "                                                     ");
-						}
-						strcat(current_line, t.c_str());
+				strcpy(current_line, "                                                     ");
+			}
+			strcat(current_line, t.c_str());
 
-						mw->get_ui()->textEdit_sr->append(QString::fromStdString(html_line));
+			mw->get_ui()->textEdit_sr->append(QString::fromStdString(html_line));
 
-						(*log_file_outfile) << current_line << std::endl;
-					}
+			(*log_file_outfile) << current_line << std::endl;
 		}
+	}
 
 		(*log_file_outfile).flush();
 
@@ -359,18 +357,17 @@ void Interface::open_process_control_windows()
 	//	}
 	//
 	//	wgt_robots_pc.clear();
-	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m)
-			{
-				if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
-					robot_node.second->get_wgt_robot_pc()->my_open();
-				}
-			}
+	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m){
+	if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
+		robot_node.second->get_wgt_robot_pc()->my_open();
+	}
+}
 
-	//	BOOST_FOREACH(wgt_robot_process_control *wgt_robot, wgt_robots_pc)
-	//	{
-	//		wgt_robot->my_open();
-	//
-	//	}
+//	BOOST_FOREACH(wgt_robot_process_control *wgt_robot, wgt_robots_pc)
+//	{
+//		wgt_robot->my_open();
+//
+//	}
 
 }
 
@@ -433,18 +430,18 @@ void Interface::raise_ui_ecp_window_slot()
 				teachingstate = ui::common::ECP_TEACHING;
 			}
 
-			wgt_teaching_obj->my_open("C_MOTOR");
+			wgt_teaching_obj->my_open("C_MOTOR", true);
 
 			robot_m[ui_ecp_obj->ecp_to_ui_msg.robot_name]->open_c_motor_window();
 
 			break;
 		case lib::YES_NO:
 
-			wgt_yes_no_obj->my_open();
+			wgt_yes_no_obj->my_open(true);
 
 			break;
 		case lib::MESSAGE:
-			wgt_message_obj->my_open();
+			wgt_message_obj->my_open(true);
 
 			ui_rep.reply = lib::ANSWER_YES;
 			ui_ecp_obj->synchroniser.command();
@@ -452,17 +449,17 @@ void Interface::raise_ui_ecp_window_slot()
 			break;
 		case lib::DOUBLE_NUMBER:
 
-			wgt_input_double_obj->my_open();
+			wgt_input_double_obj->my_open(true);
 
 			break;
 		case lib::INTEGER_NUMBER:
 
-			wgt_input_integer_obj->my_open();
+			wgt_input_integer_obj->my_open(true);
 
 			break;
 		case lib::CHOOSE_OPTION:
 
-			wgt_choose_option_obj->my_open();
+			wgt_choose_option_obj->my_open(true);
 
 			break;
 		case lib::LOAD_FILE:
@@ -553,10 +550,9 @@ void Interface::raise_ui_ecp_window_slot()
 
 void Interface::setRobotsMenu()
 {
-	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m)
-			{
-				robot_node.second->setup_menubar();
-			}
+	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m){
+	robot_node.second->setup_menubar();
+}
 }
 
 MainWindow* Interface::get_main_window() const
@@ -716,7 +712,7 @@ void Interface::init()
 	char* cwd;
 	char buff[PATH_MAX + 1];
 
-if(	uname(&sysinfo) == -1) {
+	if (uname(&sysinfo) == -1) {
 		perror("uname");
 	}
 
@@ -762,7 +758,7 @@ if(	uname(&sysinfo) == -1) {
 	signal(SIGCHLD, &catch_signal);
 
 	// Ignore SIGPIPE, which comes from communication errors and should be handled approriately
-	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
+	if (signal(SIGPIPE, SIG_IGN ) == SIG_ERR ) {
 		BOOST_THROW_EXCEPTION(lib::exception::system_error());
 	}
 	/* TR
@@ -849,18 +845,17 @@ void Interface::manage_pc(void)
 {
 	wgt_pc->process_control_window_init();
 
-	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m)
-			{
-				if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
-					robot_node.second->get_wgt_robot_pc()->process_control_window_init();
-				}
-			}
+	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m){
+	if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())) {
+		robot_node.second->get_wgt_robot_pc()->window_init();
+	}
+}
 
-	//wgt_pc->dwgt->raise();
-	//	BOOST_FOREACH(wgt_robot_process_control *wgt_robot, wgt_robots_pc)
-	//	{
-	//		wgt_robot->process_control_window_init();
-	//	}
+//wgt_pc->dwgt->raise();
+//	BOOST_FOREACH(wgt_robot_process_control *wgt_robot, wgt_robots_pc)
+//	{
+//		wgt_robot->process_control_window_init();
+//	}
 
 }
 
@@ -878,16 +873,15 @@ void Interface::manage_interface_slot()
 	// okienko process control
 	wgt_pc->process_control_window_init_slot();
 
-	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m)
-			{
-				if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())
-						&& robot_node.second->get_wgt_robot_pc()) {
-					robot_node.second->get_wgt_robot_pc()->process_control_window_init();
-				}
-			}
+	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m){
+	if ((robot_node.second->state.is_active) && (robot_node.second->is_edp_loaded())
+			&& robot_node.second->get_wgt_robot_pc()) {
+		robot_node.second->get_wgt_robot_pc()->window_init();
+	}
+}
 
-	//wgt_pc->dwgt->raise();
-	// UWAGA ta funkcja powinna byc odporna na odpalenie z dowolnego watku !!!
+//wgt_pc->dwgt->raise();
+// UWAGA ta funkcja powinna byc odporna na odpalenie z dowolnego watku !!!
 
 	check_edps_state_and_modify_mp_state();
 	/*TR
@@ -900,12 +894,11 @@ void Interface::manage_interface_slot()
 
 	 */
 	// uruchmomienie manage interface dla wszystkich robotow
-	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m)
-			{
-				robot_node.second->manage_interface();
-			}
+	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m){
+	robot_node.second->manage_interface();
+}
 
-	// wlasciwosci menu  ABW_base_all_robots
+// wlasciwosci menu  ABW_base_all_robots
 
 	all_robots->manage_interface();
 	mp->manage_interface();
@@ -933,14 +926,13 @@ void Interface::reload_whole_configuration()
 			case UI_ALL_EDPS_NONE_LOADED:
 
 				// uruchmomienie manage interface dla wszystkich robotow
-				BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m)
-						{
-							robot_node.second->reload_configuration();
-						}
+				BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m){
+				robot_node.second->reload_configuration();
+			}
 
-				break;
+			break;
 			default:
-				break;
+			break;
 		}
 
 		// clearing of lists
@@ -1197,8 +1189,7 @@ void Interface::initiate_configuration()
 		if (dirp != NULL) {
 			for (;;) {
 				struct dirent* direntp = readdir(dirp);
-				if (direntp == NULL
-				)
+				if (direntp == NULL)
 					break;
 
 				// printf( "%s\n", direntp->d_name );
@@ -1284,8 +1275,7 @@ void Interface::fill_node_list()
 	if (dirp != NULL) {
 		for (;;) {
 			struct dirent *direntp = readdir(dirp);
-			if (direntp == NULL
-			)
+			if (direntp == NULL)
 				break;
 			all_node_list.push_back(std::string(direntp->d_name));
 		}
@@ -1346,7 +1336,6 @@ void Interface::unload_all()
 
 void Interface::slay_all()
 {
-
 	// program unload
 
 	unload_all();
@@ -1383,6 +1372,7 @@ void Interface::slay_all()
 	}
 	printf("slay_all end\n");
 	manage_interface();
+	ui_msg->message(lib::NON_FATAL_ERROR, "slay_all executed and finished");
 }
 
 }

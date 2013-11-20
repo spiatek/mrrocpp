@@ -23,6 +23,8 @@
 // Klasa edp_irp6ot_effector.
 #include "robot/irp6p_m/edp_irp6p_m_effector.h"
 #include "base/edp/edp_force_sensor.h"
+#include "base/edp/edp_imu_sensor.h"
+
 // Kinematyki.
 #include "robot/irp6p_m/kinematic_model_irp6p_with_wrist.h"
 #include "robot/irp6p_m/kinematic_model_irp6p_5dof.h"
@@ -66,11 +68,17 @@ void effector::create_threads()
 	vs = (boost::shared_ptr <sensor::force>) sensor::return_created_edp_force_sensor(*this); //!< czujnik wirtualny
 
 	// byY - utworzenie watku pomiarow sily
-	new boost::thread(boost::bind(&sensor::force::operator(), vs));
+	vs_tid = boost::thread(boost::bind(&sensor::force::operator(), vs));
 
 	//vs->thread_started.wait();
 	//zeby miec pewnosc, ze zostal wykonany pierwszy pomiar
-	vs->edp_vsp_synchroniser.wait();
+	vs->first_measure_synchroniser.wait();
+
+	imu_sen = (boost::shared_ptr <sensor::imu>) sensor::return_created_edp_imu_sensor(*this);
+	imu_tid = boost::thread(boost::bind(&sensor::imu::operator(), imu_sen));
+	imu_sen->first_measure_synchroniser.wait();
+	//imu_sen->thread_started.wait();
+
 	motor_driven_effector::hi_create_threads();
 }
 
@@ -84,6 +92,12 @@ effector::effector(common::shell &_shell) :
 	create_kinematic_models_for_given_robot();
 
 	reset_variables();
+}
+
+effector::~effector()
+{
+	vs_tid.interrupt();
+	vs_tid.join();
 }
 
 // Stworzenie modeli kinematyki dla robota IRp-6 na postumencie.
@@ -108,9 +122,9 @@ void effector::get_arm_position(bool read_hardware, lib::c_buffer &instruction)
 }
 /*--------------------------------------------------------------------------*/
 
-void effector::master_order(common::MT_ORDER nm_task, int nm_tryb)
+void effector::master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction)
 {
-	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb);
+	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb, instruction);
 }
 
 } // namespace irp6p

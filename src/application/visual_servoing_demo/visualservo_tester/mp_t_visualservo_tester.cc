@@ -61,30 +61,42 @@ visualservo_tester::~visualservo_tester()
 
 void visualservo_tester::main_task_algorithm(void)
 {
+	std::vector<std::string> robot_names;
+
 	if (run_vs) {
+		robot_names.push_back(robot_name);
+
 		sr_ecp_msg->message("Starting visual servo");
 		set_next_ecp_state(mrrocpp::ecp_mp::generator::ECP_GEN_VISUAL_SERVO_TEST, 0, "", robot_name);
 		sr_ecp_msg->message("Visual servo started.");
-
-		char txt[128];
-		sprintf(txt, "Waiting for settle down (%d s)", vs_settle_time);
-		sr_ecp_msg->message(txt);
-		for (int i = vs_settle_time; i > 0; --i) {
-			log("Waiting for VS to stabilize %-4d   \r", i);
-			sleep(1);
-		}
-		log("\n");
 	}
 
+
+
 	if (run_conveyor) {
+		if(run_vs){
+			char txt[128];
+			sprintf(txt, "Waiting for settle down (%d s)", vs_settle_time);
+			sr_ecp_msg->message(txt);
+			for (int i = vs_settle_time; i > 0; --i) {
+				log("Waiting for VS to stabilize %-4d   \r", i);
+				sleep(1);
+			}
+			log("\n");
+		}
+
+		robot_names.push_back(lib::conveyor::ROBOT_NAME);
+
 		sr_ecp_msg->message("Starting conveyor");
-
 		set_next_ecp_state(mrrocpp::ecp_mp::generator::ECP_GEN_CONVEYOR_VS_TEST, 0, "", lib::conveyor::ROBOT_NAME);
-
 		sr_ecp_msg->message("Conveyor started.");
 	}
 
-	wait_for_task_termination(false, robot_name, lib::conveyor::ROBOT_NAME);
+	sr_ecp_msg->message("Waiting for task termination.");
+
+	wait_for_task_termination(false, robot_names);
+
+	sr_ecp_msg->message("Task terminated.");
 
 	log("visualservo_tester::main_task_algorithm() 4\n");
 }

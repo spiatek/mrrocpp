@@ -40,12 +40,12 @@ const int16_t torque_offset[lib::bird_hand::NUM_OF_SERVOS] = { 0, 0, 10, 32, 17,
 
 const int16_t motor_inv[lib::bird_hand::NUM_OF_SERVOS] = { 1, 1, 1, 0, 1, 0, 1, 0 };
 
-void effector::master_order(common::MT_ORDER nm_task, int nm_tryb)
+void effector::master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction)
 {
-	manip_effector::single_thread_master_order(nm_task, nm_tryb);
+	manip_effector::single_thread_master_order(nm_task, nm_tryb, instruction);
 }
 
-void effector::get_controller_state(lib::c_buffer &instruction)
+void effector::get_controller_state(const lib::c_buffer &instruction)
 {
 
 	lib::JointArray synchro_position(number_of_servos);
@@ -308,7 +308,11 @@ void effector::create_threads()
 
 lib::INSTRUCTION_TYPE effector::receive_instruction()
 {
-	return common::effector::receive_instruction(instruction);
+//	printf("receive_instruction bird_hand\n");
+	lib::INSTRUCTION_TYPE output = common::effector::receive_instruction(instruction);
+//	std::cout << "bird_hand: " << (int) instruction.get_type << std::endl;
+	return output;
+
 }
 
 void effector::variant_reply_to_instruction()

@@ -5,7 +5,6 @@
 // Ostatnia modyfikacja: 2006
 // -------------------------------------------------------------------------
 
-
 #ifndef __SG_SARKOFAG_H
 #define __SG_SARKOFAG_H
 
@@ -17,7 +16,7 @@ namespace edp {
 namespace sarkofag {
 class effector;
 
-class servo_buffer: public common::servo_buffer
+class servo_buffer : public common::servo_buffer
 {
 	// Bufor polecen przysylanych z EDP_MASTER dla SERVO
 	// Obiekt z algorytmem regulacji
@@ -28,12 +27,11 @@ public:
 	effector &master;
 	void load_hardware_interface(void);
 	servo_buffer(effector &_master); // konstruktor
-	// obliczenie nastepnej wartosci zadanej dla wszystkich napedow
+
 };
 
 } // namespace sarkofag
 } // namespace edp
 } // namespace mrrocpp
-
 
 #endif

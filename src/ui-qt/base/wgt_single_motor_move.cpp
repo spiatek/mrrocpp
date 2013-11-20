@@ -1,5 +1,5 @@
-#include "../base/ui_ecp_robot/ui_ecp_r_common012.h"
-#include "../base/ui_r_single_motor.h"
+#include "../base/ui_ecp_robot/ui_ecp_r_common_012.h"
+#include "../base/ui_r_common_012.h"
 
 #include "wgt_single_motor_move.h"
 #include "../base/interface.h"
@@ -7,10 +7,10 @@
 #include "../base/ui_robot.h"
 
 wgt_single_motor_move::wgt_single_motor_move(QString _widget_label, mrrocpp::ui::common::Interface& _interface, mrrocpp::ui::common::UiRobot* _robot, QWidget *parent) :
-	wgt_base(_widget_label, _interface, parent)
+		wgt_base(_widget_label, _interface, parent)
 {
 	ui.setupUi(this);
-	robot = dynamic_cast <mrrocpp::ui::single_motor::UiRobot *>(_robot);
+	robot = dynamic_cast <mrrocpp::ui::common_012::UiRobot *>(_robot);
 	connect(this, SIGNAL(synchro_depended_init_signal()), this, SLOT(synchro_depended_init_slot()), Qt::QueuedConnection);
 	connect(this, SIGNAL(init_and_copy_signal()), this, SLOT(init_and_copy_slot()), Qt::QueuedConnection);
 
@@ -62,8 +62,8 @@ void wgt_single_motor_move::synchro_depended_widgets_disable(bool _set_disabled)
 
 void wgt_single_motor_move::init_and_copy_slot()
 {
-	init_mr_and_si();
-	copy_mr_and_si();
+	init_all();
+	copy_all();
 }
 
 void wgt_single_motor_move::synchro_depended_init_slot()
@@ -83,27 +83,28 @@ void wgt_single_motor_move::synchro_depended_init_slot()
 		}
 
 	} // end try
-	CATCH_SECTION_UI_PTR
-}
+	CATCH_SECTION_UI_PTR}
 
-/***************************
- * MOTORS
- ****************************/
+	/***************************
+	 * MOTORS
+	 ****************************/
 
 void wgt_single_motor_move::on_pushButton_read_mr_clicked()
 {
-	init_mr_and_si();
+	init_all();
 }
 
-void wgt_single_motor_move::init_mr_and_si()
+void wgt_single_motor_move::init_all()
 {
 	init_mr();
 	init_si();
+	init_current();
 }
-void wgt_single_motor_move::copy_mr_and_si()
+void wgt_single_motor_move::copy_all()
 {
 	copy_mr();
 	copy_si();
+	copy_current();
 }
 
 void wgt_single_motor_move::init_mr()
@@ -128,8 +129,7 @@ void wgt_single_motor_move::init_mr()
 		}
 
 	} // end try
-	CATCH_SECTION_UI_PTR
-}
+	CATCH_SECTION_UI_PTR}
 
 void wgt_single_motor_move::on_pushButton_import_mr_clicked()
 {
@@ -144,7 +144,7 @@ void wgt_single_motor_move::on_pushButton_export_mr_clicked()
 {
 	std::stringstream buffer(std::stringstream::in | std::stringstream::out);
 
-	buffer << widget_label.toStdString() << " INCREMENTAL POSITION\n " << ui.doubleSpinBox_des_mr->value();
+	buffer << widget_label.toStdString() << " POSITION\n " << ui.doubleSpinBox_des_mr->value();
 
 	interface.ui_msg->message(buffer.str());
 }
@@ -221,23 +221,22 @@ void wgt_single_motor_move::move_it_mr()
 			if (robot->state.edp.is_synchronised) {
 				ui.doubleSpinBox_des_mr->setValue(robot->desired_pos[0]);
 
-				init_mr_and_si();
+				init_all();
 			}
 
 		} // end if (robot->state.edp.pid!=-1)
 
 	} // end try
 
-	CATCH_SECTION_UI_PTR
-}
+	CATCH_SECTION_UI_PTR}
 
-/***************************
- * JOINS
- ****************************/
+	/***************************
+	 * JOINS
+	 ****************************/
 
 void wgt_single_motor_move::on_pushButton_read_si_clicked()
 {
-	init_mr_and_si();
+	init_all();
 }
 
 void wgt_single_motor_move::init_si()
@@ -268,8 +267,7 @@ void wgt_single_motor_move::init_si()
 		}
 
 	} // end try
-	CATCH_SECTION_UI_PTR
-}
+	CATCH_SECTION_UI_PTR}
 
 void wgt_single_motor_move::on_pushButton_import_si_clicked()
 {
@@ -361,12 +359,120 @@ void wgt_single_motor_move::move_it_si()
 			if (robot->state.edp.is_synchronised) {
 				ui.doubleSpinBox_des_si->setValue(robot->desired_pos[0]);
 
-				init_mr_and_si();
+				init_all();
 			}
 
 		} // end if (robot->state.edp.pid!=-1)
 
 	} // end try
 
-	CATCH_SECTION_UI_PTR
+	CATCH_SECTION_UI_PTR}
+
+	/***************************
+	 * CURRENT
+	 ****************************/
+
+void wgt_single_motor_move::on_pushButton_read_current_clicked()
+{
+	init_all();
 }
+
+void wgt_single_motor_move::on_pushButton_export_current_clicked()
+{
+	std::stringstream buffer(std::stringstream::in | std::stringstream::out);
+
+	buffer << widget_label.toStdString() << " CURRENT\n " << ui.spinBox_des_current->value();
+
+	interface.ui_msg->message(buffer.str());
+}
+
+void wgt_single_motor_move::on_pushButton_import_current_clicked()
+{
+	double val[robot->number_of_servos];
+
+	interface.get_main_window()->get_lineEdit_position(val, robot->number_of_servos);
+
+	ui.spinBox_des_current->setValue(short(val[0]));
+}
+
+void wgt_single_motor_move::on_pushButton_copy_current_clicked()
+{
+	copy_current();
+}
+
+void wgt_single_motor_move::on_pushButton_execute_current_clicked()
+{
+	get_desired_current();
+	move_it_current();
+}
+
+void wgt_single_motor_move::on_pushButton_l_current_clicked()
+{
+	get_desired_current();
+	robot->desired_current[0] -= ui.spinBox_step_current->value();
+	move_it_current();
+}
+
+void wgt_single_motor_move::on_pushButton_r_current_clicked()
+{
+	get_desired_current();
+	robot->desired_current[0] += ui.spinBox_step_current->value();
+	move_it_current();
+}
+
+void wgt_single_motor_move::get_desired_current()
+{
+
+	if (robot->state.edp.pid != -1) {
+
+		robot->desired_current[0] = ui.spinBox_des_current->value();
+
+	}
+}
+
+void wgt_single_motor_move::move_it_current()
+{
+	// wychwytania ew. bledow ECP::robot
+	try {
+
+		if (robot->state.edp.pid != -1) {
+
+			robot->ui_ecp_robot->move_currents(robot->desired_current);
+
+			ui.spinBox_des_current->setValue(robot->desired_current[0]);
+
+			init_all();
+
+		} // end if (robot->state.edp.pid!=-1)
+
+	} // end try
+
+	CATCH_SECTION_UI_PTR}
+
+void wgt_single_motor_move::init_current()
+{
+
+	try {
+
+		if (robot->state.edp.pid != -1) {
+
+			robot->ui_ecp_robot->read_currents(robot->current_current); // Odczyt polozenia walow silnikow
+			ui.spinBox_cur_current->setValue(robot->current_current[0]);
+
+			robot->desired_current[0] = robot->current_current[0];
+
+		}
+
+	} // end try
+	CATCH_SECTION_UI_PTR}
+
+void wgt_single_motor_move::copy_current()
+{
+
+	if (robot->state.edp.pid != -1) {
+
+		ui.spinBox_des_current->setValue(ui.spinBox_cur_current->value());
+
+	}
+}
+

@@ -45,13 +45,25 @@ const std::string ports_strings[] = //{ "/dev/ttyMUE6" };
  * @brief IRp6 on track two finger gripper overcurrent threshold [mA]
  * @ingroup irp6p_tfg
  */
-const int MAX_CURRENT_0 = 200;
+const int16_t MAX_CURRENT_0 = 200;
 
 /*!
  * @brief IRp6 on track two finger gripper overcurrent threshold [mA]
  * @ingroup irp6p_tfg
  */
 const double MAX_INCREMENT[] = { 1000 };
+
+/*!
+ * @brief IRp6 on track two finger gripper motor driver cards addresses
+ * @ingroup irp6ot_tfg
+ */
+const unsigned int CARD_ADDRESSES[] = { 14 };
+
+/*!
+ * @brief Number of command prefix bytes
+ * @ingroup irp6ot_tfg
+ */
+const int TX_PREFIX_LEN = 0;
 
 }
 } // namespace lib

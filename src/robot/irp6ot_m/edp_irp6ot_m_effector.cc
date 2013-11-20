@@ -21,6 +21,7 @@
 #include "robot/irp6ot_m/kinematic_model_calibrated_irp6ot_with_wrist.h"
 #include "base/kinematics/kinematic_model_with_tool.h"
 #include "base/edp/edp_force_sensor.h"
+#include "base/edp/edp_imu_sensor.h"
 
 namespace mrrocpp {
 namespace edp {
@@ -41,8 +42,8 @@ void effector::set_robot_model(const lib::c_buffer &instruction)
 /*--------------------------------------------------------------------------*/
 void effector::move_arm(const lib::c_buffer &instruction)
 { // przemieszczenie ramienia
-	// Wypenienie struktury danych transformera na podstawie parametrow polecenia
-	// otrzymanego z ECP. Zlecenie transformerowi przeliczenie wspolrzednych
+// Wypenienie struktury danych transformera na podstawie parametrow polecenia
+// otrzymanego z ECP. Zlecenie transformerowi przeliczenie wspolrzednych
 
 	manip_effector::multi_thread_move_arm(instruction);
 }
@@ -57,18 +58,23 @@ void effector::create_threads()
 	vs = (boost::shared_ptr <sensor::force>) sensor::return_created_edp_force_sensor(*this); //!< czujnik wirtualny
 
 	// byY - utworzenie watku pomiarow sily
-	new boost::thread(boost::bind(&sensor::force::operator(), vs));
+	vs_tid = boost::thread(boost::bind(&sensor::force::operator(), vs));
 
 	//vs->thread_started.wait();
 	//zeby miec pewnosc, ze zostal wykonany pierwszy pomiar
-	vs->edp_vsp_synchroniser.wait();
+	vs->first_measure_synchroniser.wait();
+
+	imu_sen = (boost::shared_ptr <sensor::imu>) sensor::return_created_edp_imu_sensor(*this);
+	imu_tid = boost::thread(boost::bind(&sensor::imu::operator(), imu_sen));
+	imu_sen->first_measure_synchroniser.wait();
+	//imu_sen->thread_started.wait();
 
 	motor_driven_effector::hi_create_threads();
 }
 
 // Konstruktor.
 effector::effector(common::shell &_shell) :
-	manip_effector(_shell, lib::irp6ot_m::ROBOT_NAME, instruction, reply)
+		manip_effector(_shell, lib::irp6ot_m::ROBOT_NAME, instruction, reply)
 {
 	number_of_servos = lib::irp6ot_m::NUM_OF_SERVOS;
 
@@ -76,6 +82,16 @@ effector::effector(common::shell &_shell) :
 	create_kinematic_models_for_given_robot();
 
 	reset_variables();
+}
+
+effector::~effector()
+{
+	vs_tid.interrupt();
+	vs_tid.join();
+
+	imu_tid.interrupt();
+	imu_tid.join();
+
 }
 
 // Stworzenie modeli kinematyki dla robota IRp-6 na torze.
@@ -96,9 +112,9 @@ void effector::get_arm_position(bool read_hardware, lib::c_buffer &instruction)
 }
 /*--------------------------------------------------------------------------*/
 
-void effector::master_order(common::MT_ORDER nm_task, int nm_tryb)
+void effector::master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction)
 {
-	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb);
+	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb, instruction);
 }
 
 } // namespace irp6ot

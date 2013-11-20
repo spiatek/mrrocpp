@@ -2,7 +2,7 @@
 #include "ui_r_irp6_m.h"
 
 //#include "ui/src/ui_ecp_r_single_motor.h"
-#include "../base/ui_ecp_robot/ui_ecp_r_common012.h"
+#include "../base/ui_ecp_robot/ui_ecp_r_common_012.h"
 #include "wgt_irp6_m_euler.h"
 #include "../base/interface.h"
 #include "../base/mainwindow.h"
@@ -14,15 +14,16 @@ wgt_irp6_m_euler::wgt_irp6_m_euler(QString _widget_label, mrrocpp::ui::common::I
 	ui.setupUi(this);
 	robot = dynamic_cast <mrrocpp::ui::irp6_m::UiRobot *>(_robot);
 
-	ui.label_axis_1->setText("x");
-	ui.label_axis_2->setText("y");
-	ui.label_axis_3->setText("z");
-	ui.label_axis_4->setText("alfa");
-	ui.label_axis_5->setText("beta");
-	ui.label_axis_6->setText("gamma");
-	ui.label_axis_7->hide();
+	setup_ui(ui.grid_up, 6);
 
-	setup_ui(ui.gridLayout, 6);
+	axis_labels[0]->setText("x");
+	axis_labels[1]->setText("y");
+	axis_labels[2]->setText("z");
+
+	axis_labels[3]->setText("alfa");
+	axis_labels[4]->setText("beta");
+	axis_labels[5]->setText("gamma");
+
 }
 
 void wgt_irp6_m_euler::setup_ui(QGridLayout *layout, int _rows_number)

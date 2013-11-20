@@ -45,6 +45,10 @@ void ecp_t_conveyor_test::main_task_algorithm(void)
 	while (1) {
 		get_next_state();
 		if (mp_2_ecp_next_state_string == mrrocpp::ecp_mp::generator::ECP_GEN_CONVEYOR_VS_TEST) {
+			if(sinus_gen->log_client.get() != NULL){
+				sinus_gen->log_client->set_filename_prefix("conveyor-sinus");
+				sinus_gen->log_client->set_connect();
+			}
 			sinus_gen->Move();
 		} else {
 			log("ecp_t_conveyor_test::main_task_algorithm(void) mp_2_ecp_next_state_string: \"%s\"\n", mp_2_ecp_next_state_string.c_str());

@@ -25,14 +25,16 @@ namespace common {
 
 // regulator
 
-
 /*-----------------------------------------------------------------------*/
-regulator::regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, common::motor_driven_effector &_master) :
-	new_desired_velocity_error(true), axis_number(_axis_number), master(_master)
+regulator::regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, common::motor_driven_effector &_master, REG_OUTPUT _reg_output) :
+		reg_output(_reg_output), new_desired_velocity_error(true), axis_number(_axis_number), master(_master)
 {
 	// Konstruktor abstrakcyjnego regulatora
 	// Inicjuje zmienne, ktore kazdy regulator konkretny musi miec i aktualizowac,
 	// niezaleznie od tego czy sa mu niezbedne, czy nie.
+
+	// tymczasowo do przedefiniowania w klasach potomnych
+	strict_current_mode = false;
 
 	algorithm_no = reg_no; // przeslany numer algorytmu
 	current_algorithm_no = reg_no; // numer aktualnie uzywanego algorytmu
@@ -51,17 +53,25 @@ regulator::regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, c
 	set_value_new = 0; // wielkosc kroku do realizacji przez HIP (wypelnienie PWM -- u[k])
 	set_value_old = 0; // wielkosc kroku do realizacji przez HIP (wypelnienie PWM -- u[k-1])
 	set_value_very_old = 0; // wielkosc kroku do realizacji przez HIP (wypelnienie PWM -- u[k-2])
+	output_value = 0.0;
 
 	delta_eint = 0.0; // przyrost calki uchybu
 	delta_eint_old = 0.0; // przyrost calki uchybu w poprzednim kroku
 	pos_increment_new_sum = 0; // skumulowany przyrost odczytanego polozenia w trakcie realizacji makrokroku
-	servo_pos_increment_new_sum = 0;// by Y
+	servo_pos_increment_new_sum = 0; // by Y
 
 	step_new_over_constraint_sum = 0.0;
 	previous_abs_position = 0.0;
 
 	measured_current = 0; // prad zmierzony
 	PWM_value = 0; // zadane wypelnienie PWM
+
+	abs_pos_dev = 0;
+	abs_pos_dev_int = 0;
+	abs_pos_dev_int_old = 0;
+	reg_abs_current_motor_pos = 0;
+	reg_abs_desired_motor_pos = 0;
+
 }
 /*-----------------------------------------------------------------------*/
 
@@ -72,7 +82,7 @@ regulator::~regulator()
 double regulator::get_set_value(void) const
 {
 	// odczytanie aktualnej wartosci zadanej  - metoda konkretna
-	return set_value_new;
+	return output_value;
 }
 
 void regulator::insert_new_step(double ns)
@@ -146,7 +156,6 @@ double regulator::get_previous_pwm(void) const
 	return set_value_old;
 }
 
-
 int regulator::get_PWM_value(void) const
 {
 	// odczytanie zadanego wypelnienia PWM - metoda abstrakcyjna
@@ -167,7 +176,6 @@ int regulator::get_actual_inc(void) const
 }
 
 // double get_desired_inc ( int axe_nr );
-
 
 void regulator::insert_algorithm_no(uint8_t new_number)
 {
@@ -211,8 +219,8 @@ void regulator::clear_regulator()
 }
 
 /*-----------------------------------------------------------------------*/
-NL_regulator::NL_regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master) :
-	regulator(_axis_number, reg_no, reg_par_no, _master)
+NL_regulator::NL_regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, REG_OUTPUT _reg_output) :
+		regulator(_axis_number, reg_no, reg_par_no, _master, _reg_output)
 {
 	// Konstruktor regulatora konkretnego
 	// Przy inicjacji nalezy dopilnowac, zeby numery algorytmu regulacji oraz zestawu jego parametrow byly
@@ -231,6 +239,94 @@ NL_regulator::NL_regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par
 	measured_current = 0;
 }
 /*-----------------------------------------------------------------------*/
+
+void NL_regulator::compute_set_value_final_computations()
+{
+
+	static bool last_servo_mode = false;
+
+	// scope-locked reader data update
+	{
+		boost::mutex::scoped_lock lock(master.rb_obj->reader_mutex);
+
+		master.rb_obj->step_data.desired_inc[axis_number] = (float) step_new_pulse; // pozycja osi 0
+		master.rb_obj->step_data.current_inc[axis_number] = (short int) position_increment_new;
+		master.rb_obj->step_data.pwm[axis_number] = (float) set_value_new;
+		master.rb_obj->step_data.uchyb[axis_number] = (float) (step_new_pulse - position_increment_new);
+		master.rb_obj->step_data.measured_current[axis_number] = measured_current;
+	}
+
+	if (!strict_current_mode) {
+
+		if (set_value_new > MAX_PWM)
+			set_value_new = MAX_PWM;
+		if (set_value_new < -MAX_PWM)
+			set_value_new = -MAX_PWM;
+	}
+
+	int display_axis_number = master.sb->display_axis_number;
+
+	if (axis_number == display_axis_number) {
+		if (last_servo_mode != master.servo_mode) {
+			std::cout << "sm changed to: " << master.servo_mode << std::endl;
+			last_servo_mode = master.servo_mode;
+		}
+	}
+
+	switch (reg_output)
+	{
+		case common::REG_OUTPUT::PWM_OUTPUT: {
+
+			output_value = set_value_new;
+			// use axis_number to display particular regulator data
+			//	if ((axis_number == display_axis_number) && (master.servo_mode == true)) {
+			if ((axis_number == display_axis_number)) {
+				std::cout << "pwm_a: " << display_axis_number << " sm: " << master.servo_mode << " meassured_current: "
+						<< measured_current << " desired_pwm: " << output_value << " kp: "
+						<< measured_current / output_value << " pin: " << position_increment_new << std::endl;
+			}
+
+		}
+			break;
+		case common::REG_OUTPUT::CURRENT_OUTPUT: {
+
+			output_value = set_value_new * current_reg_kp;
+
+			if (output_value > max_output_current) {
+				output_value = max_output_current;
+			} else if (output_value < -max_output_current) {
+				output_value = -max_output_current;
+			}
+			// use axis_number to display particular regulator data
+			//	if ((axis_number == display_axis_number) && (master.servo_mode == true))
+			if ((axis_number == display_axis_number)) {
+				//if ((axis_number == display_axis_number))				{
+				double dev = reg_abs_desired_motor_pos - reg_abs_current_motor_pos;
+				double des = reg_abs_desired_motor_pos;
+				double cur = reg_abs_current_motor_pos;
+				/*std::cout << "cascade_a: " << display_axis_number << " sm: " << master.servo_mode
+				 << " meassured_current: " << measured_current << " desired_current: " << output_value
+				 << " pin: " << position_increment_new << std::endl;*/
+				std::cout << "desired pos.: " << des << "\tcurrent pos.: " << cur << "\tdeviation: " << dev
+						<< "\tdev_integral: " << abs_pos_dev_int << "\tdes. current: " << output_value
+						<< "\tmeas. current: " << measured_current << "\n";
+			}
+
+		}
+			break;
+	}
+
+// przepisanie nowych wartosci zmiennych do zmiennych przechowujacych wartosci poprzednie
+	position_increment_old = position_increment_new;
+	delta_eint_old = delta_eint;
+	step_old_pulse = step_new_pulse;
+	set_value_very_old = set_value_old;
+	set_value_old = set_value_new;
+	PWM_value = (int) set_value_new;
+
+	abs_pos_dev_old = abs_pos_dev;
+	abs_pos_dev_int_old = abs_pos_dev_int;
+}
 
 NL_regulator::~NL_regulator()
 {

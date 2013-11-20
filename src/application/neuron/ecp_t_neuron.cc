@@ -6,7 +6,7 @@
  * @date 13.05.2010
  */
 
-#include "robot/irp6p_m/ecp_r_irp6p_m.h"
+#include "robot/irp6ot_m/ecp_r_irp6ot_m.h"
 #include "ecp_t_neuron.h"
 #include "neuron_sensor.h"
 #include "ecp_mp_t_neuron.h"
@@ -24,7 +24,7 @@ namespace task {
 Neuron::Neuron(lib::configurator &_config) :
 	common::task::task(_config)
 {
-	ecp_m_robot = (boost::shared_ptr <robot_t>) new irp6p_m::robot(*this); //initialization of robot
+	ecp_m_robot = (boost::shared_ptr <robot_t>) new irp6ot_m::robot(*this); //initialization of robot
 	smoothGenerator = new common::generator::newsmooth(*this, lib::ECP_XYZ_ANGLE_AXIS, 6);
 	sr_ecp_msg->message("ECP loaded Neuron");
 }

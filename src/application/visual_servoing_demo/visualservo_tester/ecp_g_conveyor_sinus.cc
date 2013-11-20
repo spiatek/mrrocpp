@@ -24,14 +24,29 @@ namespace common {
 namespace generator {
 
 ecp_g_conveyor_sinus::ecp_g_conveyor_sinus(mrrocpp::ecp::common::task::task & ecp_task, const std::string& section_name) :
-	common::generator::generator(ecp_task)
+		common::generator::generator(ecp_task)
 {
 	motion_steps = 30;
 	dt = motion_steps * 0.002;
-	A = ecp_task.config.value <double> ("sinus_A", section_name);
-	f = ecp_task.config.value <double> ("sinus_f", section_name);
+	A = ecp_task.config.value <double>("sinus_A", section_name);
+	f = ecp_task.config.value <double>("sinus_f", section_name);
 	t = 0;
 	initial_position = 0;
+
+	string log_enabled_name = "vs_log_enabled";
+
+	printf("ecp_task.config.exists(log_enabled_name, section_name) = %d\n", (int)ecp_task.config.exists(log_enabled_name, section_name));
+	printf("ecp_task.config.value <bool> (log_enabled_name, section_name) = %d\n", (int)ecp_task.config.value <bool> (log_enabled_name, section_name));
+
+	if (ecp_task.config.exists(log_enabled_name, section_name)
+			&& ecp_task.config.value <bool> (log_enabled_name, section_name)) {
+		unsigned int capacity = ecp_task.config.value <unsigned int> ("vs_log_capacity", section_name);
+		std::string server_addr = ecp_task.config.value <std::string> ("vs_log_server_addr", section_name);
+		int server_port = ecp_task.config.value <int> ("vs_log_server_port", section_name);
+
+		log_client = boost::shared_ptr <logger_client>(new logger_client(capacity, server_addr, server_port, "conveyor_position;"));
+	}
+
 }
 
 ecp_g_conveyor_sinus::~ecp_g_conveyor_sinus()
@@ -42,7 +57,7 @@ bool ecp_g_conveyor_sinus::first_step()
 {
 	the_robot->ecp_command.instruction_type = lib::GET;
 	the_robot->ecp_command.get_type = ARM_DEFINITION;
-	the_robot->ecp_command.get_arm_type = lib::JOINT;
+//	the_robot->ecp_command.get_arm_type = lib::JOINT;
 	the_robot->ecp_command.motion_type = lib::ABSOLUTE;
 	the_robot->ecp_command.set_type = ARM_DEFINITION;
 	the_robot->ecp_command.set_arm_type = lib::JOINT;
@@ -66,7 +81,7 @@ bool ecp_g_conveyor_sinus::next_step()
 	the_robot->ecp_command.instruction_type = lib::SET_GET;
 
 	if (!initial_position_saved) {
-		initial_position = the_robot->reply_package.arm.pf_def.arm_coordinates[0];
+		initial_position = the_robot->reply_package.arm.pf_def.joint_coordinates[0];
 		initial_position_saved = true;
 	}
 
@@ -76,11 +91,19 @@ bool ecp_g_conveyor_sinus::next_step()
 
 	the_robot->ecp_command.arm.pf_def.arm_coordinates[0] = initial_position + new_position;
 
+	sprintf(msg.text, "%g;",
+			new_position
+	);
+
+	if (log_client.get() != NULL) {
+		log_client->log(msg);
+	}
+
 	t += dt;
 	return true;
 }
 
-}//namespace
+} //namespace
 
 }
 

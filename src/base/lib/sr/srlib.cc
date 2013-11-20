@@ -24,30 +24,58 @@
 namespace mrrocpp {
 namespace lib {
 
-sr::sr(process_type_t _process_type, const std::string & _process_name, const std::string & sr_name)
-	: sender(sr_name), process_type(_process_type), process_name(_process_name)
+sr::sr(process_type_t _process_type, const std::string & _process_name, const std::string & sr_name) :
+		sender(sr_name), process_type(_process_type), process_name(_process_name)
 {
-	if(gethostname(hostname, sizeof(hostname)) == -1) {
+	if (gethostname(hostname, sizeof(hostname)) == -1) {
 		perror("gethostname()");
 		hostname[0] = '\0';
 	}
+
+	for (int i = 0; i < sizeof(hostname); i++) {
+		if (hostname[i] == '.') {
+			hostname[i] = '\0';
+			break;
+		}
+	}
+
+	previous_sr_message.tv.tv_sec = 0;
+	previous_sr_message.tv.tv_usec = 0;
+	previous_sr_message.message_type = lib::NON_FATAL_ERROR;
 }
+
+#define MIN_MESSAGE_INTERVAL 5000
 
 void sr::send_package(sr_package_t & sr_message)
 {
+
 	sr_message.process_type = process_type;
 	strncpy(sr_message.process_name, process_name.c_str(), sizeof(sr_message.process_name));
 	strncpy(sr_message.host_name, hostname, sizeof(sr_message.host_name));
 
 	struct timeval tv;
-	if(gettimeofday(&tv, NULL) == -1) {
+	if (gettimeofday(&tv, NULL) == -1) {
 		perror("gettimeofday()");
 	}
 
 	sr_message.tv.tv_sec = tv.tv_sec;
 	sr_message.tv.tv_usec = tv.tv_usec;
 
-	sender.send_package(sr_message);
+	// safety mechanism to prevent often (low interval) sending of the same messages
+
+	unsigned long current_time = sr_message.tv.tv_sec * 1000000 + sr_message.tv.tv_usec;
+	unsigned long previous_time = previous_sr_message.tv.tv_sec * 1000000 + previous_sr_message.tv.tv_usec;
+	if ((current_time - previous_time < MIN_MESSAGE_INTERVAL)
+			&& (sr_message.message_type == previous_sr_message.message_type)
+			&& (strcmp(sr_message.description, previous_sr_message.description) == 0)) {
+		//	std::cout << "srlib	overflow" << std::endl;
+	}
+
+	else {
+		previous_sr_message = sr_message;
+		sender.send_package(sr_message);
+	}
+
 }
 
 sr::~sr()
@@ -103,8 +131,6 @@ void sr::message(error_class_t message_type, uint64_t error_code0, uint64_t erro
 
 	send_package(sr_message);
 }
-
-
 
 } // namespace lib
 } // namespace mrrocpp

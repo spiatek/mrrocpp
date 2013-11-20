@@ -44,9 +44,9 @@ common::servo_buffer* effector::return_created_servo_buffer()
 	return new conveyor::servo_buffer(*this);
 }
 
-void effector::master_order(common::MT_ORDER nm_task, int nm_tryb)
+void effector::master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction)
 {
-	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb);
+	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb, instruction);
 }
 
 // Konstruktor.

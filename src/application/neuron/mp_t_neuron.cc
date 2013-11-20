@@ -15,7 +15,7 @@
 #include "mp_t_neuron.h"
 #include "ecp_mp_t_neuron.h"
 
-#include "robot/irp6p_m/mp_r_irp6p_m.h"
+#include "robot/irp6ot_m/mp_r_irp6ot_m.h"
 
 namespace mrrocpp {
 namespace mp {
@@ -36,7 +36,7 @@ task* return_created_mp_task(lib::configurator& _config)
  * @param _config configurator object reference.
  */
 neuron::neuron(lib::configurator &_config) :
-		task(_config)
+	task(_config)
 {
 }
 
@@ -56,9 +56,9 @@ void neuron::create_robots()
 	//ACTIVATE_MP_ROBOT(smb);
 	//ACTIVATE_MP_ROBOT(shead);
 	//ACTIVATE_MP_ROBOT(irp6ot_tfg);
-	//ACTIVATE_MP_ROBOT(irp6ot_m);
+	ACTIVATE_MP_ROBOT( irp6ot_m);
 	//ACTIVATE_MP_ROBOT(irp6p_tfg);
-	ACTIVATE_MP_ROBOT(irp6p_m);
+	//ACTIVATE_MP_ROBOT(irp6p_m);
 	//ACTIVATE_MP_ROBOT(sarkofag);
 
 	//ACTIVATE_MP_DEFAULT_ROBOT(electron);
@@ -75,8 +75,8 @@ void neuron::main_task_algorithm(void)
 {
 	sr_ecp_msg->message("Neuron task initialization");
 
-	set_next_ecp_state(ecp_mp::task::ECP_T_NEURON, 5, "", lib::irp6p_m::ROBOT_NAME);
-	wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+	set_next_ecp_state(ecp_mp::task::ECP_T_NEURON, 5, "", lib::irp6ot_m::ROBOT_NAME);
+	wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 	sr_ecp_msg->message("END");
 }

@@ -42,7 +42,7 @@ class EcpRobot;
 
 class UiRobot : public common::UiRobot
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 	EcpRobot *ui_ecp_robot;
@@ -52,7 +52,8 @@ public:
 	void manage_interface();
 
 	void synchronise();
-	void edp_create();
+	void unsynchronise();
+
 	void create_ui_ecp_robot();
 
 	void setup_menubar();

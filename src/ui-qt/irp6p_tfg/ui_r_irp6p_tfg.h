@@ -12,7 +12,7 @@
 #include "../base/mainwindow.h"
 #include "../base/interface.h"
 #include "../base/ui.h"
-#include "../base/ui_r_single_motor.h"
+#include "../base/ui_r_common_012.h"
 #include "robot/irp6p_tfg/const_irp6p_tfg.h"
 #include "../irp6_m/ui_r_irp6_m.h"
 
@@ -32,7 +32,7 @@ namespace common {
 class Interface;
 }
 
-namespace single_motor {
+namespace common_012 {
 class EcpRobot;
 }
 namespace irp6p_tfg {
@@ -44,7 +44,7 @@ namespace irp6p_tfg {
 //
 
 
-class UiRobot : public single_motor::UiRobot
+class UiRobot : public common_012::UiRobot
 {
 	Q_OBJECT
 private:
@@ -56,6 +56,7 @@ public:
 	void manage_interface();
 
 	void synchronise();
+
 	int synchronise_int();
 
 	void move_to_synchro_position();

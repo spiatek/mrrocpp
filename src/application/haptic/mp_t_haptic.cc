@@ -68,7 +68,7 @@ void haptic::configure_edp_force_sensor(bool configure_track, bool configure_pos
 
 void haptic::main_task_algorithm(void)
 {
-	generator::haptic mp_h_gen(*this, 2);
+	generator::haptic mp_h_gen(*this, 4);
 	mp_h_gen.robot_m = robot_m;
 
 	sr_ecp_msg->message("New series");

@@ -1,9 +1,4 @@
 /*!
- * \file edp_e_manip.h
- * \brief File containing the declaration of edp::common::motor_driven_effector class.
- *
- * \author yoyek
- * \date 2009
  *
  */
 
@@ -19,6 +14,7 @@ namespace mrrocpp {
 namespace edp {
 namespace sensor {
 class force;
+class imu;
 }
 namespace common {
 
@@ -40,13 +36,6 @@ protected:
 	virtual void compute_frame(const lib::c_buffer &instruction);
 
 	/*!
-	 * \brief the matrix of the end effector frame without tool for the servo buffer (pose of the WRIST).
-	 *
-	 * It is computed for every single step of the motion.
-	 */
-	lib::Homog_matrix servo_current_frame_wo_tool;
-
-	/*!
 	 * \brief desired end--effector frame
 	 *
 	 * for the whole macrostep
@@ -59,20 +48,6 @@ protected:
 	 * set once for the macrostep execution
 	 */
 	lib::Homog_matrix current_end_effector_frame;
-
-	/*!
-	 * \brief current global force measurement.
-	 *
-	 * It is set by the force thread.
-	 */
-	lib::Ft_vector global_force_msr;
-
-	/*!
-	 * \brief mutex for force global_force_msr
-	 *
-	 * This measueremnt is set by the force thread and get by the transformation thread.
-	 */
-	boost::mutex force_mutex; // mutex do sily   XXXXXX
 
 	/*!
 	 * \brief move arm method for the FRAME command in the single thread variant.
@@ -111,19 +86,12 @@ public:
 	manip_effector(shell &_shell, const lib::robot_name_t & l_robot_name, lib::c_buffer & c_buffer_ref, lib::r_buffer & r_buffer_ref);
 
 	/*!
-	 * \brief methods returns servo_current_frame_wo_tool
-	 *
-	 * there are two variants just the servo_current_frame_wo_tool frame and the same frame with removed translation
-	 */
-	lib::Homog_matrix return_current_frame(TRANSLATION_ENUM translation_mode);
-
-	/*!
 	 * \brief computation of the base_pos_xyz_rot_xyz_vector.
 	 *
 	 * For the purpose of the position-force control. It is called once from the pose_force_torque_at_frame_move.
 	 */
 	void
-			compute_base_pos_xyz_rot_xyz_vector(const lib::JointArray & begining_joints, const lib::Homog_matrix & begining_end_effector_frame, const lib::c_buffer & instruction, lib::Xyz_Angle_Axis_vector & base_pos_xyz_rot_xyz_vector);
+	compute_base_pos_xyz_rot_xyz_vector(const lib::JointArray & begining_joints, const lib::Homog_matrix & begining_end_effector_frame, const lib::c_buffer & instruction, lib::Xyz_Angle_Axis_vector & base_pos_xyz_rot_xyz_vector);
 
 	/*!
 	 * \brief Iteration (interpolation) of the position-force control motion.
@@ -131,7 +99,7 @@ public:
 	 * It bases on the pose_force_torque_at_frame_move and other ECP command arguments.
 	 */
 	virtual void
-			iterate_macrostep(const lib::JointArray & begining_joints, const lib::Homog_matrix & begining_end_effector_frame, const lib::c_buffer & instruction, const lib::Xyz_Angle_Axis_vector & base_pos_xyz_rot_xyz_vector);
+	iterate_macrostep(const lib::JointArray & begining_joints, const lib::Homog_matrix & begining_end_effector_frame, const lib::c_buffer & instruction, const lib::Xyz_Angle_Axis_vector & base_pos_xyz_rot_xyz_vector);
 
 	/*!
 	 * \brief pose-force command execution
@@ -142,18 +110,28 @@ public:
 	void pose_force_torque_at_frame_move(const lib::c_buffer &instruction);
 
 	/*!
-	 * \brief method to set global_force_msr with mutex protection.
+	 * \brief force object to collect force measurements.
 	 *
-	 * It is called in the force sensor thread.
+	 * The force measurements are collected in dedicated thread. Then the influence of gravitational force is removed in the same thread.
 	 */
-	void force_msr_upload(const lib::Ft_vector & l_vector);
+	boost::shared_ptr <sensor::force> vs;
+
+	edp_dp <lib::Ft_vector> force_dp;
 
 	/*!
-	 * \brief method to get global_force_msr with mutex protection.
-	 *
-	 * It is called in the transformation thread.
+	 * \brief acceleration measured in IMU
 	 */
-	void force_msr_download(lib::Ft_vector & l_vector);
+	edp_dp <lib::Xyz_Angle_Axis_vector> imu_acc_dp;
+
+
+	/*!
+	 * \brief the matrix of the end effector frame without tool for the servo buffer (pose of the WRIST).
+	 *
+	 * It is computed for every single step of the motion.
+	 */
+	edp_dp <lib::Homog_matrix> servo_current_frame_wo_tool_dp;
+
+	boost::shared_ptr <sensor::imu> imu_sen;
 
 	/*!
 	 * \brief method that computes servo_current_frame_wo_tool
@@ -174,7 +152,7 @@ public:
 	 *
 	 * This method typically communicates with hardware to check if the robot is synchronised etc.
 	 */
-	void get_controller_state(lib::c_buffer &instruction);
+	virtual void get_controller_state(const lib::c_buffer &instruction);
 
 	/*!
 	 * \brief method to set the robot model commanded by ECP

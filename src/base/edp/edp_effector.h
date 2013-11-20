@@ -9,6 +9,8 @@
 #ifndef __EDP_EFFECTOR_H
 #define __EDP_EFFECTOR_H
 
+#include <boost/utility.hpp>
+
 #include "edp_shell.h"
 
 using namespace mrrocpp::lib::exception;
@@ -25,7 +27,7 @@ namespace common {
  *
  * \author yoyek
  */
-class effector
+class effector : private boost::noncopyable
 {
 protected:
 	/*!
@@ -57,6 +59,8 @@ protected:
 	template <typename ROBOT_COMMAND_T>
 	lib::INSTRUCTION_TYPE receive_instruction(ROBOT_COMMAND_T & instruction_)
 	{
+
+	//	printf("receive_instruction 3a\n");
 		// oczekuje na polecenie od ECP, wczytuje je oraz zwraca jego typ
 		int rcvid;
 		/* Oczekiwanie na polecenie od ECP */
@@ -71,7 +75,7 @@ protected:
 
 			int32_t type, subtype;
 			rcvid = messip::port_receive(server_attach, type, subtype, new_ecp_command);
-
+		//	printf("receive_instruction 3b\n");
 			if (rcvid == -1) {/* Error condition, exit */
 				perror("messip::port_receive()");
 				break;
@@ -79,7 +83,7 @@ protected:
 				fprintf(stderr, "ie. MESSIP_MSG_DISCONNECT\n");
 				continue;
 			}
-
+		//	printf("receive_instruction 3c\n");
 			/* A message (presumable ours) received, handle */
 			break;
 		}
@@ -87,13 +91,11 @@ protected:
 		caller = rcvid;
 
 		instruction_ = new_ecp_command;
+
 		//	if ((instruction.instruction_type == lib::SET) || (instruction.instruction_type == lib::SET_GET)) {
-
 		//	std::cout << "edp effector: " << instruction.instruction_type << "\n";
-
-		instruction_deserialization();
 		//	}
-
+	//	printf("receive_instruction end\n");
 		return instruction_.instruction_type;
 	}
 
@@ -110,8 +112,6 @@ protected:
 		// informacji o tym, ze przyslane polecenie nie moze byc przyjte
 		// do wykonania w aktualnym stanie EDP
 
-		reply_serialization();
-
 		if (!((reply.reply_type == lib::ERROR) || (reply.reply_type == lib::SYNCHRO_OK)))
 			reply.reply_type = real_reply_type;
 
@@ -124,20 +124,6 @@ protected:
 		}
 		real_reply_type = lib::ACKNOWLEDGE;
 	}
-
-	/*!
-	 * \brief method to deserialize part of the reply
-	 *
-	 * Currently simple memcpy implementation in derrived classes
-	 */
-	virtual void instruction_deserialization();
-
-	/*!
-	 * \brief method to serialize part of the reply
-	 *
-	 * Currently simple memcpy implementation in derrived classes
-	 */
-	virtual void reply_serialization();
 
 	/*!
 	 * \brief method to establish error sent to ECP.
@@ -216,6 +202,9 @@ public:
 	 * For the purpose of visualization, measurement registration, force control, etc.
 	 */
 	virtual void create_threads() = 0;
+
+	// checks kernel version and monits if no real time kernel is running
+	void check_kernel_version();
 
 };
 /************************ EDP_EFFECTOR ****************************/

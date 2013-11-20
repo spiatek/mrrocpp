@@ -26,20 +26,14 @@ void WgtAbsoluteBase::setup_ui(QGridLayout *layout, int _rows_number)
 	wgt_base::setup_ui(layout, _rows_number);
 
 	create_buttons_and_spin_boxes();
+
+	for (int i = 0; i < rows_number; i++) {
+		gridLayout->addWidget(create_label_to_vector(axis_labels), i + 1, 0, 1, 1);
+	}
+
 	create_buttons();
-	create_step_spinbox();
 
 	wgt_base::create_buttons_and_spin_boxes(desired_pos_column, inc_move_column, rows_number);
-}
-
-void WgtAbsoluteBase::create_step_spinbox()
-{
-	step_spinbox = new QDoubleSpinBox(this);
-	step_spinbox->setDecimals(3);
-	step_spinbox->setMaximum(10);
-	step_spinbox->setSingleStep(0.01);
-
-	gridLayout->addWidget(step_spinbox, 8, 10, 1, 2);
 }
 
 void WgtAbsoluteBase::create_buttons_and_spin_boxes()
@@ -55,26 +49,19 @@ void WgtAbsoluteBase::add_current_position_spin_box(QDoubleSpinBox *spin_box, in
 
 void WgtAbsoluteBase::create_buttons()
 {
-	read_button = add_button("Read", 8, 1, 1, 1);
-	execute_button = add_button("Move", 8, 6, 1, 3);
-	import_button = add_button("Import", 9, 6, 1, 1);
-	export_button = add_button("Export", 9, 7, 1, 1);
-	copy_button = add_button(">", 1, 3, rows_number, 1);
 
-	connect(read_button, SIGNAL(clicked()), this, SLOT(read_button_clicked()), Qt::QueuedConnection);
-	connect(execute_button, SIGNAL(clicked()), this, SLOT(execute_button_clicked()), Qt::QueuedConnection);
-	connect(import_button, SIGNAL(clicked()), this, SLOT(import_button_clicked()), Qt::QueuedConnection);
-	connect(export_button, SIGNAL(clicked()), this, SLOT(export_button_clicked()), Qt::QueuedConnection);
+	copy_button = add_button(">", 1, 3, rows_number, 1);
 	connect(copy_button, SIGNAL(clicked()), this, SLOT(copy_button_clicked()), Qt::QueuedConnection);
+
 }
 
 void WgtAbsoluteBase::synchro_depended_widgets_disable(bool set_disabled)
 {
-	execute_button->setDisabled(set_disabled);
 	copy_button->setDisabled(set_disabled);
-	export_button->setDisabled(set_disabled);
-	import_button->setDisabled(set_disabled);
-	read_button->setDisabled(set_disabled);
+	ui.pushButton_execute->setDisabled(set_disabled);
+	ui.pushButton_read->setDisabled(set_disabled);
+	ui.pushButton_import->setDisabled(set_disabled);
+	ui.pushButton_export->setDisabled(set_disabled);
 
 	for (int i = 0; i < rows_number; i++) {
 		current_pos_spin_boxes[i]->setDisabled(set_disabled);
@@ -86,24 +73,24 @@ void WgtAbsoluteBase::synchro_depended_widgets_disable(bool set_disabled)
 void WgtAbsoluteBase::inc_move_left_button_clicked(int button)
 {
 	get_desired_position();
-	robot->desired_pos[button] -= step_spinbox->value();
+	robot->desired_pos[button] -= ui.doubleSpinBox_step->value();
 	move_it();
 }
 
 void WgtAbsoluteBase::inc_move_right_button_clicked(int button)
 {
 	get_desired_position();
-	robot->desired_pos[button] += step_spinbox->value();
+	robot->desired_pos[button] += ui.doubleSpinBox_step->value();
 	move_it();
 }
 
-void WgtAbsoluteBase::read_button_clicked()
+void WgtAbsoluteBase::on_pushButton_read_clicked()
 {
 	printf("read\n");
 	init();
 }
 
-void WgtAbsoluteBase::import_button_clicked()
+void WgtAbsoluteBase::on_pushButton_import_clicked()
 {
 	double val[rows_number];
 
@@ -116,11 +103,11 @@ void WgtAbsoluteBase::import_button_clicked()
 		desired_pos_spin_boxes[i]->setValue(val[i]);
 }
 
-void WgtAbsoluteBase::export_button_clicked()
+void WgtAbsoluteBase::on_pushButton_export_clicked()
 {
 	std::stringstream buffer(std::stringstream::in | std::stringstream::out);
 
-	buffer << widget_label.toStdString() << " INCREMENTAL POSITION\n ";
+	buffer << widget_label.toStdString() << " POSITION\n ";
 	for (int i = 0; i < rows_number; i++)
 		buffer << " " << desired_pos_spin_boxes[i]->value();
 
@@ -144,18 +131,18 @@ int WgtAbsoluteBase::copy()
 	if (robot->state.edp.pid != -1) {
 		if (robot->state.edp.is_synchronised) // Czy robot jest zsynchronizowany?
 		{
-			execute_button->setDisabled(false);
+			ui.pushButton_execute->setDisabled(false);
 			for (int i = 0; i < rows_number; i++) {
 				desired_pos_spin_boxes[i]->setValue(current_pos_spin_boxes[i]->value());
 			}
 		} else
-			execute_button->setDisabled(true); // Wygaszanie elementow przy niezsynchronizowanym robocie
+			ui.pushButton_execute->setDisabled(true); // Wygaszanie elementow przy niezsynchronizowanym robocie
 	}
 
 	return 1;
 }
 
-void WgtAbsoluteBase::execute_button_clicked()
+void WgtAbsoluteBase::on_pushButton_execute_clicked()
 {
 	get_desired_position();
 	move_it();

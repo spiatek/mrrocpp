@@ -93,7 +93,7 @@ class Interface;
 
 class UiRobot : public QObject
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 
@@ -166,11 +166,11 @@ public:
 	void close_all_windows();
 	void EDP_slay_int();
 	void abort_edp();
-	void connect_to_reader(void);
-	void connect_to_ecp_pulse_chanell(void); //TODO: channel, nie chanell
+	int connect_to_reader(void);
+	void connect_to_ecp_pulse_channel(void);
 	void pulse_ecp_execute(int code, int value);
 	virtual void delete_ui_ecp_robot();
-	int ui_get_edp_pid();
+	pid_t ui_get_edp_pid() const;
 	void ui_get_controler_state(lib::controller_state_t & robot_controller_initial_state_l);
 	virtual void manage_interface();
 	virtual void setup_menubar();
@@ -179,19 +179,15 @@ public:
 		return 0;
 	}
 
-	virtual double* getCurrentPos()
-	{
-		return NULL;
-	}
-	virtual double* getDesiredPos()
-	{
-		return NULL;
-	}
+	double getCurrentPos(int i);
+	double getDesiredPos(int i);
 
 	virtual void synchronise() = 0;
+	virtual void unsynchronise() = 0;
 	virtual void edp_create();
 	virtual int edp_create_int();
 	virtual void create_ui_ecp_robot() = 0;
+	void get_edp_state();
 
 	wgt_robot_process_control * get_wgt_robot_pc();
 	void delete_robot_process_control_window();
@@ -244,6 +240,8 @@ public:
 
 	double *current_pos; // pozycja biezaca
 	double *desired_pos; // pozycja zadana
+	short *current_current; // prad zmierzony [ma]
+	short *desired_current; // prad zadany [ma]
 
 protected:
 	QAction *EDP_Load;

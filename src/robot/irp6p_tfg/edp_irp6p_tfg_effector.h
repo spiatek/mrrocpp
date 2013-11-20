@@ -9,7 +9,6 @@
 // Data:		17.01.2007
 // ------------------------------------------------------------------------
 
-
 #ifndef __EDP_IRP6P_TFG_H
 #define __EDP_IRP6P_TFG_H
 
@@ -45,9 +44,8 @@ public:
 	void get_arm_position(bool read_hardware, lib::c_buffer &instruction);
 	// Aktualizacja polozenia.
 
-
 	common::servo_buffer *return_created_servo_buffer();
-	void master_order(common::MT_ORDER nm_task, int nm_tryb);
+	void master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction);
 
 	/*!
 	 * \brief The particular type of instruction send form ECP to EDP

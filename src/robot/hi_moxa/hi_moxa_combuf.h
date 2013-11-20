@@ -81,9 +81,10 @@ union param_Un {
 
 /// data buffer structure
 struct servo_St{
-	char buf[SERVO_ST_BUF_LEN];
-	uint8_t command_params;
-	struct status_St drive_status;
+	uint8_t txBuf[256];
+	uint8_t txCnt;
+	uint8_t commandArray[256];
+	uint8_t commandCnt;
 	int32_t current_absolute_position;
 	int32_t previous_absolute_position;
 	double current_position_inc;

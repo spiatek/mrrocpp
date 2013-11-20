@@ -32,6 +32,8 @@ int set_thread_name(const char *);
 //! @note This is a C-style call so we want a pointer instead of a C++ reference
 void timespec_increment_ns(struct timespec * ts, unsigned long increment);
 
+uint16_t convert_to_115(float input);
+
 } // namespace lib
 } // namespace mrrocpp
 

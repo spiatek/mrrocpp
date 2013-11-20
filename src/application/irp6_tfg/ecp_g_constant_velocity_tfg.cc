@@ -25,7 +25,7 @@ void constant_velocity::conditional_execution()
 
 	reset();
 	std::vector <double> pos(1, ecp_t.mp_command.ecp_next_state.sg_buf.get <double>());
-	std::vector <double> joint_velocity(1, 0.003);
+        std::vector <double> joint_velocity(1, 0.003);
 
 	set_joint_velocity_vector(joint_velocity);
 

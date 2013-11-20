@@ -20,14 +20,14 @@ class AllRobots;
 
 class wgt_robot_process_control : public wgt_base
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 	wgt_robot_process_control(QString _widget_label, mrrocpp::ui::common::Interface& _interface, mrrocpp::ui::common::UiRobot *robo, QWidget *parent =
 			0);
 	~wgt_robot_process_control();
 
-	void process_control_window_init();
+	void window_init();
 
 	void my_open(bool set_on_top = false);
 
@@ -49,11 +49,11 @@ private:
 	// aktualizacja ustawien przyciskow
 	void init();
 
-	signals:
-	void process_control_window_init_signal();
+signals:
+	void window_init_signal();
 
 public slots:
-	void process_control_window_init_slot();
+	void window_init_slot();
 
 private slots:
 	// ECP

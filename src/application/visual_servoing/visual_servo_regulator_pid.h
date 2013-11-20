@@ -33,6 +33,9 @@ public:
 			& compute_control(const Eigen::Matrix <double, 6, 1> & error, double dt);
 
 	virtual void reset();
+
+	void set_config(Eigen::Matrix <double, 6, 6> Kp, Eigen::Matrix <double, 6, 6> Ki, Eigen::Matrix <double, 6, 6> Kd);
+	void set_error_integral_limit(Eigen::Matrix <double, 6, 1> error_integral_limit);
 protected:
 	Eigen::Matrix <double, 6, 6> Kp, Ki, Kd;
 	Eigen::Matrix <double, 6, 1> error_t_1;

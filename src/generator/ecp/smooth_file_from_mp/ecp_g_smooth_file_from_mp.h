@@ -1,10 +1,8 @@
-#if !defined(_ECP_SUBTASK_SMOOTH_FILE_FROM_MP_H)
-#define _ECP_SUBTASK_SMOOTH_FILE_FROM_MP_H
+#if !defined(_ECP_GEN_SMOOTH_FILE_FROM_MP_H)
+#define _ECP_GEN_SMOOTH_FILE_FROM_MP_H
 
-#include <boost/shared_ptr.hpp>
-
-#include "base/ecp/ecp_generator.h"
 #include "ecp_mp_g_smooth_file_from_mp.h"
+#include "generator/ecp/newsmooth/ecp_g_newsmooth.h"
 
 namespace mrrocpp {
 namespace ecp {
@@ -27,7 +25,7 @@ public:
 	void conditional_execution();
 };
 
-} // namespace task
+} // namespace generator
 } // namespace common
 } // namespace ecp
 } // namespace mrrocpp

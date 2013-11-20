@@ -25,25 +25,13 @@ regulator_pid::regulator_pid(const lib::configurator & config, const std::string
 	error_t_1.setZero();
 	error_integral.setZero();
 
-	Kp = config.value <6, 6> ("regulator_kp_matrix", config_section_name);
-	Ki = config.value <6, 6> ("regulator_ki_matrix", config_section_name);
-	Kd = config.value <6, 6> ("regulator_kd_matrix", config_section_name);
+	set_error_integral_limit(config.value <6, 1> ("max_error_integral", config_section_name));
 
-	max_error_integral = config.value <6, 1> ("max_error_integral", config_section_name);
-	min_error_integral = -max_error_integral;
-
-	for (int i = 0; i < max_error_integral.rows(); ++i) {
-		if (max_error_integral(i, 0) < 0) {
-			throw runtime_error("regulator_pid: max_error_integral(i, 0) < 0");
-		}
-	}
-
-	cout << "\n====== Kp:\n" << Kp << endl;
-	cout << "\n====== Ki:\n" << Ki << endl;
-	cout << "\n====== Kd:\n" << Kd << "\n\n";
-
-	cout << "\n====== max_error_integral:\n" << max_error_integral << "\n";
-	cout << "\n====== min_error_integral:\n" << min_error_integral << "\n\n";
+	set_config(
+			config.value <6, 6> ("regulator_kp_matrix", config_section_name),
+			config.value <6, 6> ("regulator_ki_matrix", config_section_name),
+			config.value <6, 6> ("regulator_kd_matrix", config_section_name)
+		);
 }
 
 regulator_pid::~regulator_pid()
@@ -71,6 +59,34 @@ void regulator_pid::reset()
 {
 	error_t_1.setZero();
 	error_integral.setZero();
+}
+
+void regulator_pid::set_config(
+		Eigen::Matrix <double, 6, 6> Kp,
+		Eigen::Matrix <double, 6, 6> Ki,
+		Eigen::Matrix <double, 6, 6> Kd
+	)
+{
+	this->Kp = Kp;
+	this->Ki = Ki;
+	this->Kd = Kd;
+	cout << "\n====== Kp:\n" << Kp << endl;
+	cout << "\n====== Ki:\n" << Ki << endl;
+	cout << "\n====== Kd:\n" << Kd << "\n\n";
+}
+
+void regulator_pid::set_error_integral_limit(Eigen::Matrix <double, 6, 1> error_integral_limit)
+{
+	max_error_integral = error_integral_limit;
+	min_error_integral = -max_error_integral;
+
+	for (int i = 0; i < max_error_integral.rows(); ++i) {
+		if (max_error_integral(i, 0) < 0) {
+			throw runtime_error("regulator_pid: max_error_integral(i, 0) < 0");
+		}
+	}
+
+	cout << "\n====== error_integral_limit:\n" << error_integral_limit << "\n";
 }
 
 } //namespace

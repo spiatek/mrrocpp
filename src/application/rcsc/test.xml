@@ -12,14 +12,14 @@
         <taskInit>
             <mp/>
             <ecp name="irp6ot_m">
-                <ecp_smooth_gen>7</ecp_smooth_gen>
+                <ecp_newsmooth_gen>7</ecp_newsmooth_gen>
                 <bias_edp_force_st>0</bias_edp_force_st>
                 <ecp_tff_gripper_approach_gen>8</ecp_tff_gripper_approach_gen>
             </ecp>
             <ecp name="irp6p_m">
                 <bias_edp_force_st>0</bias_edp_force_st>
                 <ecp_tff_gripper_approach_gen>8</ecp_tff_gripper_approach_gen>
-                <ecp_smooth_gen>6</ecp_smooth_gen>
+                <ecp_newsmooth_gen>6</ecp_newsmooth_gen>
             </ecp>
         </taskInit>
         <transition condition="true" target="approach_1"/>

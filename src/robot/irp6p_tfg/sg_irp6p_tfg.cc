@@ -24,7 +24,7 @@ namespace mrrocpp {
 namespace edp {
 namespace irp6p_tfg {
 
-// extern uint64_t kk;				  // numer pomiaru od momentu startu pomiarow
+#define CCM 1
 
 /*-----------------------------------------------------------------------*/
 servo_buffer::servo_buffer(effector &_master) :
@@ -36,7 +36,7 @@ servo_buffer::servo_buffer(effector &_master) :
 	synchro_step_coarse[0] = AXIS_7_SYNCHRO_STEP_COARSE;
 	synchro_step_fine[0] = AXIS_7_SYNCHRO_STEP_FINE;
 
-	thread_id = new boost::thread(boost::bind(&servo_buffer::operator(), this));
+	thread_id = boost::thread(boost::bind(&servo_buffer::operator(), this));
 }
 /*-----------------------------------------------------------------------*/
 
@@ -49,20 +49,22 @@ void servo_buffer::load_hardware_interface(void)
 	const std::vector <std::string> ports_vector(mrrocpp::lib::irp6p_tfg::ports_strings, mrrocpp::lib::irp6p_tfg::ports_strings
 			+ mrrocpp::lib::irp6p_tfg::LAST_MOXA_PORT_NUM + 1);
 	hi =
-			new hi_moxa::HI_moxa(master, mrrocpp::lib::irp6p_tfg::LAST_MOXA_PORT_NUM, ports_vector, mrrocpp::lib::irp6p_tfg::MAX_INCREMENT);
+			new hi_moxa::HI_moxa(master, mrrocpp::lib::irp6p_tfg::LAST_MOXA_PORT_NUM, ports_vector, mrrocpp::lib::irp6p_tfg::CARD_ADDRESSES, mrrocpp::lib::irp6p_tfg::MAX_INCREMENT, mrrocpp::lib::irp6p_tfg::TX_PREFIX_LEN);
 	hi->init();
 
 	//Ustawienie zwlocznego ograniczenia pradowego - dlugotrwale przekroczenie ustawionej wartosci
 	//spowoduje wlaczenie stopu awaryjnego przez sterownik
-	hi->set_parameter(0, hi_moxa::PARAM_MAXCURRENT, mrrocpp::lib::irp6p_tfg::MAX_CURRENT_0);
-	//	hi->set_parameter(0, hi_moxa::PARAM_MAXCURRENT, 0);
+//	hi->set_parameter_now(0, hi_moxa::PARAM_MAXCURRENT, mrrocpp::lib::irp6p_tfg::MAX_CURRENT_0);
+	hi->set_parameter_now(0, NF_COMMAND_SetDrivesMaxCurrent, mrrocpp::lib::irp6p_tfg::MAX_CURRENT_0);
+	//hi->set_parameter_now(0, NF_COMMAND_SetDrivesMaxCurrent, mrrocpp::lib::conveyor::MAX_CURRENT_0);
 
 	// utworzenie tablicy regulatorow
 	// Serwomechanizm 1
 
 	// regulator_ptr[1] = new NL_regulator_2 (0, 0, 0.71, 13./4, 12.57/4, 0.35);
 	// kolumna dla irp6 postument
-	regulator_ptr[0] = new NL_regulator_8_irp6p(0, 0, 0, 0.39, 8.62 / 2., 7.89 / 2., 0.35, master);
+	regulator_ptr[0] =
+			new NL_regulator_8_irp6p(0, 0, 0, 0.39, 8.62 / 2., 7.89 / 2., 0.35, master, common::REG_OUTPUT::CURRENT_OUTPUT);
 
 	common::servo_buffer::load_hardware_interface();
 

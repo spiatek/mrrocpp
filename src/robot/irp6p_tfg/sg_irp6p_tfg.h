@@ -5,7 +5,6 @@
 // Ostatnia modyfikacja: 2006
 // -------------------------------------------------------------------------
 
-
 #ifndef __SG_IRP6P_TFG_H
 #define __SG_IRP6P_TFG_H
 
@@ -29,7 +28,7 @@ public:
 	effector &master;
 	void load_hardware_interface(void);
 	servo_buffer(effector &_master); // konstruktor
-	// obliczenie nastepnej wartosci zadanej dla wszystkich napedow
+
 };
 
 } // namespace common
