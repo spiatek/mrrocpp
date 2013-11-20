@@ -487,7 +487,7 @@ uint8_t NL_regulator_3_irp6p::compute_set_value(void)
 			break;
 		default: // w tym miejscu nie powinien wystapic blad zwiazany z
 			// nieistniejacym numerem algorytmu
-			set_value_new = 0; // zerowe nowe sterowanie
+			set_value_new = 10; // zerowe nowe sterowanie
 			break;
 	}
 

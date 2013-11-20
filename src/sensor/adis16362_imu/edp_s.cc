@@ -74,11 +74,11 @@ void adis16362_imu::get_particular_reading(void)
 	static int i = 1;
 
 	ldata = ai->getReading();
-
+/*
 	if (((i++) % 1000) == 0) {
 		std::cout << "adis imu:" << i << std::endl;
 	}
-
+*/
 //	std::cout << "Ang:\n" << ldata.angularVelocity << "\nLin:\n" << ldata.linearAcceleration << "\n";
 }
 

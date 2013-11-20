@@ -55,7 +55,7 @@ void behaviour_specification_data_type::set_compliance(bool x, bool y, bool z, b
 
 behaviour_specification_data_type::behaviour_specification_data_type(bool x, bool y, bool z, bool ax, bool ay, bool az)
 {
-	set_compliance(false, false, true, false, false, false);
+	set_compliance(x, y, z, ax, ay, az);
 }
 
 behaviour_specification_data_type::behaviour_specification_data_type()

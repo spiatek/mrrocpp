@@ -465,6 +465,42 @@ void rubik_cube_observer::manipulate(common::CUBE_COLOR face_to_turn, common::CU
 		face_turn_op(turn_angle);
 	}
 }
+//Sprawdzanie czy ma prawo istniec jakas trojka pol
+bool rubik_cube_observer::check_being_trio(std::vector<Vec4i> &v,int v1 ,int v2,int v3)
+{
+	bool exist=false;
+	for(int i=0;i!=v.size();i++)
+	{
+		if( (v1==v[i][0] && v2==v[i][1] && v3==v[i][2])  ||
+			(v1==v[i][0] && v3==v[i][1] && v2==v[i][2])  ||
+			(v3==v[i][0] && v1==v[i][1] && v2==v[i][2])  ||
+			(v3==v[i][0] && v2==v[i][1] && v1==v[i][2])  ||
+			(v2==v[i][0] && v1==v[i][1] && v3==v[i][2])  ||
+			(v2==v[i][0] && v3==v[i][1] && v1==v[i][2])
+		  )
+		{
+			exist=true;
+			v.erase(v.begin()+i);
+			return exist;break;
+		}
+	}
+	return exist;
+}
+//Sprawdzanie czy ma prawo istniec jakas dwojka pol
+bool rubik_cube_observer::check_being_pair(std::vector<Vec2i> &v,int v1 ,int v2)
+{
+	bool exist=false;
+	for(int i=0;i!=v.size();i++)
+	{
+		if( (v1==v[i][0] && v2==v[i][1])  ||  (v1==v[i][1] && v2==v[i][0]) )
+		{
+			exist=true;
+			v.erase(v.begin()+i);
+			return exist;break;
+		}
+	}
+	return exist;
+}
 //obliczanie układu pól
 void rubik_cube_observer::calculate_color_combination()
 {
@@ -582,9 +618,11 @@ void rubik_cube_observer::look_at_wall(common::CUBE_WALL wall,bool isAfterChangi
 		default:
 			break;
 	}
+	wait_ms(1000);
 	Types::Mrrocpp_Proxy::CubeReading pbr;
 	while(1)
 		{
+			//wait_ms(200);
 			pbr=read_from_discode();
 			if(pbr.exist==true) break;
 		}
@@ -826,10 +864,10 @@ void rubik_cube_observer::face_turn_op(common::CUBE_TURN_ANGLE turn_angle)
 	send_end_motion_to_ecps(lib::irp6p_m::ROBOT_NAME);
 
 	// uruchomienie tff_nose run dla traka z podatnoscia w dwoch osiach
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_NOSE_RUN, (int) ecp_mp::generator::tff_nose_run::behaviour_specification, ecp_mp::generator::tff_nose_run::behaviour_specification_data_type(false, true, true, false, false, false), lib::irp6p_m::ROBOT_NAME);
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_NOSE_RUN, (int) ecp_mp::generator::tff_nose_run::behaviour_specification, ecp_mp::generator::tff_nose_run::behaviour_specification_data_type(true, true, false, false, false, false), lib::irp6p_m::ROBOT_NAME);
 
 	// uruchomienie zaciskania chwytaka traka do pozycji zadanej odpowiadajacej calkowitemu zacisnieciu na kostce bez luzu
-    set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.058, lib::irp6p_tfg::ROBOT_NAME);
+    set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.0565, lib::irp6p_tfg::ROBOT_NAME);
 
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6p_tfg::ROBOT_NAME);
@@ -1008,7 +1046,7 @@ void rubik_cube_observer::face_change_op(common::CUBE_TURN_ANGLE turn_angle)
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_NOSE_RUN, (int) ecp_mp::generator::tff_nose_run::behaviour_specification, ecp_mp::generator::tff_nose_run::behaviour_specification_data_type(true, true, false, false, false, false), lib::irp6ot_m::ROBOT_NAME);
 
 	// uruchomienie zaciskania chwytaka traka do pozycji zadanej odpowiadajacej calkowitemu zacisnieciu na kostce bez luzu
-        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.058, lib::irp6ot_tfg::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.0565, lib::irp6ot_tfg::ROBOT_NAME);
 
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
@@ -1198,7 +1236,7 @@ void rubik_cube_observer::approach_op(int mode)
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_NOSE_RUN, (int) ecp_mp::generator::tff_nose_run::behaviour_specification, ecp_mp::generator::tff_nose_run::behaviour_specification_data_type(true, true, false, false, false, false), lib::irp6ot_m::ROBOT_NAME);
 
 	// uruchomienie zaciskania chwytaka traka do pozycji zadanej odpowiadajacej calkowitemu zacisnieciu na kostce bez luzu
-        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.058, lib::irp6ot_tfg::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.0565, lib::irp6ot_tfg::ROBOT_NAME);
 
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
@@ -1217,7 +1255,7 @@ void rubik_cube_observer::approach_op(int mode)
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
 	//zaciskanie na kostce
 
-        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.058, lib::irp6ot_tfg::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.0565, lib::irp6ot_tfg::ROBOT_NAME);
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
 
@@ -1297,7 +1335,7 @@ void rubik_cube_observer::main_task_algorithm(void)
 
 	calculate_color_combination();
 
-	wait_ms(500);
+	/*wait_ms(500);
 	for(int i=0; i<6;i++)
 	{
 		sr_ecp_msg->message("   ");
@@ -1323,6 +1361,74 @@ void rubik_cube_observer::main_task_algorithm(void)
 			sr_ecp_msg->message(s);wait_ms(500);
 		}
 	}//*/
+
+	int c0=wallsOfCube[0].field[1][1].numberOfColor;
+	int c1=wallsOfCube[1].field[1][1].numberOfColor;
+	int c2=wallsOfCube[2].field[1][1].numberOfColor;
+	int c3=wallsOfCube[3].field[1][1].numberOfColor;
+	int c4=wallsOfCube[4].field[1][1].numberOfColor;
+	int c5=wallsOfCube[5].field[1][1].numberOfColor;
+
+	std::vector<Vec2i> dwojki;
+	Vec2i pair;
+	pair[0]=c0;pair[1]=c1;dwojki.push_back(pair);
+	pair[0]=c0;pair[1]=c2;dwojki.push_back(pair);
+	pair[0]=c0;pair[1]=c3;dwojki.push_back(pair);
+	pair[0]=c0;pair[1]=c4;dwojki.push_back(pair);
+
+	pair[0]=c5;pair[1]=c1;dwojki.push_back(pair);
+	pair[0]=c5;pair[1]=c2;dwojki.push_back(pair);
+	pair[0]=c5;pair[1]=c3;dwojki.push_back(pair);
+	pair[0]=c5;pair[1]=c4;dwojki.push_back(pair);
+
+	pair[0]=c2;pair[1]=c1;dwojki.push_back(pair);
+	pair[0]=c3;pair[1]=c2;dwojki.push_back(pair);
+	pair[0]=c4;pair[1]=c3;dwojki.push_back(pair);
+	pair[0]=c1;pair[1]=c4;dwojki.push_back(pair);
+
+	std::vector<Vec4i> trojki;
+	Vec4i trio;
+	trio[0]=c0;trio[1]=c1;trio[2]=c2;trojki.push_back(trio);
+	trio[0]=c0;trio[1]=c1;trio[2]=c4;trojki.push_back(trio);
+	trio[0]=c0;trio[1]=c2;trio[2]=c3;trojki.push_back(trio);
+	trio[0]=c0;trio[1]=c3;trio[2]=c4;trojki.push_back(trio);
+
+	trio[0]=c5;trio[1]=c4;trio[2]=c3;trojki.push_back(trio);
+	trio[0]=c5;trio[1]=c3;trio[2]=c2;trojki.push_back(trio);
+	trio[0]=c5;trio[1]=c2;trio[2]=c1;trojki.push_back(trio);
+	trio[0]=c5;trio[1]=c4;trio[2]=c1;trojki.push_back(trio);
+
+	if(!check_being_pair(dwojki,wallsOfCube[0].field[1][2].numberOfColor,wallsOfCube[1].field[1][0].numberOfColor)) {sr_ecp_msg->message("Ups1");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[0].field[0][1].numberOfColor,wallsOfCube[2].field[1][0].numberOfColor)) {sr_ecp_msg->message("Ups2");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[0].field[1][0].numberOfColor,wallsOfCube[3].field[1][0].numberOfColor)) {sr_ecp_msg->message("Ups3");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[0].field[2][1].numberOfColor,wallsOfCube[4].field[1][0].numberOfColor)) {sr_ecp_msg->message("Ups4");wait_ms(500);}
+
+	if(!check_being_pair(dwojki,wallsOfCube[5].field[1][0].numberOfColor,wallsOfCube[3].field[1][2].numberOfColor)) {sr_ecp_msg->message("Ups5");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[5].field[2][1].numberOfColor,wallsOfCube[2].field[1][2].numberOfColor)) {sr_ecp_msg->message("Ups6");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[5].field[1][2].numberOfColor,wallsOfCube[1].field[1][2].numberOfColor)) {sr_ecp_msg->message("Ups7");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[5].field[0][1].numberOfColor,wallsOfCube[4].field[1][2].numberOfColor)) {sr_ecp_msg->message("Ups8");wait_ms(500);}
+
+	if(!check_being_pair(dwojki,wallsOfCube[4].field[2][1].numberOfColor,wallsOfCube[3].field[0][1].numberOfColor)) {sr_ecp_msg->message("Ups9");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[3].field[2][1].numberOfColor,wallsOfCube[2].field[0][1].numberOfColor)) {sr_ecp_msg->message("Ups10");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[2].field[2][1].numberOfColor,wallsOfCube[1].field[0][1].numberOfColor)) {sr_ecp_msg->message("Ups11");wait_ms(500);}
+	if(!check_being_pair(dwojki,wallsOfCube[1].field[2][1].numberOfColor,wallsOfCube[4].field[0][1].numberOfColor)) {sr_ecp_msg->message("Ups12");wait_ms(500);}
+
+	if(!check_being_trio(trojki,wallsOfCube[0].field[0][2].numberOfColor,wallsOfCube[1].field[0][0].numberOfColor,wallsOfCube[2].field[2][0].numberOfColor)) {sr_ecp_msg->message("Ops1");wait_ms(500);}
+	if(!check_being_trio(trojki,wallsOfCube[0].field[2][2].numberOfColor,wallsOfCube[1].field[2][0].numberOfColor,wallsOfCube[4].field[0][0].numberOfColor)) {sr_ecp_msg->message("Ops2");wait_ms(500);}
+	if(!check_being_trio(trojki,wallsOfCube[0].field[0][0].numberOfColor,wallsOfCube[2].field[0][0].numberOfColor,wallsOfCube[3].field[2][0].numberOfColor)) {sr_ecp_msg->message("Ops3");wait_ms(500);}
+	if(!check_being_trio(trojki,wallsOfCube[0].field[2][0].numberOfColor,wallsOfCube[3].field[0][0].numberOfColor,wallsOfCube[4].field[2][0].numberOfColor)) {sr_ecp_msg->message("Ops4");wait_ms(500);}
+
+	if(!check_being_trio(trojki,wallsOfCube[5].field[0][0].numberOfColor,wallsOfCube[4].field[2][2].numberOfColor,wallsOfCube[3].field[0][2].numberOfColor)) {sr_ecp_msg->message("Ops5");wait_ms(500);}
+	if(!check_being_trio(trojki,wallsOfCube[5].field[2][0].numberOfColor,wallsOfCube[3].field[2][2].numberOfColor,wallsOfCube[2].field[0][2].numberOfColor)) {sr_ecp_msg->message("Ops6");wait_ms(500);}
+	if(!check_being_trio(trojki,wallsOfCube[5].field[2][2].numberOfColor,wallsOfCube[2].field[2][2].numberOfColor,wallsOfCube[1].field[0][2].numberOfColor)) {sr_ecp_msg->message("Ops7");wait_ms(500);}
+	if(!check_being_trio(trojki,wallsOfCube[5].field[0][2].numberOfColor,wallsOfCube[4].field[0][2].numberOfColor,wallsOfCube[1].field[2][2].numberOfColor)) {sr_ecp_msg->message("Ops8");wait_ms(500);}
+
+
+	if(dwojki.size()==0){sr_ecp_msg->message("Dwojki sie zgadzaja");wait_ms(500);}
+	if(trojki.size()==0){sr_ecp_msg->message("Trojki sie zgadzaja");wait_ms(500);}
+
+	if(dwojki.size()==0 && trojki.size()==0) {sr_ecp_msg->message("Uklad pol jest mozliwy");wait_ms(500);}
+	else {sr_ecp_msg->message("Uklad pol sie nie zgadza!");wait_ms(500);}
 
 	wait_ms(500);
 	for(int i=0; i<6;i++)

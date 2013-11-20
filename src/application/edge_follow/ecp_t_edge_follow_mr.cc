@@ -49,6 +49,7 @@ edge_follow_mr::edge_follow_mr(lib::configurator &_config) :
 	{
 		common::generator::tff_nose_run *ecp_gen = new common::generator::tff_nose_run(*this, 8);
 		ecp_gen->configure_pulse_check(true);
+		ecp_gen->configure_behaviour(lib::CONTACT, lib::CONTACT, lib::CONTACT, lib::UNGUARDED_MOTION, lib::UNGUARDED_MOTION, lib::UNGUARDED_MOTION);
 		register_generator(ecp_gen);
 	}
 

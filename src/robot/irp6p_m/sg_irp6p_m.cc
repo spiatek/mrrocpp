@@ -111,7 +111,7 @@ void servo_buffer::load_hardware_interface(void)
 
 
 	common::servo_buffer::load_hardware_interface();
-//	display_axis_number = 0;
+	display_axis_number = 10;
 }
 
 } // namespace irp6p_m

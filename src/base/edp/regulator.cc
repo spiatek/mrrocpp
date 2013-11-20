@@ -281,9 +281,18 @@ void NL_regulator::compute_set_value_final_computations()
 			// use axis_number to display particular regulator data
 			//	if ((axis_number == display_axis_number) && (master.servo_mode == true)) {
 			if ((axis_number == display_axis_number)) {
-				std::cout << "pwm_a: " << display_axis_number << " sm: " << master.servo_mode << " meassured_current: "
-						<< measured_current << " desired_pwm: " << output_value << " kp: "
-						<< measured_current / output_value << " pin: " << position_increment_new << std::endl;
+				double dev = reg_abs_desired_motor_pos - reg_abs_current_motor_pos;
+				double des = reg_abs_desired_motor_pos;
+				double cur = reg_abs_current_motor_pos;
+
+			//	std::cout << "pwm_a: " << display_axis_number << " sm: " << master.servo_mode << " meassured_current: "
+			//			<< measured_current << " desired_pwm: " << output_value << " kp: "
+			//			<< measured_current / output_value << " pin: " << position_increment_new << std::endl;
+
+				std::cout << "desired pos.: " << des << "\tcurrent pos.: " << cur << "\tdeviation: " << dev
+									<< "\tmeas. current: " << measured_current << " desired_pwm: " << output_value << " kp: "
+											<< measured_current / output_value << std::endl;
+
 			}
 
 		}

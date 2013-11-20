@@ -75,6 +75,9 @@ public:
 
 	void calculate_color_combination();
 
+	bool check_being_pair(std::vector<Vec2i> &v,int v1,int v2);
+	bool check_being_trio(std::vector<Vec4i> &v,int v1,int v2, int v3);
+
 	// OPERACJE
 
 	//obejrzenie sciany
