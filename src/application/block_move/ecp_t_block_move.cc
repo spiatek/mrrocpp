@@ -11,13 +11,17 @@ block_move::block_move(lib::configurator &_config) :
 {
 	if (config.robot_name == lib::irp6p_m::ROBOT_NAME) {
 		ecp_m_robot = (boost::shared_ptr <robot_t>) new irp6p_m::robot(*this);
-	} else {
-		throw std::runtime_error("Robot not supported");
+	} else if (config.robot_name == lib::irp6ot_m::ROBOT_NAME) {
+		ecp_m_robot = (boost::shared_ptr <robot_t>) new irp6ot_m::robot(*this);
+	}
+	else {
+		throw std::runtime_error("ECP: Robot not supported");
 	}
 
 	logger::log_dbg_enabled = true;
 
 	// utworzenie generatorow do uruchamiania dispatcherem
+
 	register_generator(new common::generator::tff_gripper_approach(*this, 8));
 	register_generator(new common::generator::bias_edp_force(*this));
 	register_generator(new generator::smooth_file_from_mp(*this, lib::ECP_JOINT, ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, true));

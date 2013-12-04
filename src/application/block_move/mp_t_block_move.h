@@ -24,6 +24,7 @@ class block_move : public task
 
 protected:
 
+	std::string robot_name;
 	int present_color;
 	std::vector <int> present_position;
 

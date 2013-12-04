@@ -3,6 +3,7 @@
 
 #include "base/ecp/ecp_task.h"
 #include "robot/irp6p_m/ecp_r_irp6p_m.h"
+#include "robot/irp6ot_m/ecp_r_irp6ot_m.h"
 
 #include "ecp_g_position_board.h"
 #include "ecp_g_block_reaching.h"
