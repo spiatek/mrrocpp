@@ -24,8 +24,8 @@
 #include "robot/irp6p_m/const_irp6p_m.h"
 #include "generator/ecp/bias_edp_force/ecp_mp_g_bias_edp_force.h"
 #include "generator/ecp/tff_nose_run/ecp_mp_g_tff_nose_run.h"
-#include "generator/ecp/ecp_mp_g_newsmooth.h"
-#include "generator/ecp/ecp_mp_g_constant_velocity.h"
+#include "generator/ecp/newsmooth/ecp_mp_g_newsmooth.h"
+#include "generator/ecp/constant_velocity/ecp_mp_g_constant_velocity.h"
 #include "generator/ecp/weight_measure/ecp_mp_g_weight_measure.h"
 #include "robot/festival/const_festival.h"
 
@@ -445,25 +445,25 @@ void rubik_cube_solver::face_turn_op(common::CUBE_TURN_ANGLE turn_angle)
 	switch (turn_angle)
 	{
 		case common::CL_90:
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_cl_90_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
-                        wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_cl_90_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
 			break;
 		case common::CL_0:
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_cl_0_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
-                        wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_cl_0_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
 			break;
 		case common::CCL_90:
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_ccl_90_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
-                        wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
-                        break;
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_ccl_90_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			break;
 		case common::CL_180:
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_cl_180_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
-                        wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
-                        break;
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_ap_cl_180_phase_2.trj", lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			break;
 		default:
 			break;
 	}
@@ -492,7 +492,7 @@ void rubik_cube_solver::face_turn_op(common::CUBE_TURN_ANGLE turn_angle)
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_NOSE_RUN, (int) ecp_mp::generator::tff_nose_run::behaviour_specification, ecp_mp::generator::tff_nose_run::behaviour_specification_data_type(true, true, false, false, false, false), lib::irp6p_m::ROBOT_NAME);
 
 	// uruchomienie zaciskania chwytaka traka do pozycji zadanej odpowiadajacej calkowitemu zacisnieciu na kostce bez luzu
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.055, lib::irp6p_tfg::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.056, lib::irp6p_tfg::ROBOT_NAME);
 
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6p_tfg::ROBOT_NAME);
@@ -539,7 +539,8 @@ void rubik_cube_solver::face_turn_op(common::CUBE_TURN_ANGLE turn_angle)
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
 
 	// odejscie tracka od postumenta
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_de.trj", lib::irp6ot_m::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_departure.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+        //set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fturn_de.trj", lib::irp6ot_m::ROBOT_NAME);
 	// uruchomienie generatora empty_gen
 	wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 }
@@ -591,24 +592,24 @@ void rubik_cube_solver::face_change_op(common::CUBE_TURN_ANGLE turn_angle)
 	switch (turn_angle)
 	{
 		case common::CL_90:
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fchange_ap_cl_90_phase_2.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
-                        wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fchange_ap_cl_90_phase_2.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
 			break;
 		case common::CL_0:
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fchange_ap_cl_0_phase_2.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
-                        wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fchange_ap_cl_0_phase_2.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
 			break;
 		case common::CCL_90:
                         set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fchange_ap_ccl_90_phase_2.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
-                        //wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
-                        //set_next_ecp_state(ecp_mp::sub_task::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
-			break;
-		case common::CL_180:
-                        set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fchange_ap_cl_180_phase_2.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
                         wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
                         set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			break;
+		case common::CL_180:
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, (int) lib::ABSOLUTE, "../../src/application/rcsc/trj/irp6ot_sm_fchange_ap_cl_180_phase_2.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME.c_str());
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, (int) lib::RELATIVE, "../../src/application/rcsc/trj/irp6ot_cube_approach.trj", lib::irp6ot_m::ROBOT_NAME.c_str());
 			break;
 		default:
 			break;
@@ -670,7 +671,7 @@ void rubik_cube_solver::face_change_op(common::CUBE_TURN_ANGLE turn_angle)
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_NOSE_RUN, (int) ecp_mp::generator::tff_nose_run::behaviour_specification, ecp_mp::generator::tff_nose_run::behaviour_specification_data_type(true, true, false, false, false, false), lib::irp6ot_m::ROBOT_NAME);
 
 	// uruchomienie zaciskania chwytaka traka do pozycji zadanej odpowiadajacej calkowitemu zacisnieciu na kostce bez luzu
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.057, lib::irp6ot_tfg::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.056, lib::irp6ot_tfg::ROBOT_NAME);
 
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
@@ -860,7 +861,7 @@ void rubik_cube_solver::approach_op(int mode)
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_NOSE_RUN, (int) ecp_mp::generator::tff_nose_run::behaviour_specification, ecp_mp::generator::tff_nose_run::behaviour_specification_data_type(true, true, false, false, false, false), lib::irp6ot_m::ROBOT_NAME);
 
 	// uruchomienie zaciskania chwytaka traka do pozycji zadanej odpowiadajacej calkowitemu zacisnieciu na kostce bez luzu
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.055, lib::irp6ot_tfg::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.056, lib::irp6ot_tfg::ROBOT_NAME);
 
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
@@ -879,7 +880,7 @@ void rubik_cube_solver::approach_op(int mode)
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
 	//zaciskanie na kostce
 
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.055, lib::irp6ot_tfg::ROBOT_NAME);
+        set_next_ecp_state(ecp_mp::generator::ECP_GEN_CONSTANT_VELOCITY, (int) lib::ABSOLUTE, 0.056, lib::irp6ot_tfg::ROBOT_NAME);
 	// oczekiwania na zakonczenie ruchu chwytaka
 	wait_for_task_termination(false, lib::irp6ot_tfg::ROBOT_NAME);
 
@@ -905,9 +906,7 @@ void rubik_cube_solver::departure_op()
 	//set_next_ecp_state(ecp_mp::task::ECP_GEN_FESTIVAL, 0, "jade~ pracowac~ do anglii", 0, lib::festival::ROBOT_NAME);
 
 	// uruchomienie generatora empty_gen i oczekiwanie na zakonczenie obydwu generatorow ECP
-	wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME, lib::irp6p_m::ROBOT_NAME);
-
-	wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME, lib::irp6p_m::ROBOT_NAME);
+        wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME, lib::irp6p_m::ROBOT_NAME);
 }
 
 void rubik_cube_solver::main_task_algorithm(void)

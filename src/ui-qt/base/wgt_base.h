@@ -2,6 +2,7 @@
 #define WGT_BASE_H
 
 #include <QtGui/QWidget>
+#include <QtGui/QLabel>
 //#include <QVBoxLayout>
 #include <QDockWidget>
 #include <QPushButton>
@@ -22,7 +23,7 @@ class UiRobot;
 
 class wgt_base : public QWidget //TODO: zmienić dziedziczenie na QDockWidget!
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 	wgt_base(const QString & _widget_label, mrrocpp::ui::common::Interface & _interface, QWidget *parent = 0);
@@ -65,10 +66,13 @@ protected:
 	virtual void get_desired_position();
 
 	QDoubleSpinBox* create_spin_box_to_vector(QVector <QDoubleSpinBox*> &spin_boxes);
+	QSpinBox* create_spin_box_to_vector(QVector <QSpinBox*> &spin_boxes);
+	QLabel* create_label_to_vector(QVector <QLabel*> &labels_l);
+
 	QPushButton* create_button_to_vector(QVector <QPushButton *> &buttons, QString label);
 	QPushButton* add_button(QString label, int x, int y, int rowSpan, int columnSpan);
 
-	signals:
+signals:
 	void synchro_depended_init_signal();
 	void init_and_copy_signal();
 

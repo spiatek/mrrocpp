@@ -59,6 +59,7 @@ void EcpRobot::get_controller_state(lib::controller_state_t & robot_controller_i
 
 void EcpRobot::execute_motion(void)
 {
+
 	// Zlecenie wykonania ruchu przez robota jest to polecenie dla EDP
 
 	ui_robot.interface.set_ui_state_notification(UI_N_COMMUNICATION);

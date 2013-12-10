@@ -11,10 +11,10 @@
 #include <QObject>
 #include <QMenu>
 #include "../base/ui.h"
-#include "../base/ui_r_single_motor.h"
+#include "../base/ui_r_common_012.h"
 #include "robot/sarkofag/const_sarkofag.h"
 
-namespace Ui{
+namespace Ui {
 class MenuBar;
 class MenuBarAction;
 }
@@ -27,7 +27,7 @@ namespace common {
 class Interface;
 }
 
-namespace single_motor {
+namespace common_012 {
 class EcpRobot;
 }
 namespace sarkofag {
@@ -38,13 +38,11 @@ namespace sarkofag {
 //
 //
 
-
 // super klasa agregujaca porozrzucane struktury
 
-
-class UiRobot : public single_motor::UiRobot
+class UiRobot : public common_012::UiRobot
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 
@@ -53,6 +51,7 @@ public:
 	void manage_interface();
 
 	void synchronise();
+
 	int synchronise_int();
 
 	int execute_motor_motion();
@@ -64,16 +63,7 @@ public:
 	void setup_menubar();
 
 private:
-    QAction *actionsarkofag_Synchronisation;
-    QAction *actionsarkofag_Move;
-    QAction *actionsarkofag_Synchro_Position;
-    QAction *actionsarkofag_Front_Position;
-    QAction *actionsarkofag_Position_0;
-    QAction *actionsarkofag_Position_1;
-    QAction *actionsarkofag_Position_2;
-    QAction *actionsarkofag_Servo_Algorithm;
-
-    QMenu *menusarkofag_Preset_Positions;
+	QAction *actionsarkofag_Move;
 
 };
 

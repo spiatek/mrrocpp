@@ -5,7 +5,6 @@
 // Ostatnia modyfikacja: 16.04.98
 // -------------------------------------------------------------------------
 
-
 #ifndef __REGULATOR_IRP6P_M_H
 #define __REGULATOR_IRP6P_M_H
 
@@ -24,22 +23,22 @@ const double AXIS_0_TO_5_SYNCHRO_STEP_FINE = -0.007;
 const double AXIS_6_SYNCHRO_STEP_COARSE = -0.05;
 const double AXIS_6_SYNCHRO_STEP_FINE = -0.05;
 
-const double POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO = 0.60;	// Preskaler dla osi 1-3
-const double POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2 = 0.40;	// Preskaler dla osi 5-7
+const double POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO = 0.60; // Preskaler dla osi 1-3
+const double POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2 = 0.40; // Preskaler dla osi 5-7
 
 /*-----------------------------------------------------------------------*/
 class NL_regulator_2_irp6p : public common::NL_regulator
 {
 	/* Klasa regulatorow konkretnych */
 	// Obiekt z algorytmem regulacji
-
 public:
-			NL_regulator_2_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master); // konstruktor
+	NL_regulator_2_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output); // konstruktor
 
 	virtual uint8_t compute_set_value(void);
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda konkretna
 
-}; // end: class NL_regulator_2
+};
+// end: class NL_regulator_2
 // ----------------------------------------------------------------------
 
 /*-----------------------------------------------------------------------*/
@@ -47,14 +46,14 @@ class NL_regulator_3_irp6p : public common::NL_regulator
 {
 	/* Klasa regulatorow konkretnych */
 	// Obiekt z algorytmem regulacji
-
 public:
-			NL_regulator_3_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master); // konstruktor
+	NL_regulator_3_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output); // konstruktor
 
 	virtual uint8_t compute_set_value(void);
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda konkretna
 
-}; // end: class NL_regulator_3
+};
+// end: class NL_regulator_3
 // ----------------------------------------------------------------------
 
 /*-----------------------------------------------------------------------*/
@@ -62,69 +61,64 @@ class NL_regulator_4_irp6p : public common::NL_regulator
 {
 	/* Klasa regulatorow konkretnych */
 	// Obiekt z algorytmem regulacji
-
 public:
-			NL_regulator_4_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master); // konstruktor
+	NL_regulator_4_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output); // konstruktor
 
 	virtual uint8_t compute_set_value(void);
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda konkretna
 
-}; // end: class NL_regulator_4
+};
+// end: class NL_regulator_4
 // ----------------------------------------------------------------------
-
 
 /*-----------------------------------------------------------------------*/
 class NL_regulator_5_irp6p : public common::NL_regulator
 {
 	/* Klasa regulatorow konkretnych */
 	// Obiekt z algorytmem regulacji
-
 public:
 	bool first;
-			NL_regulator_5_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master); // konstruktor
+	NL_regulator_5_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output); // konstruktor
 
 	virtual uint8_t compute_set_value(void);
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda konkretna
 
-}; // end: class NL_regulator_5
+};
+// end: class NL_regulator_5
 // ----------------------------------------------------------------------
-
 
 /*-----------------------------------------------------------------------*/
 class NL_regulator_6_irp6p : public common::NL_regulator
 {
 	/* Klasa regulatorow konkretnych */
 	// Obiekt z algorytmem regulacji
-
 public:
-			NL_regulator_6_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master); // konstruktor
+	NL_regulator_6_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output); // konstruktor
 
 	virtual uint8_t compute_set_value(void);
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda konkretna
 
-}; // end: class NL_regulator_6
+};
+// end: class NL_regulator_6
 // ----------------------------------------------------------------------
-
 
 /*-----------------------------------------------------------------------*/
 class NL_regulator_7_irp6p : public common::NL_regulator
 {
 	/* Klasa regulatorow konkretnych */
 	// Obiekt z algorytmem regulacji
-
 public:
-			NL_regulator_7_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master); // konstruktor
+	NL_regulator_7_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output); // konstruktor
 
 	virtual uint8_t compute_set_value(void);
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda konkretna
 
-}; // end: class NL_regulator_7
+};
+// end: class NL_regulator_7
 // ----------------------------------------------------------------------
 
-
-} // namespace common
+}// namespace common
 } // namespace edp
 } // namespace mrrocpp
-
 
 #endif

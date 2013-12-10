@@ -46,8 +46,8 @@ void model_with_wrist::set_kinematic_parameters(void)
 	 3 - ramie gorne:    os ALFA
 	 4 - pochylnie kisci: os T
 	 5 - obrot kisci:    os V
-	 7 - obrot kisci:    os N
-	 8 - chwytak
+	 6 - obrot kisci:    os N
+
 	 ------------------------------------------------------------------------- */
 
 	/* -----------------------------------------------------------------------
@@ -172,18 +172,6 @@ void model_with_wrist::set_kinematic_parameters(void)
 	gear[6] = H_6 * K_6;
 	theta[6] = 0.000000e+00;
 
-	/* -----------------------------------------------------------------------
-	 Wspolczynniki uzywane przy obliczeniach zwarcia/rozwarcia szczek:
-	 Obliczenia wartosci wspolrzednych wewnetrznych na podstawie odczytow enkoderow silnikow
-	 * joint[7] = dir_a_7 * motor[7]^2 + dir_b_7 * motor[7] + dir_c_7
-	 uzywane wspolczynniki
-	 * dir_a_7, dir_b_7, dir_c_7
-
-	 Obliczenia wartosci polozen silnikow na podstawie wspolrzednych wewnetrznych
-	 * motor[7] = inv_a_7 * sqrt(inv_b_7 + inv_c_7 * joint[7]) + inv_d_7
-	 uzywane wspolczynniki
-	 * inv_a_7, inv_b_7, inv_c_7, inv_d_7
-	 ------------------------------------------------------------------------- */
 	dir_a_7 = -0.00000000283130;
 	dir_b_7 = 0.00001451910074;
 	dir_c_7 = 0.074;
@@ -191,21 +179,19 @@ void model_with_wrist::set_kinematic_parameters(void)
 	inv_b_7 = 0.2622172716e19;
 	inv_c_7 = -0.2831300000e20;
 	inv_d_7 = -2564.034320;
-	gear[7] = 0.0;
-	theta[7] = 0.000000e+00;
 
 	/* -----------------------------------------------------------------------
 	 Polozenia synchronizacji - odczyty z enkoderow silnikow.
 	 ------------------------------------------------------------------------- */
 	synchro_motor_position[0] = 0; // tor [m]
-	synchro_motor_position[1] = -10.819; // kolumna [rad]
+	synchro_motor_position[1] = -16.5; // kolumna [rad]
+	//synchro_motor_position[1] = -10.819; // kolumna [rad]
 	//synchro_motor_position[1]= -7.5;		// kolumna [rad]
 	synchro_motor_position[2] = -4.012; // ramie d. [rad]
 	synchro_motor_position[3] = -6.219; // ramie g. [rad]
-	synchro_motor_position[4] = 158.997; // kisc T [rad]
-	synchro_motor_position[5] = 479.5; // kisc V [rad] poprawne front position w motorach (6 os z kolei oznaczona jako 5) + 320.25
-	synchro_motor_position[6] = 769.7; // kisc N [rad]
-	synchro_motor_position[7] = 4830; // chwytak [-]
+	synchro_motor_position[4] = 158.997+0.5;//3*M_PI;// 158.997; // kisc T [rad]
+	synchro_motor_position[5] = 473+8; // stara kisc V [rad] poprawne front position w motorach (6 os z kolei oznaczona jako 5) + 320.25
+	synchro_motor_position[6] = 769.7; // nowa kisc N [rad]
 
 	/* -----------------------------------------------------------------------
 	 Polozenia synchronizacji we wspolrzednych wewnetrznych - obliczone na podstawie z enkoderow silnikow.
@@ -217,7 +203,6 @@ void model_with_wrist::set_kinematic_parameters(void)
 	synchro_joint_position[4] = synchro_motor_position[4] - gear[4] * theta[4];
 	synchro_joint_position[5] = synchro_motor_position[5] - gear[5] * theta[5] - synchro_motor_position[4];
 	synchro_joint_position[6] = synchro_motor_position[6] - gear[6] * theta[6];
-	synchro_joint_position[7] = synchro_motor_position[7] - gear[7] * theta[7];
 
 	/* -----------------------------------------------------------------------
 	 Zakresy ruchu walow silnikow w radianach.
@@ -227,30 +212,33 @@ void model_with_wrist::set_kinematic_parameters(void)
 	lower_limit_axis[2] = -110;
 	lower_limit_axis[3] = -80;
 	lower_limit_axis[4] = -70;
-	lower_limit_axis[5] = -80;
+	lower_limit_axis[5] = -50; // ograniczenie obrotu starej kisci
 	lower_limit_axis[6] = -1000;
-	lower_limit_axis[7] = -2000;
 
 	upper_limit_axis[0] = 1900;
-	upper_limit_axis[1] = 450;
+	// przed postawieniem szafy obkok robota
+	// upper_limit_axis[1] = 450;
+	// po postawieniu szafy obok robota
+	upper_limit_axis[1] = 60;
 	upper_limit_axis[2] = 100;
 	upper_limit_axis[3] = 100;
 	upper_limit_axis[4] = 380;
-	upper_limit_axis[5] = 490;
+	upper_limit_axis[5] = 490;// ograniczenie obrotu starej kisci
 	upper_limit_axis[6] = 3000;
-	upper_limit_axis[7] = 5000;
 
 	/* -----------------------------------------------------------------------
 	 Zakresy ruchu poszczegolnych stopni swobody (w radianach lub milimetrach).
 	 ------------------------------------------------------------------------- */
 	lower_limit_joint[0] = -0.125; // [m]
-	lower_limit_joint[1] = -170.0 * M_PI / 180.0;
+	// przed postawieniem szafy obkok robota
+	//lower_limit_joint[1] = -170.0 * M_PI / 180.0;
+	// po postawieniu szafy obok robota
+	lower_limit_joint[1] = -0.45;
 	lower_limit_joint[2] = -130.0 * M_PI / 180.0;
 	lower_limit_joint[3] = -35.0 * M_PI / 180.0;
 	lower_limit_joint[4] = -90.0 * M_PI / 180.0;
 	lower_limit_joint[5] = -10.0; // -M_PI
 	lower_limit_joint[6] = -2.88;
-	lower_limit_joint[7] = 0.053;
 
 	upper_limit_joint[0] = 1.21; // [m];
 	upper_limit_joint[1] = 170.0 * M_PI / 180.0; // [rad]
@@ -259,7 +247,6 @@ void model_with_wrist::set_kinematic_parameters(void)
 	upper_limit_joint[4] = 92 * M_PI / 180.0;
 	upper_limit_joint[5] = 10.0; //M_PI
 	upper_limit_joint[6] = 2.93;
-	upper_limit_joint[7] = 0.091;
 
 } // end: set_kinematic_parameters
 
@@ -299,13 +286,6 @@ void model_with_wrist::check_motor_position(const lib::MotorArray & motor_positi
 		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_LOWER_LIMIT_AXIS_6));
 	else if (motor_position[6] > upper_limit_axis[6]) // Kat f7 wiekszy od maksymalnego
 		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_UPPER_LIMIT_AXIS_6));
-
-	if (number_of_servos > 7) {
-		if (motor_position[7] < lower_limit_axis[7]) // Kat f8 mniejszy od minimalnego
-			BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_LOWER_LIMIT_AXIS_7));
-		else if (motor_position[7] > upper_limit_axis[7]) // Kat f8 wiekszy od maksymalnego
-			BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_UPPER_LIMIT_AXIS_7));
-	}
 
 } //: check_motor_position
 
@@ -367,16 +347,6 @@ void model_with_wrist::check_joints(const lib::JointArray & q) const
 	if (q[6] > upper_limit_joint[6]) // 6 st. swobody
 		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_UPPER_THETA6_LIMIT));
 
-	//***szczeki chwytaka***
-	if (number_of_servos > 7) {
-		if (isnan(q[7]))
-			BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(NOT_A_NUMBER_JOINT_VALUE_THETA7));
-		if (q[7] < lower_limit_joint[7]) // 7 st. swobody
-			BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_LOWER_THETA7_LIMIT));
-
-		if (q[7] > upper_limit_joint[7]) // 7 st. swobody
-			BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_UPPER_THETA7_LIMIT));
-	}
 } //: check_joints
 
 void model_with_wrist::mp2i_transform(const lib::MotorArray & local_current_motor_pos, lib::JointArray & local_current_joints)
@@ -493,11 +463,6 @@ void model_with_wrist::i2mp_transform(lib::MotorArray & local_desired_motor_pos_
 	// Obliczanie kata obrotu walu silnika napedowego obrotu kisci N
 	local_desired_motor_pos_new[6] = gear[6] * local_desired_joints_tmp[6] + synchro_joint_position[6];
 
-	if (number_of_servos > 7) {
-		// Obliczenie kata obrotu walu silnika napedowego chwytaka.
-		local_desired_motor_pos_new[7] = inv_a_7 * sqrt(inv_b_7 + inv_c_7 * local_desired_joints_tmp[7]) + inv_d_7;
-	}
-
 	// Sprawdzenie obliczonych wartosci.
 	check_motor_position(local_desired_motor_pos_new);
 
@@ -554,6 +519,47 @@ void model_with_wrist::inverse_kinematics_transform(lib::JointArray & local_desi
 	lib::JointArray local_current_joints_tmp(number_of_servos);
 	local_current_joints_tmp = local_current_joints;
 
+	// odczytujemy biezaca pozycje we wspolrzednych zewnetrznych
+	lib::Homog_matrix current_matrix;
+
+	direct_kinematics_transform(local_current_joints, current_matrix);
+
+	// liczymy przyrost pozycji we wspolrzednych zewnetrzenych
+	lib::Homog_matrix increment_matrix = (!current_matrix) * local_desired_end_effector_frame;
+
+	// badamy czy przyrost nie przekracza wartosci granicznej
+
+	lib::Xyz_Angle_Axis_Gamma_vector increment_agama;
+	increment_matrix.get_xyz_angle_axis_gamma(increment_agama);
+
+//	std::cout << "increment_agama: 1" << increment_agama << std::endl;
+
+	// jezeli kat agama jest zbyt duzy (wydaje sie ze powyzej 1/2 pi) to mozemy wykonac posredni krok interpolacji, czasami pomaga, praktycznie nigdy nie przeszkadza
+	if (fabs(increment_agama(6)) > (M_PI_2 - 0.1)) {
+		increment_agama(6) = increment_agama(6) / 2;
+		//	std::cout << "increment_agama: 2" << increment_agama << std::endl;
+		increment_matrix.set_from_xyz_angle_axis_gamma(increment_agama);
+		lib::Homog_matrix tmp_desired_matrix = current_matrix * increment_matrix;
+
+		inverse_kinematics_single_iteration(local_desired_joints, local_current_joints_tmp, tmp_desired_matrix);
+
+		// std::cout << "lalala" << std::endl;
+
+		local_current_joints_tmp = local_desired_joints;
+
+	}
+
+	inverse_kinematics_single_iteration(local_desired_joints, local_current_joints_tmp, local_desired_end_effector_frame);
+
+} //: inverse_kinematics_transform()
+
+void model_with_wrist::inverse_kinematics_single_iteration(lib::JointArray & local_desired_joints, const lib::JointArray & local_current_joints, const lib::Homog_matrix& local_desired_end_effector_frame)
+{
+
+	lib::JointArray local_current_joints_tmp(number_of_servos);
+	local_current_joints_tmp = local_current_joints;
+
+	// poprawka w celu uwzglednienia konwencji DH
 	local_current_joints_tmp[3] += local_current_joints_tmp[2] + M_PI_2;
 	local_current_joints_tmp[4] += local_current_joints_tmp[3];
 
@@ -658,24 +664,35 @@ void model_with_wrist::inverse_kinematics_transform(lib::JointArray & local_desi
 				> fabs(t6 + 2 * M_PI - local_desired_joints[4] - (local_current_joints_tmp[6])))
 			t_ok = t6 + 2 * M_PI - local_desired_joints[4];
 
+		//	std::cout << "variant 1" << std::endl;
+
 		local_desired_joints[6] = t_ok;
 	} else {
 		t6 = atan2(-s1 * Ox + c1 * Oy, s1 * Nx - c1 * Ny);
 		t_ok = t6;
-
+		//	std::cout << "variant 2" << std::endl;
 		// Sprawdzenie warunkow.
-		if (fabs(t_ok - local_current_joints_tmp[6]) > fabs(t6 - M_PI - (local_current_joints_tmp[6])))
+		if (fabs(t_ok - local_current_joints_tmp[6]) > fabs(t6 - M_PI - (local_current_joints_tmp[6]))) {
+			//	std::cout << "variant 2 a" << std::endl;
 			t_ok = t6 - M_PI;
-		if (fabs(t_ok - local_current_joints_tmp[6]) > fabs(t6 + M_PI - (local_current_joints_tmp[6])))
+		}
+		if (fabs(t_ok - local_current_joints_tmp[6]) > fabs(t6 + M_PI - (local_current_joints_tmp[6]))) {
+			//	std::cout << "variant 2 b" << std::endl;
 			t_ok = t6 + M_PI;
+		}
 
 		local_desired_joints[6] = t_ok;
 		t_ok = atan2(c1 * Ax + s1 * Ay, Az);
 
-		if (fabs(t_ok - local_current_joints_tmp[4]) > fabs(t_ok - M_PI - (local_current_joints_tmp[4])))
+		if (fabs(t_ok - local_current_joints_tmp[4]) > fabs(t_ok - M_PI - (local_current_joints_tmp[4]))) {
+			//	std::cout << "variant 2 c" << std::endl;
 			t_ok = t_ok - M_PI;
-		if (fabs(t_ok - local_current_joints_tmp[4]) > fabs(t_ok + M_PI - (local_current_joints_tmp[4])))
+		}
+		if (fabs(t_ok - local_current_joints_tmp[4]) > fabs(t_ok + M_PI - (local_current_joints_tmp[4]))) {
+			//	std::cout << "variant 2 d" << std::endl;
 			t_ok = t_ok + M_PI;
+		}
+
 		local_desired_joints[4] = t_ok;
 	} //: else
 
@@ -704,10 +721,13 @@ void model_with_wrist::inverse_kinematics_transform(lib::JointArray & local_desi
 	local_desired_joints[3] -= local_desired_joints[2] + M_PI_2;
 	local_desired_joints[4] -= local_desired_joints[3] + local_desired_joints[2] + M_PI_2;
 
-	// Sprawdzenie ograniczen na wspolrzedne wewnetrzne.
+	// sprawdzenie czy wynik jest poprawny tzn. prosta kinematyka daje to samo co odwrotna (z pewnym epsilonem)
+	check_direct_inverse_kinematic_match(local_desired_joints, local_desired_end_effector_frame);
+
+// Sprawdzenie ograniczen na wspolrzedne wewnetrzne.
 	check_joints(local_desired_joints);
 
-} //: inverse_kinematics_transform()
+} //: inverse_kinematics_single_iteration()
 
 } // namespace irp6ot
 } // namespace kinematic

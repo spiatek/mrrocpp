@@ -67,7 +67,7 @@ bool visual_servo_manager::first_step()
 
 	the_robot->ecp_command.instruction_type = lib::GET;
 	the_robot->ecp_command.get_type = ARM_DEFINITION;
-	the_robot->ecp_command.get_arm_type = lib::FRAME;
+
 	the_robot->ecp_command.motion_type = lib::ABSOLUTE;
 	the_robot->ecp_command.set_type = ARM_DEFINITION;
 	the_robot->ecp_command.set_arm_type = lib::FRAME;
@@ -299,6 +299,17 @@ void visual_servo_manager::add_position_constraint(boost::shared_ptr <position_c
 void visual_servo_manager::add_termination_condition(boost::shared_ptr <termination_condition> term_cond)
 {
 	termination_conditions.push_back(term_cond);
+}
+
+void visual_servo_manager::remove_termination_condition(boost::shared_ptr <termination_condition> term_cond)
+{
+	std::vector <boost::shared_ptr <servovision::termination_condition> > ::iterator it;
+	for(it=termination_conditions.begin(); it!=termination_conditions.end(); ++it){
+		if(it->get() == term_cond.get()){
+			termination_conditions.erase(it);
+			break;
+		}
+	}
 }
 
 double visual_servo_manager::get_linear_speed() const

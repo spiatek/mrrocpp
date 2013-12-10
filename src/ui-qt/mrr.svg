@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 200 200"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.48.3.1 r9886"
+   width="100%"
+   height="100%"
+   sodipodi:docname="mrr.svg">
+  <metadata
+     id="metadata42">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1600"
+     inkscape:window-height="1168"
+     id="namedview40"
+     showgrid="false"
+     inkscape:zoom="0.7375"
+     inkscape:cx="-257.69443"
+     inkscape:cy="-237.02261"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs4">
+    <rect
+       width="2"
+       height="4"
+       style="fill:#343434;stroke:#000000;stroke-width:0.5"
+       id="antenna"
+       x="0"
+       y="0" />
+    <circle
+       r="2.5"
+       style="fill:#f98a75;stroke:#000000;stroke-width:0.5"
+       id="eyeball"
+       cx="0"
+       cy="0"
+       sodipodi:cx="0"
+       sodipodi:cy="0"
+       sodipodi:rx="2.5"
+       sodipodi:ry="2.5" />
+    <circle
+       r="0.80000001"
+       style="fill:#000000"
+       id="pupil"
+       cx="0"
+       cy="0"
+       sodipodi:cx="0"
+       sodipodi:cy="0"
+       sodipodi:rx="0.80000001"
+       sodipodi:ry="0.80000001" />
+    <rect
+       width="1"
+       height="3"
+       style="fill:#111111"
+       id="grid"
+       x="0"
+       y="0" />
+  </defs>
+  <g
+     id="g10"
+     transform="matrix(10.141617,0,0,10.141617,-1.41617,-3.5513554)">
+    <use
+       x="3.5"
+       y="1"
+       xlink:href="#antenna"
+       transform="matrix(0.90630779,-0.42261826,0.42261826,0.90630779,-0.42362157,2.0891666)"
+       id="use12"
+       width="20"
+       height="20" />
+    <use
+       x="14.5"
+       y="1"
+       xlink:href="#antenna"
+       transform="matrix(0.90630779,0.42261826,-0.42261826,0.90630779,2.2974658,-6.3631986)"
+       id="use14"
+       width="20"
+       height="20" />
+    <rect
+       width="17"
+       height="16"
+       x="1.5"
+       y="3.5"
+       style="fill:#8e8e8e;stroke:#000000;stroke-width:1"
+       id="rect16" />
+    <use
+       x="6"
+       y="7.5"
+       xlink:href="#eyeball"
+       id="use18"
+       width="20"
+       height="20" />
+    <use
+       x="6"
+       y="7.5"
+       xlink:href="#pupil"
+       id="use20"
+       width="20"
+       height="20" />
+    <use
+       x="14"
+       y="7.5"
+       xlink:href="#eyeball"
+       id="use22"
+       width="20"
+       height="20" />
+    <use
+       x="14"
+       y="7.5"
+       xlink:href="#pupil"
+       id="use24"
+       width="20"
+       height="20" />
+    <rect
+       width="13"
+       height="4"
+       x="3.5"
+       y="12.5"
+       style="fill:#eeeeee;stroke:#000000;stroke-width:1"
+       id="rect26" />
+    <use
+       x="5"
+       y="13"
+       xlink:href="#grid"
+       id="use28"
+       width="20"
+       height="20" />
+    <use
+       x="7"
+       y="13"
+       xlink:href="#grid"
+       id="use30"
+       width="20"
+       height="20" />
+    <use
+       x="9.5"
+       y="13"
+       xlink:href="#grid"
+       id="use32"
+       width="20"
+       height="20" />
+    <use
+       x="12"
+       y="13"
+       xlink:href="#grid"
+       id="use34"
+       width="20"
+       height="20" />
+    <use
+       x="14"
+       y="13"
+       xlink:href="#grid"
+       id="use36"
+       width="20"
+       height="20" />
+    <rect
+       width="12"
+       height="1"
+       x="4"
+       y="14"
+       style="fill:#111111"
+       id="rect38" />
+  </g>
+</svg>

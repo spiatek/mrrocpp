@@ -16,6 +16,7 @@
 #include "base/lib/mrmath/mrmath.h"
 
 #include "base/edp/edp_exceptions.h"
+#include "base/lib/com_buf.h"
 
 using namespace mrrocpp::edp::exception;
 using namespace mrrocpp::lib::exception;
@@ -71,7 +72,6 @@ public:
 	virtual void check_cartesian_pose(const lib::Homog_matrix& H_) const
 	{
 	}
-	;
 
 	/**
 	 * @brief Computes internal coordinates for given the motor increments (position) values.
@@ -136,6 +136,10 @@ public:
 	 * @return Kinematics description (label).
 	 */
 	virtual std::string get_kinematic_model_label(void);
+
+	/**
+	 */
+	virtual void check_direct_inverse_kinematic_match(const lib::JointArray & local_desired_joints, const lib::Homog_matrix& local_desired_end_effector_frame);
 
 };
 

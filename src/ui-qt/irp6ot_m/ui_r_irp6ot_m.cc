@@ -46,7 +46,6 @@ void UiRobot::open_c_joint_window()
 	wgts[WGT_JOINTS]->my_open();
 }
 
-
 void UiRobot::create_ui_ecp_robot()
 {
 	common::UiRobot::ui_ecp_robot = ui_ecp_robot = new ui::irp6ot_m::EcpRobot(*this);

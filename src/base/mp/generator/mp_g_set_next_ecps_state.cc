@@ -27,7 +27,6 @@ set_next_ecps_state::set_next_ecps_state(task::task& _mp_task) :
 	wait_for_ECP_message = true;
 }
 
-
 // ----------------------------------------------------------------------------------------------
 // ---------------------------------    metoda	first_step -------------------------------------
 // ----------------------------------------------------------------------------------------------
@@ -35,7 +34,6 @@ set_next_ecps_state::set_next_ecps_state(task::task& _mp_task) :
 bool set_next_ecps_state::first_step()
 {
 	robots_to_reply = robot_m;
-
 	BOOST_FOREACH(const common::robot_pair_t & robot_node, robot_m)
 			{
 				robot_node.second->mp_command.command = lib::NEXT_STATE;

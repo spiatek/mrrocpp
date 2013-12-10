@@ -42,24 +42,36 @@ const int LAST_MOXA_PORT_NUM = 6;
 
 const std::string ports_strings[] =
 //{ "/dev/ttyMUE7", "/dev/ttyMUE0", "/dev/ttyMUE1", "/dev/ttyMUE2", "/dev/ttyMUE3", "/dev/ttyMUE4", "/dev/ttyMUE5" };
- {"/dev/ttyMI7", "/dev/ttyMI0", "/dev/ttyMI1", "/dev/ttyMI2", "/dev/ttyMI3", "/dev/ttyMI4", "/dev/ttyMI5" };
+		{ "/dev/ttyMI7", "/dev/ttyMI0", "/dev/ttyMI1", "/dev/ttyMI2", "/dev/ttyMI3", "/dev/ttyMI4", "/dev/ttyMI5" };
 /*!
  * @brief IRp6 on track overcurrent threshold [mA]
  * @ingroup irp6ot_m
  */
-const int MAX_CURRENT_0 = 25000;
-const int MAX_CURRENT_1 = 15000;
-const int MAX_CURRENT_2 = 18000;
-const int MAX_CURRENT_3 = 10000;
-const int MAX_CURRENT_4 = 10000;
-const int MAX_CURRENT_5 = 10000;
-const int MAX_CURRENT_6 = 10000;
+const int16_t MAX_CURRENT_0 = 27000;
+const int16_t MAX_CURRENT_1 = 25000;
+const int16_t MAX_CURRENT_2 = 18000;
+const int16_t MAX_CURRENT_3 = 15000;
+const int16_t MAX_CURRENT_4 = 17000;
+const int16_t MAX_CURRENT_5 = 10000;
+const int16_t MAX_CURRENT_6 = 2000;
 
 /*!
  * @brief IRp6 on track max encoder increment
  * @ingroup irp6ot_m
  */
 const double MAX_INCREMENT[] = { 1000, 1000, 1000, 1000, 1000, 1000, 1000 };
+
+/*!
+ * @brief IRp6 on track motor driver cards addresses
+ * @ingroup irp6ot_m
+ */
+const unsigned int CARD_ADDRESSES[] = { 15, 8, 9, 10, 11, 12, 13 };
+
+/*!
+ * @brief Number of command prefix bytes
+ * @ingroup irp6ot_m
+ */
+const int TX_PREFIX_LEN = 0;
 
 } // namespace irp6ot_m
 } // namespace lib

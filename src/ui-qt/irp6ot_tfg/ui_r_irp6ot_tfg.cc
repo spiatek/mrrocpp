@@ -47,6 +47,7 @@ void UiRobot::synchronise()
 
 }
 
+
 void UiRobot::move_to_preset_position(int variant)
 {
 
@@ -118,7 +119,7 @@ int UiRobot::synchronise_int()
 }
 
 UiRobot::UiRobot(common::Interface& _interface) :
-		single_motor::UiRobot(_interface, lib::irp6ot_tfg::ROBOT_NAME, lib::irp6ot_tfg::NUM_OF_SERVOS)
+		common_012::UiRobot(_interface, lib::irp6ot_tfg::ROBOT_NAME, lib::irp6ot_tfg::NUM_OF_SERVOS)
 
 {
 
@@ -129,7 +130,7 @@ UiRobot::UiRobot(common::Interface& _interface) :
 void UiRobot::manage_interface()
 {
 
-	single_motor::UiRobot::manage_interface();
+	common_012::UiRobot::manage_interface();
 
 	switch (state.edp.state)
 	{
@@ -174,7 +175,7 @@ void UiRobot::manage_interface()
 
 void UiRobot::setup_menubar()
 {
-	single_motor::UiRobot::setup_menubar();
+	common_012::UiRobot::setup_menubar();
 	Ui::MenuBar *menuBar = interface.get_main_window()->getMenuBar();
 	Ui::SignalDispatcher *signalDispatcher = interface.get_main_window()->getSignalDispatcher();
 

@@ -34,7 +34,7 @@ option(UI_QT "Build support for UI written in QT" ON)
 	OPTION (BUILD_SHARED_LIBS "Build shared libraries." ON)
 
 	# find dependency packages
-	set(BOOST_ROOT "/opt/boost")
+	# set(BOOST_ROOT "/opt/boost")
 
 	find_package(Threads REQUIRED)
 	find_package(LibXml2 REQUIRED)
@@ -98,6 +98,8 @@ set(COMMON_LIBRARIES messip)
 
 set(COMMON_LIBRARIES mrrocpp ${COMMON_LIBRARIES}
 	${Boost_THREAD_LIBRARY}
+	${Boost_SYSTEM_LIBRARY}
+	${CMAKE_THREAD_LIBS_INIT}
 	${COMPATIBILITY_LIBRARIES}
 )
 

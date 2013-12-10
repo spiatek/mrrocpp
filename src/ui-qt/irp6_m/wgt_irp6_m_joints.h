@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include <QDockWidget>
 #include <QVector>
-#include "ui_wgt_absolute_template.h"
+
 #include "../base/WgtAbsoluteBase.h"
 
 #include "robot/irp6ot_m/const_irp6ot_m.h"
@@ -36,7 +36,7 @@ public:
 	virtual void setup_ui(QGridLayout *layout, int _rows_number);
 
 private:
-	Ui::wgt_absolute_template ui;
+
 	mrrocpp::ui::irp6_m::UiRobot *specyficrobot;
 
 	void init();

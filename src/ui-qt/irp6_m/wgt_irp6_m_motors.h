@@ -6,7 +6,7 @@
 #include <QDockWidget>
 #include <QVector>
 #include <QDoubleSpinBox>
-#include "ui_wgt_absolute_template.h"
+
 #include "../base/WgtAbsoluteBase.h"
 
 #include "robot/irp6ot_m/const_irp6ot_m.h"
@@ -27,7 +27,7 @@ class UiRobot;
 
 class wgt_irp6_m_motors : public WgtAbsoluteBase
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 	wgt_irp6_m_motors(QString _widget_label, mrrocpp::ui::common::Interface& _interface, mrrocpp::ui::common::UiRobot *_robot, QWidget *parent =
@@ -36,7 +36,7 @@ public:
 
 	virtual void setup_ui(QGridLayout *layout, int _rows_number);
 private:
-	Ui::wgt_absolute_template ui;
+
 	mrrocpp::ui::irp6_m::UiRobot *specyficrobot;
 
 	void init();

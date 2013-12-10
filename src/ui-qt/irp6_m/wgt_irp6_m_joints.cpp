@@ -2,7 +2,7 @@
 #include "ui_r_irp6_m.h"
 
 //#include "ui/src/ui_ecp_r_single_motor.h"
-#include "../base/ui_ecp_robot/ui_ecp_r_common012.h"
+#include "../base/ui_ecp_robot/ui_ecp_r_common_012.h"
 #include "wgt_irp6_m_joints.h"
 #include "../base/interface.h"
 #include "../base/mainwindow.h"
@@ -14,11 +14,11 @@ wgt_irp6_m_joints::wgt_irp6_m_joints(QString _widget_label, mrrocpp::ui::common:
 	ui.setupUi(this);
 	specyficrobot = dynamic_cast <mrrocpp::ui::irp6_m::UiRobot *>(_robot);
 
-	if (robot->robot_name == lib::irp6p_m::ROBOT_NAME) {
-		ui.label_axis_7->hide();
-	}
+	setup_ui(ui.grid_up, robot->number_of_servos);
 
-	setup_ui(ui.gridLayout, robot->number_of_servos);
+	for (int i = 0; i < robot->number_of_servos; ++i) {
+		axis_labels[i]->setText(QString("q%1").arg(i));
+	}
 }
 
 void wgt_irp6_m_joints::setup_ui(QGridLayout *layout, int _rows_number)
@@ -40,7 +40,7 @@ void wgt_irp6_m_joints::init()
 		if (robot->state.edp.pid != -1) {
 			if (robot->state.edp.is_synchronised) // Czy robot jest zsynchronizowany?
 			{
-				execute_button->setDisabled(false);
+				ui.pushButton_execute->setDisabled(false);
 				specyficrobot->ui_ecp_robot->read_joints(robot->current_pos);
 				std::cout << "init ok. wartosci current pos:" << std::endl;
 				for (int i = 0; i < robot->number_of_servos; i++) {
@@ -50,7 +50,7 @@ void wgt_irp6_m_joints::init()
 				}
 				std::cout << std::endl;
 			} else {
-				execute_button->setDisabled(true); // Wygaszanie elementow przy niezsynchronizowanym robocie
+				ui.pushButton_execute->setDisabled(true); // Wygaszanie elementow przy niezsynchronizowanym robocie
 			}
 		}
 

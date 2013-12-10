@@ -742,10 +742,11 @@ THETA_NODE* model_5dof::Theta_2(THETA_NODE *theta1_pointer, THETA_NODE *theta4_p
 					break;
 				}
 			} /* end: if( (no_of_solutions == ALL_SOLUTIONS) || (root_pointer == NULL)) */
-
+			break;
 		default:
 			*result = UNKNOWN_ERROR_THETA2;
 			return (NULL);
+			break;
 	} /* end switch(res) */
 
 	if ((no_of_solutions == ALL_SOLUTIONS) || (root_pointer == NULL))
@@ -838,10 +839,11 @@ THETA_NODE* model_5dof::Theta_2(THETA_NODE *theta1_pointer, THETA_NODE *theta4_p
 							break;
 						}
 					} /* end: if( (no_of_solutions == ALL_SOLUTIONS) || (root_pointer == NULL)) */
-
+					break;
 				default:
 					*result = UNKNOWN_ERROR_THETA2;
 					return (NULL);
+					break;
 			} /* end switch(res) */
 
 		} /* end: if(rrr == TWO_SOLUTIONS) */
@@ -1278,6 +1280,7 @@ THETA_NODE* model_5dof::Theta_5(THETA_NODE *theta1_pointer, THETA_NODE *theta2_p
 	 E cos + F sin - G = 0 */
 	double s5; /* sin(THETA5) */
 	double c5; /* cos(THETA5) */
+
 
 	int16_t special_case; /* gdy C4 == 0 && S4 > 0   special_case =  1
 	 gdy C4 == 0 && S4 < 0   special_case = -1

@@ -106,5 +106,26 @@ void timespec_increment_ns(struct timespec * ts, unsigned long increment)
 	}
 }
 
+uint16_t convert_to_115(float input)
+{
+	uint16_t output;
+
+	if (input >= 1.0) {
+		printf("convert_to_115 input bigger or equal then 1.0\n");
+		return 0;
+	} else if (input < -1.0) {
+		printf("convert_to_115 input lower then -1.0\n");
+		return 0;
+	} else if (input < 0.0) {
+		output = 65535 + (int) (input * 32768.0);
+	} else if (input >= 0.0) {
+		output = (uint16_t) (input * 32768.0);
+	}
+
+//	printf("convert_to_115 i: %f, o: %x\n",input, output);
+
+	return output;
+}
+
 } // namespace lib
 } // namespace mrrocpp

@@ -29,20 +29,26 @@ void wgt_teaching::hideEvent(QHideEvent *event)
 void wgt_teaching::on_pushButton_send_move_clicked()
 {
 
+	for (int i = 0; i < lib::MAX_SERVOS_NR; i++) {
+		interface.ui_ecp_obj->ui_rep.coordinates[i] = 0.0;
+	}
+
 	if (interface.ui_ecp_obj->ecp_to_ui_msg.robot_name == lib::irp6ot_m::ROBOT_NAME) {
-		for (int i = 0; i < lib::irp6ot_m::NUM_OF_SERVOS; i++)
+		for (int i = 0; i < lib::irp6ot_m::NUM_OF_SERVOS; i++) {
 			interface.ui_ecp_obj->ui_rep.coordinates[i] =
-					interface.robot_m[lib::irp6ot_m::ROBOT_NAME]->getCurrentPos()[i]; ///???
+					interface.robot_m[lib::irp6ot_m::ROBOT_NAME]->getCurrentPos(i);
+		}
 	} else if (interface.ui_ecp_obj->ecp_to_ui_msg.robot_name == lib::irp6p_m::ROBOT_NAME) {
-		for (int i = 0; i < lib::irp6p_m::NUM_OF_SERVOS; i++)
-			interface.ui_ecp_obj->ui_rep.coordinates[i] =
-					interface.robot_m[lib::irp6p_m::ROBOT_NAME]->getCurrentPos()[i]; ///???
+		for (int i = 0; i < lib::irp6p_m::NUM_OF_SERVOS; i++) {
+			interface.ui_ecp_obj->ui_rep.coordinates[i] = interface.robot_m[lib::irp6p_m::ROBOT_NAME]->getCurrentPos(i);
+		}
 	}
 
 	interface.ui_ecp_obj->ui_rep.double_number = ui->doubleSpinBox_input->value();
 	interface.ui_ecp_obj->ui_rep.reply = lib::NEXT;
 	interface.ui_ecp_obj->communication_state = ui::common::UI_ECP_REPLY_READY;
 	interface.ui_ecp_obj->synchroniser.command();
+
 }
 
 void wgt_teaching::on_pushButton_end_motion_clicked()

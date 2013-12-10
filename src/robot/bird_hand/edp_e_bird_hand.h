@@ -30,8 +30,7 @@ const uint64_t STEP_TIME_IN_NS = 2000000;
  *
  * It is the base of the head mounted on the mobile base.
  */
-class effector : public common::manip_effector
-{
+class effector: public common::manip_effector {
 protected:
 
 	uint64_t macrostep_end_time;
@@ -68,7 +67,7 @@ public:
 	 */
 	void move_arm(const lib::c_buffer &instruction); // przemieszczenie ramienia
 
-	void get_controller_state(lib::c_buffer &instruction);
+	void get_controller_state(const lib::c_buffer &instruction);
 
 	/*!
 	 * \brief method to get position of the arm
@@ -97,7 +96,8 @@ public:
 	 *
 	 * Here the single thread variant is chosen
 	 */
-	void master_order(common::MT_ORDER nm_task, int nm_tryb);
+	void master_order(common::MT_ORDER nm_task, int nm_tryb,
+			lib::c_buffer &instruction);
 
 	/*!
 	 * \brief method to receive instruction from ecp of particular type

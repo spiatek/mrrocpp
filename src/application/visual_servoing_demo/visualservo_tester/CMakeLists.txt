@@ -13,6 +13,7 @@ add_executable(ecp_vsdemo_conveyor_test
 
 target_link_libraries(ecp_vsdemo_conveyor_test
 	ecp_robot
+	logger_client
 )
 
 # conveyor generator: uniform acceleration

@@ -35,24 +35,36 @@ const int NUM_OF_SERVOS = 1;
 const int LAST_MOXA_PORT_NUM = 0;
 
 /*!
- * @brief IRp6 conveyor array of communication port names
+ * @brief conveyor array of communication port names
  * @ingroup conveyor
  */
 
 const std::string ports_strings[] = //{ "/dev/ttyM7" };
-{ "/dev/ttyMI15" };
+		{ "/dev/ttyMI15" };
 
 /*!
- * @brief Conveyor two finger gripper overcurrent threshold [mA]
+ * @brief Conveyor  overcurrent threshold [mA]
  * @ingroup irp6p_tfg
  */
-const int MAX_CURRENT_0 = 200;
+const int16_t MAX_CURRENT_0 = 18000;
 
 /*!
  * @brief Conveyor max encoder increment
  * @ingroup conveyor
  */
 const double MAX_INCREMENT[] = { 0 };
+
+/*!
+ * @brief Conveyor motor driver cards addresses
+ * @ingroup conveyor
+ */
+const unsigned int CARD_ADDRESSES[] = { 7 };
+
+/*!
+ * @brief Number of command prefix bytes
+ * @ingroup conveyor
+ */
+const int TX_PREFIX_LEN = 0;
 
 } // namespace conveyor
 } // namespace lib

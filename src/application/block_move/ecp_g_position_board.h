@@ -13,7 +13,7 @@
 #include "base/lib/typedefs.h"
 #include "base/ecp/ecp_task.h"
 
-#include "generator/ecp/ecp_g_newsmooth.h"
+#include "generator/ecp/newsmooth/ecp_g_newsmooth.h"
 
 #include "ecp_mp_g_position_board.h"
 

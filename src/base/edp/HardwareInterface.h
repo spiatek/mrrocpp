@@ -74,7 +74,7 @@ protected:
 
 public:
 	HardwareInterface(motor_driven_effector &_master) :
-		master(_master)
+			master(_master)
 	{
 
 	}
@@ -90,11 +90,15 @@ public:
 
 	motor_driven_effector &master;
 	virtual void init() = 0;
-	virtual void insert_set_value(int drive_number, double set_value) = 0;
+	virtual void set_pwm(int drive_number, double set_value) = 0;
+	virtual void set_current(int drive_number, double set_value) = 0;
+
+	virtual void set_pwm_mode(int drive_number) = 0;
+	virtual void set_current_mode(int drive_number) = 0;
+
 	virtual int get_current(int drive_number) = 0;
 
 	virtual float get_voltage(int drive_number) = 0;
-
 
 	virtual double get_increment(int drive_number) = 0;
 	virtual long int get_position(int drive_number) = 0;
@@ -102,13 +106,14 @@ public:
 	virtual void reset_counters(void) = 0; // Zerowanie licznikow polozenia
 	virtual void start_synchro(int drive_number) = 0;
 	virtual void finish_synchro(int drive_number) = 0;
+	virtual void unsynchro(int drive_number) = 0;
 	virtual bool in_synchro_area(int drive_number) = 0;
 	virtual bool robot_synchronized() = 0;
 
 	virtual bool is_impulse_zero(int drive_number) = 0;
 	virtual void reset_position(int i) = 0;
 
-	virtual int set_parameter(int drive_number, const int parameter, uint32_t new_value) = 0;
+	virtual int set_parameter_now(int drive_number, const int parameter, ...) = 0;
 };
 
 }

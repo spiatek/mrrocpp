@@ -74,6 +74,8 @@ public:
 	 */
 	void add_termination_condition(boost::shared_ptr <mrrocpp::ecp::servovision::termination_condition> term_cond);
 
+	void remove_termination_condition(boost::shared_ptr <mrrocpp::ecp::servovision::termination_condition> term_cond);
+
 	/**
 	 * Get linear end effector's speed.
 	 * @return

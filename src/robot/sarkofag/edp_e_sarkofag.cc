@@ -10,7 +10,6 @@
 // Data:		14.02.2007
 // ------------------------------------------------------------------------
 
-
 // Klasa edp_sarkofag_effector.
 #include "robot/sarkofag/sg_sarkofag.h"
 #include "robot/sarkofag/edp_e_sarkofag.h"
@@ -27,14 +26,15 @@ void effector::create_threads()
 	motor_driven_effector::hi_create_threads();
 }
 
-void effector::master_order(common::MT_ORDER nm_task, int nm_tryb)
+void effector::master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction)
 {
-	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb);
+
+	motor_driven_effector::multi_thread_master_order(nm_task, nm_tryb, instruction);
 }
 
 // Konstruktor.
 effector::effector(common::shell &_shell) :
-	motor_driven_effector(_shell, lib::sarkofag::ROBOT_NAME, instruction, reply)
+		motor_driven_effector(_shell, lib::sarkofag::ROBOT_NAME, instruction, reply)
 {
 
 	number_of_servos = lib::sarkofag::NUM_OF_SERVOS;

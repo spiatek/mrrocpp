@@ -28,7 +28,7 @@
 #include "robot/irp6ot_m/ecp_r_irp6ot_m.h"
 #include "robot/irp6p_m/ecp_r_irp6p_m.h"
 #include "robot/irp6p_m/const_irp6p_m.h"
-#include "generator/ecp/ecp_g_newsmooth.h"
+#include "generator/ecp/newsmooth/ecp_g_newsmooth.h"
 
 #include "generator/ecp/bias_edp_force/ecp_mp_g_bias_edp_force.h"
 #include "generator/ecp/tff_gripper_approach/ecp_mp_g_tff_gripper_approach.h"
@@ -41,8 +41,8 @@
 #include "generator/ecp/bias_edp_force/ecp_g_bias_edp_force.h"
 
 #include "generator/ecp/transparent/ecp_mp_g_transparent.h"
-#include "generator/ecp/ecp_mp_g_newsmooth.h"
-#include "generator/ecp/ecp_mp_g_teach_in.h"
+#include "generator/ecp/newsmooth/ecp_mp_g_newsmooth.h"
+#include "generator/ecp/teach_in/ecp_mp_g_teach_in.h"
 #include "generator/ecp/weight_measure/ecp_mp_g_weight_measure.h"
 #include "../../base/ecp_mp/ecp_mp_task.h"
 
@@ -153,18 +153,20 @@ fsautomat::fsautomat(lib::configurator &_config) :
 										xmlFree(argument);
 									} else if (!xmlStrcmp(child_node->children->name, (const xmlChar *) "ecp_teach_in_gen")) {
 										xmlChar *argument = xmlNodeGetContent(child_node->children);
-										if (argument && xmlStrcmp(argument, (const xmlChar *) ""))
-											;
+										if (argument && xmlStrcmp(argument, (const xmlChar *) "")) {
+
+										}
 										tig = new common::generator::teach_in(*this);
 										xmlFree(argument);
 									} else if (!xmlStrcmp(child_node->children->name, (const xmlChar *) "bias_edp_force_gen")) {
 
 										xmlChar *argument = xmlNodeGetContent(child_node->children);
-										if (argument && xmlStrcmp(argument, (const xmlChar *) ""))
-											;
+										if (argument && xmlStrcmp(argument, (const xmlChar *) "")) {
+
+										}
 										befg = new common::generator::bias_edp_force(*this);
 										xmlFree(argument);
-									} else if (!xmlStrcmp(child_node->children->name, (const xmlChar *) "ecp_smooth_gen")) {
+									} else if (!xmlStrcmp(child_node->children->name, (const xmlChar *) "ecp_newsmooth_gen")) {
 										xmlChar *argument = xmlNodeGetContent(child_node->children);
 										if (argument && xmlStrcmp(argument, (const xmlChar *) "")) {
 											axes_num = atoi((char *) argument);

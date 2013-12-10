@@ -18,16 +18,20 @@
 
 #include "robot/irp6p_m/const_irp6p_m.h"
 #include "robot/irp6p_m/mp_r_irp6p_m.h"
+#include "robot/irp6ot_m/const_irp6ot_m.h"
+#include "robot/irp6ot_m/mp_r_irp6ot_m.h"
 
 #include "generator/ecp/tff_gripper_approach/ecp_mp_g_tff_gripper_approach.h"
 #include "generator/ecp/bias_edp_force/ecp_mp_g_bias_edp_force.h"
-#include "generator/ecp/ecp_mp_g_newsmooth.h"
+#include "generator/ecp/newsmooth/ecp_mp_g_newsmooth.h"
 
 #include "generator/ecp/smooth_file_from_mp/ecp_mp_g_smooth_file_from_mp.h"
 
 #include "generator/ecp/tff_gripper_approach/ecp_mp_g_tff_gripper_approach.h"
 
 #include "generator/ecp/bias_edp_force/ecp_mp_g_bias_edp_force.h"
+#include "ecp_mp_g_block_reaching.h"
+#include "ecp_mp_g_position_board.h"
 
 #include "../visual_servoing/visual_servoing.h"
 #include "../visual_servoing_demo/ecp_mp_g_visual_servo_tester.h"
@@ -58,6 +62,18 @@ task* return_created_mp_task(lib::configurator &_config)
 void block_move::create_robots()
 {
 	ACTIVATE_MP_ROBOT(irp6p_m);
+	ACTIVATE_MP_ROBOT(irp6ot_m);
+
+	int name = config.value <int>("robot_name", "[mp]");
+	if(name == 1) {
+		robot_name = lib::irp6ot_m::ROBOT_NAME;
+	}
+	else if(name == 2) {
+		robot_name = lib::irp6p_m::ROBOT_NAME;
+	}
+	else {
+		throw std::runtime_error("MP: Robot not supported");
+	}
 }
 
 block_move::block_move(lib::configurator &_config) :
@@ -81,17 +97,15 @@ block_position_list block_move::get_list_from_file(const char* file_name)
 	std::ifstream file_stream(file_name);
 
 	if (!file_stream.good()) {
-		//TODO: add exception - file not exists
-		//throw MP_error(lib::NON_FATAL_ERROR, NON_EXISTENT_FILE);
 		sr_ecp_msg->message("File not exists");
+		//throw MP_error(NON_EXISTENT_FILE);
 		return pb_lst;
 	}
 
 	sr_ecp_msg->message("File opened");
 
 	if (!(file_stream >> number_of_blocks)) {
-		//TODO: add exception - read from file
-		//throw MP_error(lib::NON_FATAL_ERROR, READ_FILE_ERROR);
+		//throw MP_error(READ_FILE_ERROR);
 		sr_ecp_msg->message("Can't read from file");
 		return pb_lst;
 	}
@@ -175,6 +189,7 @@ block_position_list block_move::create_plan(block_position_list l)
 
 void block_move::main_task_algorithm(void)
 {
+
 	sr_ecp_msg->message("Block Move MP Start");
 
 	block_position_list list_from_file = get_list_from_file("../../src/application/block_move/con/structure.con");
@@ -189,17 +204,17 @@ void block_move::main_task_algorithm(void)
 
 			sr_ecp_msg->message("Reaching building place...");
 
-			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_build_start.trj", lib::irp6p_m::ROBOT_NAME);
-			wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_build_start.trj", lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 			wait_ms(1000);
 
 			sr_ecp_msg->message("Board localization - servovision");
 
-			set_next_ecp_state(ecp_mp::generator::ECP_GEN_VISUAL_SERVO_TEST, BOARD_COLOR, "", lib::irp6p_m::ROBOT_NAME);
-			wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, BOARD_COLOR, "", lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
-			if (robot_m[lib::irp6p_m::ROBOT_NAME]->ecp_reply_package.variant == 1) {
+			if (robot_m[lib::irp6ot_m::ROBOT_NAME]->ecp_reply_package.variant == 1) {
 				sr_ecp_msg->message("Board localized");
 				break;
 			}
@@ -219,10 +234,9 @@ void block_move::main_task_algorithm(void)
 
 		sr_ecp_msg->message("Start position");
 
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6p_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
-
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start_track.trj", lib::irp6ot_m::ROBOT_NAME);
+		//set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6p_m::ROBOT_NAME);
+		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		int block_localization = config.value <int>("block_localization", "[mp_block_move]");
 		int count_servo_try_2 = config.value <int>("count_servo_try_2", "[mp_block_move]");
@@ -235,15 +249,16 @@ void block_move::main_task_algorithm(void)
 
 				sr_ecp_msg->message("Start position");
 
-				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6p_m::ROBOT_NAME);
-				wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start_track.trj", lib::irp6ot_m::ROBOT_NAME);
+				//set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6ot_m::ROBOT_NAME);
+				wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 				wait_ms(1000);
 
 				sr_ecp_msg->message("Block localization - servovision");
 
-				set_next_ecp_state(ecp_mp::generator::ECP_GEN_VISUAL_SERVO_TEST, present_color, "", lib::irp6p_m::ROBOT_NAME);
-				wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+				set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, present_color, "", lib::irp6ot_m::ROBOT_NAME);
+				wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 				if (robot_m[lib::irp6p_m::ROBOT_NAME]->ecp_reply_package.variant == 1) {
 					sr_ecp_msg->message("Block localized");
@@ -257,54 +272,54 @@ void block_move::main_task_algorithm(void)
 
 			sr_ecp_msg->message("Force approach");
 
-			set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.03, 800, 3), lib::irp6p_m::ROBOT_NAME);
-			wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.03, 800, 3), lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 
 			wait_ms(1000);
 
 			sr_ecp_msg->message("Go up");
 
-			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/up_to_p0.trj", lib::irp6p_m::ROBOT_NAME);
-			wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/up_to_p0.trj", lib::irp6ot_m::ROBOT_NAME);
+			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 			wait_ms(1000);
 		}
 
 		sr_ecp_msg->message("Reaching building place...");
 
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_build_start.trj", lib::irp6p_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_build_start.trj", lib::irp6ot_m::ROBOT_NAME);
+		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		wait_ms(1000);
 
 		int param = 100 * present_position[0] + 10 * present_position[1] + present_position[2];
 
 		sr_ecp_msg->message("Reaching position...");
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_NEWSMOOTH, param, "", lib::irp6p_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_NEWSMOOTH, param, "", lib::irp6ot_m::ROBOT_NAME);
+		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		wait_ms(1000);
 
 		sr_ecp_msg->message("Force approach");
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.02, 600, 2), lib::irp6p_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.02, 600, 2), lib::irp6ot_m::ROBOT_NAME);
+		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		wait_ms(4000);
 
 		sr_ecp_msg->message("Raising up...");
 
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/build.trj", lib::irp6p_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/build.trj", lib::irp6ot_m::ROBOT_NAME);
+		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		sr_ecp_msg->message("Force approach");
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, BUILDING, "", lib::irp6p_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, BUILDING, "", lib::irp6ot_m::ROBOT_NAME);
+		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		sr_ecp_msg->message("Raising up...");
 
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/up_after_pushing.trj", lib::irp6p_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/up_after_pushing.trj", lib::irp6ot_m::ROBOT_NAME);
+		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		wait_ms(1000);
 
@@ -312,6 +327,7 @@ void block_move::main_task_algorithm(void)
 	}
 
 	sr_ecp_msg->message("Block move END");
+
 }
 
 } // namespace task

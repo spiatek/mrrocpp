@@ -2,7 +2,7 @@
 #include "ui_r_irp6_m.h"
 
 //#include "ui/src/ui_ecp_r_single_motor.h"
-#include "../base/ui_ecp_robot/ui_ecp_r_common012.h"
+#include "../base/ui_ecp_robot/ui_ecp_r_common_012.h"
 #include "wgt_irp6_m_angle_axis.h"
 #include "../base/interface.h"
 #include "../base/mainwindow.h"
@@ -14,15 +14,16 @@ wgt_irp6_m_angle_axis::wgt_irp6_m_angle_axis(QString _widget_label, mrrocpp::ui:
 	ui.setupUi(this);
 	robot = dynamic_cast <mrrocpp::ui::irp6_m::UiRobot *>(_robot);
 
-	ui.label_axis_1->setText("x");
-	ui.label_axis_2->setText("y");
-	ui.label_axis_3->setText("z");
-	ui.label_axis_4->setText("ax");
-	ui.label_axis_5->setText("ay");
-	ui.label_axis_6->setText("az");
-	ui.label_axis_7->hide();
+	setup_ui(ui.grid_up, 6);
 
-	setup_ui(ui.gridLayout, 6);
+	axis_labels[0]->setText("x");
+	axis_labels[1]->setText("y");
+	axis_labels[2]->setText("z");
+
+	axis_labels[3]->setText("ax");
+	axis_labels[4]->setText("ay");
+	axis_labels[5]->setText("az");
+
 }
 
 void wgt_irp6_m_angle_axis::setup_ui(QGridLayout *layout, int _rows_number)

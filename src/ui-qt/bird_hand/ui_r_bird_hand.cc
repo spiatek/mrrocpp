@@ -32,21 +32,16 @@ namespace bird_hand {
 const std::string UiRobot::WGT_COMMAND_AND_STATUS = "WGT_COMMAND_AND_STATUS";
 const std::string UiRobot::WGT_CONFIGURATION = "WGT_CONFIGURATION";
 
-void UiRobot::edp_create()
-{
-	if (state.edp.state == common::UI_EDP_OFF) {
-		create_thread();
-
-		eb.command(boost::bind(&ui::bird_hand::UiRobot::edp_create_int, &(*this)));
-	}
-}
-
 void UiRobot::create_ui_ecp_robot()
 {
 	common::UiRobot::ui_ecp_robot = ui_ecp_robot = new ui::bird_hand::EcpRobot(*this);
 }
 
 void UiRobot::synchronise()
+{
+}
+
+void UiRobot::unsynchronise()
 {
 }
 

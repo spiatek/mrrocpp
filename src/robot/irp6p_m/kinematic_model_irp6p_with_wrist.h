@@ -8,11 +8,11 @@
  * @ingroup KINEMATICS IRP6P_KINEMATICS irp6p_m
  */
 
-
 #if !defined(_IRP6P_KIN_MODEL_WITH_WRIST)
 #define _IRP6P_KIN_MODEL_WITH_WRIST
 
 #include "base/kinematics/kinematic_model_with_tool.h"
+#include "robot/irp6p_m/const_irp6p_m.h"
 
 namespace mrrocpp {
 namespace kinematics {
@@ -29,7 +29,7 @@ namespace irp6p {
  *
  * @ingroup KINEMATICS IRP6P_KINEMATICS
  */
-class model_with_wrist: public common::kinematic_model_with_tool
+class model_with_wrist : public common::kinematic_model_with_tool
 {
 protected:
 	//! D-H kinematic parameters - length of 2nd segment.
@@ -48,10 +48,10 @@ protected:
 	double d7;
 
 	//! Table storing gear ratio for all DOFs.
-	double gear[7];
+	double gear[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Variable storing gear additional rotation for all DOFs.
-	double theta[7];
+	double theta[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Variable utilized in computations related to upper and lower arm.
 	double sl123;
@@ -80,23 +80,22 @@ protected:
 	double inv_d_6;
 
 	//! Lower limits of motor movement.
-	double lower_limit_axis[7];
+	double lower_limit_axis[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Upper limits of motor movement.
-	double upper_limit_axis[7];
+	double upper_limit_axis[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Lower limit of joint movement (in radians).
-	double lower_limit_joint[7];
+	double lower_limit_joint[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Upper limit of joint movement (in radians).
-	double upper_limit_joint[7];
-
+	double upper_limit_joint[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Synchronization positions of each motor - in motor increments.
-	double synchro_motor_position[7];
+	double synchro_motor_position[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Synchronization positions of each joint - in internal coordinates.
-	double synchro_joint_position[7];
+	double synchro_joint_position[lib::irp6p_m::NUM_OF_SERVOS];
 
 	//! Method responsible for kinematic parameters setting.
 	virtual void set_kinematic_parameters(void);
@@ -152,6 +151,13 @@ public:
 	 */
 	virtual void inverse_kinematics_transform(lib::JointArray & local_desired_joints, const lib::JointArray & local_current_joints, const lib::Homog_matrix& local_desired_end_effector_frame);
 
+	/**
+	 * @brief Solves inverse kinematics. The new, additional DOF is active, while the track is treated as passive one.
+	 * @param[out] local_desired_joints Computed join values (d0, q1, q2, ...).
+	 * @param[in] local_current_joints Current (in fact previous) internal values.
+	 * @param[in] local_desired_end_effector_frame Given end-effector frame.
+	 */
+	void inverse_kinematics_single_iteration(lib::JointArray & local_desired_joints, const lib::JointArray & local_current_joints, const lib::Homog_matrix& local_desired_end_effector_frame);
 };
 
 } // namespace irp6p

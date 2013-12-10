@@ -45,8 +45,7 @@ namespace ui {
 namespace common {
 
 ecp_buffer::ecp_buffer(Interface& _interface) :
-		interface(_interface), communication_state(UI_ECP_AFTER_REPLY),
-		ecp_to_ui_msg(_ecp_to_ui_msg)
+		interface(_interface), communication_state(UI_ECP_AFTER_REPLY), ecp_to_ui_msg(_ecp_to_ui_msg)
 {
 	thread_id = boost::thread(boost::bind(&ecp_buffer::operator(), this));
 }

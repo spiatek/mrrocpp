@@ -32,6 +32,8 @@ public:
 	// ecp_buffer ui_edp_package; // by Y
 	EcpRobot(common::UiRobot& _ui_robot); // Konstruktor
 
+	virtual void get_controller_state(lib::controller_state_t & robot_controller_initial_state_l);
+
 };
 
 }

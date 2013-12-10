@@ -16,6 +16,7 @@
 #include "base/lib/com_buf.h"
 #include "base/edp/edp_typedefs.h"
 #include "base/edp/reader.h"
+#include "base/edp/servo_gr.h"
 #include "robot/irp6p_m/regulator_irp6p_m.h"
 #include "robot/irp6p_m/const_irp6p_m.h"
 
@@ -30,8 +31,8 @@ namespace irp6p_m {
 // uint64_t kk;	// numer pomiaru od momentu startu pomiarow
 
 /*-----------------------------------------------------------------------*/
-NL_regulator_2_irp6p::NL_regulator_2_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master) :
-		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master)
+NL_regulator_2_irp6p::NL_regulator_2_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output) :
+		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master, _reg_output)
 {
 	desired_velocity_limit = 0.5;
 	// Konstruktor regulatora konkretnego
@@ -43,8 +44,8 @@ NL_regulator_2_irp6p::NL_regulator_2_irp6p(uint8_t _axis_number, uint8_t reg_no,
 /*-----------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------*/
-NL_regulator_3_irp6p::NL_regulator_3_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master) :
-		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master)
+NL_regulator_3_irp6p::NL_regulator_3_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output) :
+		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master, _reg_output)
 {
 	desired_velocity_limit = 0.5;
 	// Konstruktor regulatora konkretnego
@@ -56,8 +57,8 @@ NL_regulator_3_irp6p::NL_regulator_3_irp6p(uint8_t _axis_number, uint8_t reg_no,
 /*-----------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------*/
-NL_regulator_4_irp6p::NL_regulator_4_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master) :
-		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master)
+NL_regulator_4_irp6p::NL_regulator_4_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output) :
+		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master, _reg_output)
 {
 	desired_velocity_limit = 0.5;
 	// Konstruktor regulatora konkretnego
@@ -69,8 +70,8 @@ NL_regulator_4_irp6p::NL_regulator_4_irp6p(uint8_t _axis_number, uint8_t reg_no,
 /*-----------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------*/
-NL_regulator_5_irp6p::NL_regulator_5_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master) :
-		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master)
+NL_regulator_5_irp6p::NL_regulator_5_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output) :
+		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master, _reg_output)
 {
 	desired_velocity_limit = 0.5;
 	// Konstruktor regulatora konkretnego
@@ -84,8 +85,8 @@ NL_regulator_5_irp6p::NL_regulator_5_irp6p(uint8_t _axis_number, uint8_t reg_no,
 /*-----------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------*/
-NL_regulator_6_irp6p::NL_regulator_6_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master) :
-		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master)
+NL_regulator_6_irp6p::NL_regulator_6_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output) :
+		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master, _reg_output)
 {
 	desired_velocity_limit = 0.5;
 	// Konstruktor regulatora konkretnego
@@ -97,8 +98,8 @@ NL_regulator_6_irp6p::NL_regulator_6_irp6p(uint8_t _axis_number, uint8_t reg_no,
 /*-----------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------*/
-NL_regulator_7_irp6p::NL_regulator_7_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master) :
-		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master)
+NL_regulator_7_irp6p::NL_regulator_7_irp6p(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output) :
+		NL_regulator(_axis_number, reg_no, reg_par_no, aa, bb0, bb1, k_ff, _master, _reg_output)
 {
 	desired_velocity_limit = 0.5;
 	// Konstruktor regulatora konkretnego
@@ -132,7 +133,7 @@ uint8_t NL_regulator_2_irp6p::compute_set_value(void)
 	// set_value_very_old     - wielkosc kroku do realizacji przez HIP
 	//                         (wypelnienie PWM -- u[k-2]): czas trwania jedynki
 
-	double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
+	//double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
 	// (przyrost wartosci zadanej polozenia --
 	// delta r[k-1] -- mierzone w impulsach)
 	uint8_t alg_par_status; // okresla prawidlowosc numeru algorytmu regulacji
@@ -242,8 +243,7 @@ uint8_t NL_regulator_2_irp6p::compute_set_value(void)
 						algorithm_parameters_no = current_algorithm_parameters_no;
 						alg_par_status = common::UNIDENTIFIED_ALGORITHM_PARAMETERS_NO;
 						break;
-				}
-				; // end: switch (algorithm_parameters_no)
+				} // end: switch (algorithm_parameters_no)
 				break;
 			case 2: // algorytm nr 2 - sterowanie pradowe
 				current_algorithm_parameters_no = algorithm_parameters_no;
@@ -261,6 +261,8 @@ uint8_t NL_regulator_2_irp6p::compute_set_value(void)
 	a = 0.412429378531;
 	b0 = 2.594932 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO; //stara z przelicz rezolwer/enkoder 15.219541375872
 	b1 = 2.504769 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO; //
+	max_output_current = 20000;
+	current_reg_kp = 200;
 
 	switch (algorithm_no)
 	{
@@ -276,7 +278,8 @@ uint8_t NL_regulator_2_irp6p::compute_set_value(void)
 			break;
 		case 2: // algorytm nr 2 - sterowanie pradowe
 			// DUNG START
-			current_desired = 0.4 * 9.52 * (master.instruction.arm.pf_def.desired_torque[0] / 158);
+			current_desired = 0.4 * 9.52
+					* (master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[0] / 158);
 			current_measured = (measured_current - 128 - 3) * 0.035;
 			current_error = current_desired - current_measured;
 			int_current_error = int_current_error + current_error * 0.02; // 500Hz => 0.02s
@@ -286,7 +289,7 @@ uint8_t NL_regulator_2_irp6p::compute_set_value(void)
 			display++;
 			if (display >= 500) {
 				display = 0;
-				//printf("joint 1:   desired_current = %f,    current_error = %f,    out = %f\n", master.instruction.arm.pf_def.desired_torque[0] / 158, current_error, -30 * current_error - 4.0*int_current_error);
+				//printf("joint 1:   desired_current = %f,    current_error = %f,    out = %f\n", master.instruction.arm.pf_def.desired_torque_or_current[0] / 158, current_error, -30 * current_error - 4.0*int_current_error);
 			}
 			// DUNG END
 			break;
@@ -296,32 +299,7 @@ uint8_t NL_regulator_2_irp6p::compute_set_value(void)
 			break;
 	}
 
-	// scope-locked reader data update
-	{
-		boost::mutex::scoped_lock lock(master.rb_obj->reader_mutex);
-
-		master.rb_obj->step_data.desired_inc[0] = (float) step_new_pulse; // pozycja osi 0
-		master.rb_obj->step_data.current_inc[0] = (short int) position_increment_new;
-		master.rb_obj->step_data.pwm[0] = (float) set_value_new;
-		master.rb_obj->step_data.uchyb[0] = (float) (step_new_pulse - position_increment_new);
-		master.rb_obj->step_data.measured_current[0] = measured_current;
-	}
-
-	//  	set_value_new=set_value_new;
-
-	// ograniczenie na sterowanie
-	if (set_value_new > MAX_PWM)
-		set_value_new = MAX_PWM;
-	if (set_value_new < -MAX_PWM)
-		set_value_new = -MAX_PWM;
-
-	// przepisanie nowych wartosci zmiennych do zmiennych przechowujacych wartosci poprzednie
-	position_increment_old = position_increment_new;
-	delta_eint_old = delta_eint;
-	step_old_pulse = step_new_pulse;
-	set_value_very_old = set_value_old;
-	set_value_old = set_value_new;
-	PWM_value = (int) set_value_new;
+	compute_set_value_final_computations();
 
 	return alg_par_status;
 
@@ -350,7 +328,7 @@ uint8_t NL_regulator_3_irp6p::compute_set_value(void)
 	// set_value_very_old     - wielkosc kroku do realizacji przez HIP
 	//                         (wypelnienie PWM -- u[k-2]): czas trwania jedynki
 
-	double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
+	//double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
 	// (przyrost wartosci zadanej polozenia --
 	// delta r[k-1] -- mierzone w impulsach)
 	uint8_t alg_par_status; // okresla prawidlowosc numeru algorytmu regulacji
@@ -458,8 +436,7 @@ uint8_t NL_regulator_3_irp6p::compute_set_value(void)
 						algorithm_parameters_no = current_algorithm_parameters_no;
 						alg_par_status = common::UNIDENTIFIED_ALGORITHM_PARAMETERS_NO;
 						break;
-				}
-				; // end: switch (algorithm_parameters_no)
+				} // end: switch (algorithm_parameters_no)
 				break;
 			case 2: // algorytm nr 2 - sterowanie pradowe
 				current_algorithm_parameters_no = algorithm_parameters_no;
@@ -477,6 +454,8 @@ uint8_t NL_regulator_3_irp6p::compute_set_value(void)
 	a = 0.655629139073;
 	b0 = 1.030178 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO; //6.042100283822;
 	b1 = 0.986142 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO;
+	max_output_current = 15000;
+	current_reg_kp = 150;
 
 	switch (algorithm_no)
 	{
@@ -491,7 +470,8 @@ uint8_t NL_regulator_3_irp6p::compute_set_value(void)
 			break;
 		case 2: // algorytm nr 2 - sterowanie pradowe
 			// DUNG START
-			current_desired = 0.4 * 9.52 * (master.instruction.arm.pf_def.desired_torque[1] / 158);
+			current_desired = 0.4 * 9.52
+					* (master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[1] / 158);
 			current_measured = (measured_current - 128 - 3) * 0.035;
 			current_error = current_desired - current_measured;
 			int_current_error = int_current_error + current_error * 0.02; // 500Hz => 0.02s
@@ -507,34 +487,11 @@ uint8_t NL_regulator_3_irp6p::compute_set_value(void)
 			break;
 		default: // w tym miejscu nie powinien wystapic blad zwiazany z
 			// nieistniejacym numerem algorytmu
-			set_value_new = 0; // zerowe nowe sterowanie
+			set_value_new = 10; // zerowe nowe sterowanie
 			break;
 	}
 
-	// scope-locked reader data update
-	{
-		boost::mutex::scoped_lock lock(master.rb_obj->reader_mutex);
-
-		master.rb_obj->step_data.desired_inc[1] = (float) step_new_pulse; // pozycja osi 0
-		master.rb_obj->step_data.current_inc[1] = (short int) position_increment_new;
-		master.rb_obj->step_data.pwm[1] = (float) set_value_new;
-		master.rb_obj->step_data.uchyb[1] = (float) (step_new_pulse - position_increment_new);
-		master.rb_obj->step_data.measured_current[1] = measured_current;
-	}
-
-	// ograniczenie na sterowanie
-	if (set_value_new > MAX_PWM)
-		set_value_new = MAX_PWM;
-	if (set_value_new < -MAX_PWM)
-		set_value_new = -MAX_PWM;
-
-	// przepisanie nowych wartosci zmiennych do zmiennych przechowujacych wartosci poprzednie
-	position_increment_old = position_increment_new;
-	delta_eint_old = delta_eint;
-	step_old_pulse = step_new_pulse;
-	set_value_very_old = set_value_old;
-	set_value_old = set_value_new;
-	PWM_value = (int) set_value_new;
+	compute_set_value_final_computations();
 
 	return alg_par_status;
 
@@ -563,7 +520,7 @@ uint8_t NL_regulator_4_irp6p::compute_set_value(void)
 	// set_value_very_old     - wielkosc kroku do realizacji przez HIP
 	//                         (wypelnienie PWM -- u[k-2]): czas trwania jedynki
 
-	double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
+	//double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
 	// (przyrost wartosci zadanej polozenia --
 	// delta r[k-1] -- mierzone w impulsach)
 	uint8_t alg_par_status; // okresla prawidlowosc numeru algorytmu regulacji
@@ -693,6 +650,8 @@ uint8_t NL_regulator_4_irp6p::compute_set_value(void)
 	a = 0.315789473684;
 	b0 = 1.997464 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO;
 	b1 = 1.904138 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO;
+	max_output_current = 15000;
+	current_reg_kp = 180;
 
 	switch (algorithm_no)
 	{
@@ -707,7 +666,8 @@ uint8_t NL_regulator_4_irp6p::compute_set_value(void)
 			break;
 		case 2: // algorytm nr 2 - sterowanie pradowe
 			// DUNG START
-			current_desired = 0.4 * 9.52 * (master.instruction.arm.pf_def.desired_torque[2] / 158);
+			current_desired = 0.4 * 9.52
+					* (master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[2] / 158);
 			current_measured = (measured_current - 128 - 3) * 0.035;
 			current_error = current_desired - current_measured;
 			int_current_error = int_current_error + current_error * 0.02; // 500Hz => 0.02s
@@ -727,31 +687,7 @@ uint8_t NL_regulator_4_irp6p::compute_set_value(void)
 			break;
 	}
 
-	// scope-locked reader data update
-	{
-		boost::mutex::scoped_lock lock(master.rb_obj->reader_mutex);
-
-		master.rb_obj->step_data.desired_inc[2] = (float) step_new_pulse; // pozycja osi 0
-		master.rb_obj->step_data.current_inc[2] = (short int) position_increment_new;
-		master.rb_obj->step_data.pwm[2] = (float) set_value_new;
-		master.rb_obj->step_data.uchyb[2] = (float) (step_new_pulse - position_increment_new);
-		master.rb_obj->step_data.measured_current[2] = measured_current;
-		// master.rb_obj->step_data.uchyb[3]=(float) (step_new_pulse - position_increment_new);
-	}
-
-	// ograniczenie na sterowanie
-	if (set_value_new > MAX_PWM)
-		set_value_new = MAX_PWM;
-	if (set_value_new < -MAX_PWM)
-		set_value_new = -MAX_PWM;
-
-	// przepisanie nowych wartosci zmiennych do zmiennych przechowujacych wartosci poprzednie
-	position_increment_old = position_increment_new;
-	delta_eint_old = delta_eint;
-	step_old_pulse = step_new_pulse;
-	set_value_very_old = set_value_old;
-	set_value_old = set_value_new;
-	PWM_value = (int) set_value_new;
+	compute_set_value_final_computations();
 
 	return alg_par_status;
 
@@ -780,7 +716,7 @@ uint8_t NL_regulator_5_irp6p::compute_set_value(void)
 	// set_value_very_old     - wielkosc kroku do realizacji przez HIP
 	//                         (wypelnienie PWM -- u[k-2]): czas trwania jedynki
 
-	double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
+	//double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
 	// (przyrost wartosci zadanej polozenia --
 	// delta r[k-1] -- mierzone w impulsach)
 	uint8_t alg_par_status; // okresla prawidlowosc numeru algorytmu regulacji
@@ -902,6 +838,8 @@ uint8_t NL_regulator_5_irp6p::compute_set_value(void)
 	a = 0.548946716233;
 	b0 = 1.576266 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2; //9.244959545156;
 	b1 = 1.468599 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2; //8.613484947882;
+	max_output_current = 15000;
+	current_reg_kp = 170;
 
 	switch (algorithm_no)
 	{
@@ -916,7 +854,8 @@ uint8_t NL_regulator_5_irp6p::compute_set_value(void)
 			break;
 		case 2: // algorytm nr 2 - sterowanie pradowe
 			// DUNG START
-			current_desired = 0.4 * 9.52 * (master.instruction.arm.pf_def.desired_torque[3] / 158);
+			current_desired = 0.4 * 9.52
+					* (master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[3] / 158);
 			current_measured = (measured_current - 128 - 3) * 0.035;
 			current_error = current_desired - current_measured;
 			int_current_error = int_current_error + current_error * 0.02; // 500Hz => 0.02s
@@ -926,7 +865,7 @@ uint8_t NL_regulator_5_irp6p::compute_set_value(void)
 			display++;
 			if (display >= 500) {
 				display = 0;
-				printf("joint 4:   desired_current = %f,    current_error = %f,    out = %f\n", master.instruction.arm.pf_def.desired_torque[3]
+				printf("joint 4:   desired_current = %f,    current_error = %f,    out = %f\n", master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[3]
 						/ 158, current_error, -30 * current_error - 4.0 * int_current_error);
 			}
 			// DUNG END
@@ -937,37 +876,7 @@ uint8_t NL_regulator_5_irp6p::compute_set_value(void)
 			break;
 	}
 
-	// scope-locked reader data update
-	{
-		boost::mutex::scoped_lock lock(master.rb_obj->reader_mutex);
-
-		master.rb_obj->step_data.desired_inc[3] = (float) step_new_pulse; // pozycja osi 0
-		master.rb_obj->step_data.current_inc[3] = (short int) position_increment_new;
-		master.rb_obj->step_data.pwm[3] = (float) set_value_new;
-		master.rb_obj->step_data.uchyb[3] = (float) (step_new_pulse - position_increment_new);
-		master.rb_obj->step_data.measured_current[3] = measured_current;
-	}
-
-	// ograniczenie na sterowanie
-	if (set_value_new > MAX_PWM)
-		set_value_new = MAX_PWM;
-	if (set_value_new < -MAX_PWM)
-		set_value_new = -MAX_PWM;
-
-	// if (fabs(set_value_new) > 200.0 && first) {
-	// cprintf("PIN=%lf PIO=%lf DIN=%lf DIO=%lf SO=%lf SVVO=%lf SV0=%lf\n", position_increment_new,
-	//     position_increment_old, delta_eint, delta_eint_old,
-	//     step_old_pulse, set_value_very_old, set_value_old);
-	// first = false;
-	// }
-
-	// przepisanie nowych wartosci zmiennych do zmiennych przechowujacych wartosci poprzednie
-	position_increment_old = position_increment_new;
-	delta_eint_old = delta_eint;
-	step_old_pulse = step_new_pulse;
-	set_value_very_old = set_value_old;
-	set_value_old = set_value_new;
-	PWM_value = (int) set_value_new;
+	compute_set_value_final_computations();
 
 	return alg_par_status;
 
@@ -996,7 +905,7 @@ uint8_t NL_regulator_6_irp6p::compute_set_value(void)
 	// set_value_very_old     - wielkosc kroku do realizacji przez HIP
 	//                         (wypelnienie PWM -- u[k-2]): czas trwania jedynki
 
-	double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
+	//double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
 	// (przyrost wartosci zadanej polozenia --
 	// delta r[k-1] -- mierzone w impulsach)
 	uint8_t alg_par_status; // okresla prawidlowosc numeru algorytmu regulacji
@@ -1120,6 +1029,8 @@ uint8_t NL_regulator_6_irp6p::compute_set_value(void)
 	a = 0.391982182628;
 	b0 = 1.114648 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2; //6.537527839644;
 	b1 = 1.021348 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2; //5.990311804009;
+	max_output_current = 8000;
+	current_reg_kp = 110;
 
 	switch (algorithm_no)
 	{
@@ -1134,7 +1045,8 @@ uint8_t NL_regulator_6_irp6p::compute_set_value(void)
 			break;
 		case 2: // algorytm nr 2 - sterowanie pradowe
 			// DUNG START
-			current_desired = 0.4 * 9.52 * (master.instruction.arm.pf_def.desired_torque[4] / 158);
+			current_desired = 0.4 * 9.52
+					* (master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[4] / 158);
 			current_measured = (measured_current - 128 - 3) * 0.035;
 			current_error = current_desired - current_measured;
 			int_current_error = int_current_error + current_error * 0.02; // 500Hz => 0.02s
@@ -1154,34 +1066,7 @@ uint8_t NL_regulator_6_irp6p::compute_set_value(void)
 			break;
 	}
 
-	// ograniczenie na sterowanie
-	if (set_value_new > MAX_PWM)
-		set_value_new = MAX_PWM;
-	if (set_value_new < -MAX_PWM)
-		set_value_new = -MAX_PWM;
-
-	// scope-locked reader data update
-	{
-		boost::mutex::scoped_lock lock(master.rb_obj->reader_mutex);
-
-		master.rb_obj->step_data.desired_inc[4] = (float) step_new_pulse; // pozycja osi 0
-		master.rb_obj->step_data.current_inc[4] = (short int) position_increment_new;
-		master.rb_obj->step_data.pwm[4] = (float) set_value_new;
-		master.rb_obj->step_data.uchyb[4] = (float) (step_new_pulse - position_increment_new);
-		master.rb_obj->step_data.measured_current[4] = measured_current;
-	}
-
-	// if (set_value_new > 0.0) {
-	//  cprintf("svn = %lf  pin = %lf\n",set_value_new, position_increment_new);
-	// }
-
-	// przepisanie nowych wartosci zmiennych do zmiennych przechowujacych wartosci poprzednie
-	position_increment_old = position_increment_new;
-	delta_eint_old = delta_eint;
-	step_old_pulse = step_new_pulse;
-	set_value_very_old = set_value_old;
-	set_value_old = set_value_new;
-	PWM_value = (int) set_value_new;
+	compute_set_value_final_computations();
 
 	return alg_par_status;
 
@@ -1210,7 +1095,7 @@ uint8_t NL_regulator_7_irp6p::compute_set_value(void)
 	// set_value_very_old     - wielkosc kroku do realizacji przez HIP
 	//                         (wypelnienie PWM -- u[k-2]): czas trwania jedynki
 
-	double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
+	//double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
 	// (przyrost wartosci zadanej polozenia --
 	// delta r[k-1] -- mierzone w impulsach)
 	uint8_t alg_par_status; // okresla prawidlowosc numeru algorytmu regulacji
@@ -1319,8 +1204,7 @@ uint8_t NL_regulator_7_irp6p::compute_set_value(void)
 						algorithm_parameters_no = current_algorithm_parameters_no;
 						alg_par_status = common::UNIDENTIFIED_ALGORITHM_PARAMETERS_NO;
 						break;
-				}
-				; // end: switch (algorithm_parameters_no)
+				} // end: switch (algorithm_parameters_no)
 				break;
 			case 2: // algorytm nr 2 - sterowanie pradowe
 				current_algorithm_parameters_no = algorithm_parameters_no;
@@ -1344,6 +1228,8 @@ uint8_t NL_regulator_7_irp6p::compute_set_value(void)
 	a = 0.3;
 	b0 = 1.364 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2; //4
 	b1 = 1.264 * POSTUMENT35V_TO_POSTUMENT_VOLTAGE_RATIO_2; //1.364//4
+	max_output_current = 1000;
+	current_reg_kp = 11;
 
 	switch (algorithm_no)
 	{
@@ -1358,7 +1244,8 @@ uint8_t NL_regulator_7_irp6p::compute_set_value(void)
 			break;
 		case 2: // algorytm nr 2 - sterowanie pradoweb0 =
 			// DUNG START
-			current_desired = 0.4 * 9.52 * (master.instruction.arm.pf_def.desired_torque[5] / 158);
+			current_desired = 0.4 * 9.52
+					* (master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[5] / 158);
 			current_measured = (measured_current - 128 - 3) * 0.02;
 			current_error = current_desired - current_measured;
 			int_current_error = int_current_error + current_error * 0.02; // 500Hz => 0.02s
@@ -1368,7 +1255,7 @@ uint8_t NL_regulator_7_irp6p::compute_set_value(void)
 			display++;
 			if (display >= 500) {
 				display = 0;
-				printf("joint 6:   desired_current = %f,    current_error = %f,    out = %f\n", master.instruction.arm.pf_def.desired_torque[5]
+				printf("joint 6:   desired_current = %f,    current_error = %f,    out = %f\n", master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[5]
 						/ 158, current_error, -30 * current_error - 4.0 * int_current_error);
 			}
 			// DUNG END
@@ -1379,36 +1266,7 @@ uint8_t NL_regulator_7_irp6p::compute_set_value(void)
 			break;
 	}
 
-	// ograniczenie na sterowanie
-	if (set_value_new > MAX_PWM)
-		set_value_new = MAX_PWM;
-	if (set_value_new < -MAX_PWM)
-		set_value_new = -MAX_PWM;
-
-	// if (set_value_new!=0.0) printf ("aa: %f\n", set_value_new);
-
-	// scope-locked reader data update
-	{
-		boost::mutex::scoped_lock lock(master.rb_obj->reader_mutex);
-
-		master.rb_obj->step_data.desired_inc[5] = (float) step_new_pulse; // pozycja osi 0
-		master.rb_obj->step_data.current_inc[5] = (short int) position_increment_new;
-		master.rb_obj->step_data.pwm[5] = (float) set_value_new;
-		master.rb_obj->step_data.uchyb[5] = (float) (step_new_pulse - position_increment_new);
-		master.rb_obj->step_data.measured_current[5] = measured_current;
-	}
-
-	// if (set_value_new > 0.0) {
-	//  cprintf("svn = %lf  pin = %lf\n",set_value_new, position_increment_new);
-	// }
-
-	// przepisanie nowych wartosci zmiennych do zmiennych przechowujacych wartosci poprzednie
-	position_increment_old = position_increment_new;
-	delta_eint_old = delta_eint;
-	step_old_pulse = step_new_pulse;
-	set_value_very_old = set_value_old;
-	set_value_old = set_value_new;
-	PWM_value = (int) set_value_new;
+	compute_set_value_final_computations();
 
 	return alg_par_status;
 

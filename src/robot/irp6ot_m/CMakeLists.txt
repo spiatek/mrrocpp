@@ -16,6 +16,7 @@ target_link_libraries(
 target_link_libraries(
 	edp_irp6ot_m
 	ati3084KB
+	adis16362_imu
 )
 
 	

@@ -49,7 +49,7 @@ public:
 
 
 	common::servo_buffer *return_created_servo_buffer();
-	void master_order(common::MT_ORDER nm_task, int nm_tryb);
+	void master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction);
 
 	/*!
 	 * \brief The particular type of instruction send form ECP to EDP

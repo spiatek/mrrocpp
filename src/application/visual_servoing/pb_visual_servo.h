@@ -49,7 +49,10 @@ private:
 	bool use_reading_linear_extrapolation;
 
 	Types::Mrrocpp_Proxy::PBReading reading_t_minus_1;
+	struct timespec reading_t_minus_1_time;
+
 	Types::Mrrocpp_Proxy::PBReading reading_t_minus_2;
+	struct timespec reading_t_minus_2_time;
 };
 
 /** @} */

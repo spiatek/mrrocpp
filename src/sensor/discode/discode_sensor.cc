@@ -94,22 +94,28 @@ void discode_sensor::configure_sensor()
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd == -1) {
 		state = DSS_ERROR;
+		log_dbg("DISCODE: SOCKET() FAILED\n");
 		throw ds_connection_exception("socket(): " + string(strerror(errno)));
 	}
+	log_dbg("DISCODE: SOCKET() SUCCESS %d\n", sockfd);
 
 	int flag = 1;
 	if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int)) == -1) {
 		state = DSS_ERROR;
+		log_dbg("DISCODE: SOCKOPT() FAILED\n");
 		throw ds_connection_exception("setsockopt(): " + string(strerror(errno)));
 	}
+	log_dbg("DISCODE: SOCKOPT() SUCCESS %d\n", sockfd);
 
 	// Get server hostname.
 	hostent * server = gethostbyname(discode_node_name.c_str());
 	if (server == NULL) {
 		state = DSS_ERROR;
+		log_dbg("DISCODE: GETHOSTBYNAME() FAILED\n");
 		throw ds_connection_exception("discode_sensor::configure_sensor(): gethostbyname(" + discode_node_name + "): " + string(
 				hstrerror(h_errno)));
 	}
+	log_dbg("DISCODE: GETHOSTBYNAME() SUCCESS %s\n", discode_node_name.c_str());
 
 	// Data with address of connection
 	sockaddr_in serv_addr;
@@ -119,10 +125,13 @@ void discode_sensor::configure_sensor()
 	serv_addr.sin_port = htons(discode_port);
 
 	// Try to establish a connection with discode.
+	log_dbg("CONNECT: %d %d", sockfd, serv_addr.sin_port);
 	if (connect(sockfd, (const struct sockaddr *) &serv_addr, sizeof(serv_addr)) == -1) {
+		log_dbg("DISCODE: CONNECT() FAILED\n");
 		state = DSS_ERROR;
 		throw ds_connection_exception("connect(): " + string(strerror(errno)));
 	}
+	log_dbg("DISCODE: CONNECT() SUCCESS\n");
 
 	// there was no reading
 	rmh.data_size = 0;

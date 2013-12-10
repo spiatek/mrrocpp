@@ -13,20 +13,25 @@
 
 #include "base/mp/mp_task.h"
 #include "base/mp/mp_robot.h"
+#include "config.h"
 
 #include "mp_t_c.h"
 #include "base/mp/generator/mp_g_wait_for_task_termination.h"
 
+#if (R_BIRD_HAND == 1)
+#include "robot/bird_hand/mp_r_bird_hand.h"
+#endif
+#if (R_012 == 1)
 #include "robot/conveyor/mp_r_conveyor.h"
 #include "robot/irp6ot_m/mp_r_irp6ot_m.h"
 #include "robot/irp6p_m/mp_r_irp6p_m.h"
 
-#include "robot/bird_hand/mp_r_bird_hand.h"
 #include "robot/irp6ot_tfg/mp_r_irp6ot_tfg.h"
 #include "robot/irp6p_tfg/mp_r_irp6p_tfg.h"
 #include "robot/sarkofag/mp_r_sarkofag.h"
-#include "robot/festival/const_festival.h"
+#endif
 
+#include "robot/festival/const_festival.h"
 
 namespace mrrocpp {
 namespace mp {
@@ -40,18 +45,18 @@ task* return_created_mp_task(lib::configurator &_config)
 cxx::cxx(lib::configurator &_config) :
 		task(_config)
 {
+	sr_ecp_msg->message("mp bubu");
 }
 
 // powolanie robotow w zaleznosci od zawartosci pliku konfiguracyjnego
 void cxx::create_robots()
 {
 
-
 #if (R_BIRD_HAND == 1)
-	ACTIVATE_MP_
-	ROBOT(bird_hand);
+	ACTIVATE_MP_ROBOT(bird_hand);
 #endif
 #if (R_012 == 1)
+	sr_ecp_msg->message("mp gugu");
 	ACTIVATE_MP_ROBOT(conveyor);
 	ACTIVATE_MP_ROBOT(irp6ot_tfg);
 	ACTIVATE_MP_ROBOT(irp6ot_m);

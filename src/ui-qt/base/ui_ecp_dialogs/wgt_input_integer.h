@@ -23,9 +23,8 @@ public:
 	wgt_input_integer(mrrocpp::ui::common::Interface& _interface, QWidget *parent = 0);
 	~wgt_input_integer();
 
-
 	void hideEvent(QHideEvent * event);
-	void my_open(bool set_on_top=false);
+	void my_open(bool set_on_top = false);
 private:
 	Ui::wgt_input_integerClass* ui;
 

@@ -46,13 +46,25 @@ const std::string ports_strings[] = { "/dev/ttyMI7" };
  * @brief Sarkofag overcurrent threshold [mA]
  * @ingroup sarkofag
  */
-const int MAX_CURRENT_0 = 20000;
+const int16_t MAX_CURRENT_0 = 25000;
 
 /*!
- * @brief IRp6 postument two finger gripper overcurrent threshold [mA]
+ * @brief Sarkofag max increment
  * @ingroup sarkofag
  */
 const double MAX_INCREMENT[] = { 0 };
+
+/*!
+ * @brief Sarkofag motor driver cards addresses
+ * @ingroup sarkofag
+ */
+const unsigned int CARD_ADDRESSES[] = { 0 };
+
+/*!
+ * @brief Number of command prefix bytes
+ * @ingroup sarkofag
+ */
+const int TX_PREFIX_LEN = 5;
 
 }
 } // namespace lib

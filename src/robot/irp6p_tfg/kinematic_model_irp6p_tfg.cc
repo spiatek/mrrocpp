@@ -41,7 +41,7 @@ void model::set_kinematic_parameters(void)
 
 	synchro_motor_position = 4830; // chwytak [-]
 
-	synchro_joint_position = synchro_motor_position;// - gear * theta;
+	synchro_joint_position = synchro_motor_position; // - gear * theta;
 
 	/* -----------------------------------------------------------------------
 	 Zakresy ruchu walow silnikow w radianach.

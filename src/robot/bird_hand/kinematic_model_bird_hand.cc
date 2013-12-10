@@ -70,19 +70,6 @@ void kinematic_model_bird_hand::check_joints(const lib::JointArray & q) const
 	else if (q[5] > params.upper_limit_joint[5])
 		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_UPPER_THETA5_LIMIT));
 
-	//	if (isnan(q[6]))
-	//		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(NOT_A_NUMBER_JOINT_VALUE_THETA6));
-	//	if (q[6] < params.lower_limit_joint[6])
-	//		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_LOWER_THETA6_LIMIT));
-	//	else if (q[6] > params.upper_limit_joint[6])
-	//		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_UPPER_THETA6_LIMIT));
-	//
-	//	if (isnan(q[7]))
-	//		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(NOT_A_NUMBER_JOINT_VALUE_THETA7));
-	//	if (q[7] < params.lower_limit_joint[7])
-	//		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_LOWER_THETA7_LIMIT));
-	//	else if (q[7] > params.upper_limit_joint[7])
-	//		BOOST_THROW_EXCEPTION(nfe_2() << mrrocpp_error0(BEYOND_UPPER_THETA7_LIMIT));
 }
 
 void kinematic_model_bird_hand::i2mp_transform(lib::MotorArray & local_desired_motor_pos_new, const lib::JointArray & local_desired_joints)

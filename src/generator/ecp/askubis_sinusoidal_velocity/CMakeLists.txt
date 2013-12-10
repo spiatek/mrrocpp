@@ -1,0 +1,11 @@
+add_library(ecp_g_askubis_sinusoidal_velocity
+	ecp_g_askubis_sinusoidal_velocity.cc
+)
+
+add_library(ecp_mp_g_askubis_sinusoidal_velocity
+	ecp_mp_g_askubis_sinusoidal_velocity.cc
+	)
+	
+target_link_libraries(ecp_g_askubis_sinusoidal_velocity ecp)
+
+install(TARGETS ecp_g_askubis_sinusoidal_velocity ecp_mp_g_askubis_sinusoidal_velocity DESTINATION lib)

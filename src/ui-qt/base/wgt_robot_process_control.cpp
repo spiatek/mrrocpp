@@ -1,7 +1,3 @@
-#include "../irp6ot_m/ui_r_irp6ot_m.h"
-#include "../irp6p_m/ui_r_irp6p_m.h"
-#include "../conveyor/ui_r_conveyor.h"
-
 #include "wgt_robot_process_control.h"
 #include "interface.h"
 #include "ui_robot.h"
@@ -14,8 +10,9 @@ wgt_robot_process_control::wgt_robot_process_control(QString _widget_label, mrro
 		robot(robo)
 {
 	ui->setupUi(this);
-	ui->robot_label->setText(QString::fromStdString((robo->getName())));
-	connect(this, SIGNAL(process_control_window_init_signal()), this, SLOT(process_control_window_init_slot()), Qt::QueuedConnection);
+	ui->robot_label->setText(QString::fromStdString((robo->getName())) + " pc");
+	dwgt->setWindowTitle(QString::fromStdString((robo->getName())) + " pc");
+	connect(this, SIGNAL(window_init_signal()), this, SLOT(window_init_slot()), Qt::QueuedConnection);
 }
 
 wgt_robot_process_control::~wgt_robot_process_control()
@@ -28,12 +25,12 @@ Ui::wgt_robot_process_controlClass * wgt_robot_process_control::get_ui()
 	return ui;
 }
 
-void wgt_robot_process_control::process_control_window_init()
+void wgt_robot_process_control::window_init()
 {
-	emit process_control_window_init_signal();
+	emit window_init_signal();
 }
 
-void wgt_robot_process_control::process_control_window_init_slot()
+void wgt_robot_process_control::window_init_slot()
 {
 	init();
 }
@@ -41,7 +38,7 @@ void wgt_robot_process_control::process_control_window_init_slot()
 void wgt_robot_process_control::my_open(bool set_on_top)
 {
 	wgt_base::my_open(set_on_top);
-	process_control_window_init();
+	window_init();
 }
 
 //ECP

@@ -58,7 +58,7 @@ bool y_edge_follow_force::first_step()
 	the_robot->ecp_command.robot_model.type = lib::TOOL_FRAME;
 	the_robot->ecp_command.get_robot_model_type = lib::TOOL_FRAME;
 	the_robot->ecp_command.set_arm_type = lib::PF_VELOCITY;
-	the_robot->ecp_command.get_arm_type = lib::FRAME;
+//	the_robot->ecp_command.get_arm_type = lib::FRAME;
 	the_robot->ecp_command.motion_type = lib::ABSOLUTE;
 	the_robot->ecp_command.interpolation_type = lib::TCIM;
 	the_robot->ecp_command.motion_steps = step_no;
@@ -96,7 +96,7 @@ bool y_edge_follow_force::next_step()
 		return false;
 	}
 
-	std::cout << "y_edge_follow_force" << node_counter << std::endl;
+	// std::cout << "y_edge_follow_force" << node_counter << std::endl;
 
 	// 	wstawienie nowego przyrostu pozyji do przyrostowej trajektorii ruchu do zapisu do pliku
 	lib::Homog_matrix tmp_matrix(the_robot->reply_package.arm.pf_def.arm_frame);
@@ -178,8 +178,11 @@ bool y_edge_follow_force::next_step()
 		 the_robot->EDP_data.ECPtoEDP_reference_frame[1][1] = c_alfa;
 		 */
 
-		printf("sensor: x: %+ld, y: %+ld, v:%+ld, %f\n", lround(wx), lround(wy), lround(v), atan2(s_alfa, c_alfa)
+		printf("sensor: fx: %+lf, fy: %+lf, fall: %+lf, xpos: %+lf, ypos: %+lf\n", wx, wy, v, tmp_delta[0], tmp_delta[1]);
+
+	/*	printf("sensor: x: %+ld, y: %+ld, v:%+ld, %f\n", lround(wx), lround(wy), lround(v), atan2(s_alfa, c_alfa)
 				* (180.0 / M_PI));
+	*/
 	}
 
 	return true;

@@ -15,6 +15,11 @@ namespace mrrocpp {
 namespace edp {
 namespace common {
 
+enum REG_OUTPUT
+{
+	CURRENT_OUTPUT, PWM_OUTPUT
+};
+
 static const uint8_t ALGORITHM_AND_PARAMETERS_OK = 0;
 static const uint8_t UNIDENTIFIED_ALGORITHM_NO = 1;
 static const uint8_t UNIDENTIFIED_ALGORITHM_PARAMETERS_NO = 2;
@@ -31,6 +36,9 @@ protected:
 	// Niezaleznie od zmiennych uzywanych przez algorytm konkretny
 	// ponizsze zmienne musza byc zawsze aktualizowany, ze wzgledu na
 	// "bezszelestne" przelaczanie algorytmow.
+
+	//czy zastosowane czyste sterowanie pradowe bez ograniczenia pwm?
+	bool strict_current_mode;
 
 	int measured_current; // wartosc zmierzona pradu
 
@@ -54,6 +62,7 @@ protected:
 
 	double step_new_over_constraint_sum;
 
+	double output_value; // wyjscie, z reguly set_value_new
 	double set_value_new; // wielkosc kroku do realizacji przez HI (wypelnienie PWM -- u[k])
 	double set_value_old; // wielkosc kroku do realizacji przez HI (wypelnienie PWM -- u[k-1])
 	double set_value_very_old; // wielkosc kroku do realizacji przez HI (wypelnienie PWM -- u[k-2])
@@ -68,17 +77,30 @@ protected:
 
 	lib::GRIPPER_STATE_ENUM reg_state, next_reg_state, prev_reg_state; // stany w ktorych moze byc regulator
 
+	// uchyb polozenia osi
+	double abs_pos_dev;
+	// uchyb polozenia osi w poprzednim kroku
+	double abs_pos_dev_old;
+	// przyrost uchybu polozenia wzgledem poprzedniego kroku
+	double delta_abs_pos_dev;
+	// calka uchybu (od poczatku ruchu)
+	double abs_pos_dev_int;
+	// calka uchybu w poprzednim kroku
+	double abs_pos_dev_int_old;
+
 	// maksymalny predkosc zadana (przyrost na jeden krok) w radianach na wale silnika
 	double desired_velocity_limit;
 
 public:
+
+	REG_OUTPUT reg_output;
 
 	bool new_desired_velocity_error;
 	// samoświadomości osi
 	uint8_t axis_number;
 
 	motor_driven_effector &master;
-	regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, motor_driven_effector &_master); // konstruktor
+	regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, motor_driven_effector &_master, REG_OUTPUT _reg_output); // konstruktor
 
 	virtual ~regulator();
 
@@ -86,6 +108,13 @@ public:
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda abstrakcyjna
 
 	double get_set_value(void) const;
+
+	// regulator desired abs position for particular step
+	double reg_abs_desired_motor_pos;
+
+	// regulator current abs position for particular step
+	double reg_abs_current_motor_pos;
+
 	double previous_abs_position; // poprzednia pozycja absolutna dla potrzeb trybu testowego
 	void insert_new_step(double ns);
 	void insert_measured_current(int measured_current_l);
@@ -139,14 +168,21 @@ protected:
 	double int_current_error;
 	int display;
 
+	double max_output_current;
+	double current_reg_kp;
+	double step_new_pulse; // nastepna wartosc zadana dla jednego kroku regulacji
+
 public:
 
-	NL_regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, motor_driven_effector &_master);
+	NL_regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, motor_driven_effector &_master, REG_OUTPUT _reg_output);
 
 	virtual uint8_t compute_set_value(void) = 0;
 	// obliczenie nastepnej wartosci zadanej dla napedu - metoda abstrakcyjna
 
 	virtual ~NL_regulator();
+
+	virtual void compute_set_value_final_computations();
+
 };
 // ----------------------------------------------------------------------
 

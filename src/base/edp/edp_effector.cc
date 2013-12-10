@@ -18,12 +18,12 @@ namespace common {
 
 /*--------------------------------------------------------------------------*/
 effector::effector(shell &_shell, const lib::robot_name_t & l_robot_name) :
-	server_attach(lib::invalid_fd),
-	edp_shell(_shell),
-	robot_name(l_robot_name),
-	config(_shell.config),
-	msg(_shell.msg),
-	robot_test_mode(true)
+		server_attach(lib::invalid_fd),
+		edp_shell(_shell),
+		robot_name(l_robot_name),
+		config(_shell.config),
+		msg(_shell.msg),
+		robot_test_mode(true)
 {
 
 	if (config.exists(lib::ROBOT_TEST_MODE)) {
@@ -38,16 +38,44 @@ effector::effector(shell &_shell, const lib::robot_name_t & l_robot_name) :
 
 effector::~effector()
 {
-	if(server_attach != lib::invalid_fd) {
+	if (server_attach != lib::invalid_fd) {
 		messip::port_delete(server_attach);
 	}
+}
+
+void effector::check_kernel_version()
+{
+	if (!robot_test_mode) {
+		FILE* pipe = popen("uname -r", "r");
+		if (!pipe) {
+
+		}
+		char buffer[128];
+		std::string result = "";
+		while (!feof(pipe)) {
+			if (fgets(buffer, 128, pipe) != NULL)
+				result += buffer;
+		}
+		pclose(pipe);
+
+//	std::cout << "stderr: " << result << 'n';
+
+		if (std::string::npos != result.find("generic")) {
+			std::stringstream buffer(std::stringstream::in | std::stringstream::out);
+
+			buffer << "GENERIC LINUX KERNEL RUNNING IN HARDWARE MODE: " << result;
+
+			msg->message(lib::NON_FATAL_ERROR, buffer.str());
+		}
+
+	}
+
 }
 
 /*--------------------------------------------------------------------------*/
 void effector::initialize_communication()
 {
-	const std::string
-			server_attach_point(config.get_edp_resourceman_attach_point());
+	const std::string server_attach_point(config.get_edp_resourceman_attach_point());
 
 	server_attach = messip::port_create(server_attach_point);
 
@@ -58,7 +86,7 @@ void effector::initialize_communication()
 	}
 
 	/* Ustawienie priorytetu procesu */
-	if(!robot_test_mode) {
+	if (!robot_test_mode) {
 		lib::set_thread_priority(lib::PTHREAD_MAX_PRIORITY - 2);
 	}
 
@@ -71,16 +99,6 @@ void effector::establish_error(lib::r_buffer_base & reply, uint64_t err0, uint64
 	reply.error_no.error1 = err1;
 }
 
-void effector::instruction_deserialization()
-{
-}
-
-void effector::reply_serialization()
-{
-}
-
 } // namespace common
 } // namespace edp
-}
-// namespace mrrocpp
-
+} // namespace mrrocpp

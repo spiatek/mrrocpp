@@ -2,7 +2,7 @@
 #include "ui_r_irp6_m.h"
 
 //#include "ui/src/ui_ecp_r_single_motor.h"
-#include "../base/ui_ecp_robot/ui_ecp_r_common012.h"
+#include "../base/ui_ecp_robot/ui_ecp_r_common_012.h"
 #include "wgt_irp6_m_motors.h"
 #include "../base/interface.h"
 #include "../base/mainwindow.h"
@@ -15,18 +15,12 @@ wgt_irp6_m_motors::wgt_irp6_m_motors(QString _widget_label, mrrocpp::ui::common:
 	ui.setupUi(this);
 	specyficrobot = dynamic_cast <mrrocpp::ui::irp6_m::UiRobot *>(_robot);
 
-//	if (robot->robot_name == lib::irp6ot_m::ROBOT_NAME)
-//	{
-//	//	current_pos_spin_boxes.append(ui.doubleSpinBox_cur_p7);
-//		//desired_pos_spin_boxes.append(ui.doubleSpinBox_des_p7);
-//	}
-	if (robot->robot_name == lib::irp6p_m::ROBOT_NAME) {
-		ui.label_axis_7->hide();
-		//ui.doubleSpinBox_cur_p7->hide();
-		/*		ui.doubleSpinBox_des_p7->hide();*/
+	setup_ui(ui.grid_up, robot->number_of_servos);
+
+	for (int i = 0; i < robot->number_of_servos; ++i) {
+		axis_labels[i]->setText(QString("q%1").arg(i));
 	}
 
-	setup_ui(ui.gridLayout, robot->number_of_servos);
 }
 
 void wgt_irp6_m_motors::setup_ui(QGridLayout *layout, int _rows_number)
@@ -64,7 +58,7 @@ void wgt_irp6_m_motors::init()
 
 void wgt_irp6_m_motors::move_it()
 {
-	// wychwytania ew. bledow ECP::robot
+// wychwytania ew. bledow ECP::robot
 	try {
 
 		if (robot->state.edp.pid != -1) {

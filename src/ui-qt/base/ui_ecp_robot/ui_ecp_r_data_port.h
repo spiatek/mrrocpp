@@ -45,6 +45,19 @@ public:
 		the_robot->get_reply();
 	}
 
+	// Zlecenie wykonania ruchu przez robota jest to polecenie dla EDP
+	virtual void direct_execute_motion(void)
+	{
+		//printf("EcpRobotDataPort::execute_motion by pthread_t = %lu\n", pthread_self());
+
+		ui_robot.interface.set_ui_state_notification(UI_N_COMMUNICATION);
+
+		//	printf("data port execute_motion\n");
+		the_robot->execute_motion();
+
+		the_robot->get_reply();
+	}
+
 	_EcpRobotDataPort(UiRobot& _ui_robot) :
 			common::EcpRobot(_ui_robot)
 	{
@@ -53,6 +66,7 @@ public:
 	virtual ~_EcpRobotDataPort()
 	{
 	}
+
 };
 
 }

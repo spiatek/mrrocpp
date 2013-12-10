@@ -58,6 +58,10 @@ UiRobot::UiRobot(Interface& _interface, lib::robot_name_t _robot_name, int _numb
 
 	current_pos = new double[number_of_servos];
 	desired_pos = new double[number_of_servos];
+
+	current_current = new short[number_of_servos];
+	desired_current = new short[number_of_servos];
+
 }
 
 UiRobot::~UiRobot()
@@ -73,6 +77,16 @@ void UiRobot::create_thread()
 	if (!tid) {
 		tid = new feb_thread(eb);
 	}
+}
+
+double UiRobot::getCurrentPos(int i)
+{
+	return current_pos[i];
+}
+
+double UiRobot::getDesiredPos(int i)
+{
+	return desired_pos[i];
 }
 
 void UiRobot::setup_menubar()
@@ -153,6 +167,7 @@ int UiRobot::edp_create_int()
 				{
 					boost::unique_lock <boost::mutex> lock(interface.process_creation_mtx);
 					try {
+						//		printf("create_ui_ecp_robot \n");
 						create_ui_ecp_robot();
 					}
 
@@ -165,6 +180,7 @@ int UiRobot::edp_create_int()
 				}
 
 				try {
+					printf("ui_get_edp_pid \n");
 					state.edp.pid = ui_get_edp_pid();
 
 					if (state.edp.pid < 0) {
@@ -175,19 +191,13 @@ int UiRobot::edp_create_int()
 					} else { // jesli spawn sie powiodl
 
 						state.edp.state = UI_EDP_WAITING_TO_START_READER;
-
-						connect_to_reader();
-
-						// odczytanie poczatkowego stanu robota (komunikuje sie z EDP)
-						lib::controller_state_t robot_controller_initial_state_tmp;
-
-						ui_get_controler_state(robot_controller_initial_state_tmp);
-
-						if (robot_controller_initial_state_tmp.robot_in_fault_state) {
-							msg->message(lib::FATAL_ERROR, "Robot in fault state");
+						//	printf("connect_to_reader \n");
+						if (!connect_to_reader()) {
+							BOOST_THROW_EXCEPTION(ecp::exception::se_r());
 						}
-
-						state.edp.is_synchronised = robot_controller_initial_state_tmp.is_synchronised;
+						//	printf("get_edp_state \n");
+						get_edp_state();
+						//	printf(" get_edp_state za \n");
 					}
 				}
 
@@ -232,6 +242,20 @@ int UiRobot::edp_create_int()
 
 }
 
+void UiRobot::get_edp_state()
+{
+// odczytanie poczatkowego stanu robota (komunikuje sie z EDP)
+	lib::controller_state_t robot_controller_initial_state_tmp;
+
+	ui_get_controler_state(robot_controller_initial_state_tmp);
+
+	if (robot_controller_initial_state_tmp.robot_in_fault_state) {
+		msg->message(lib::FATAL_ERROR, "Robot in fault state");
+	}
+
+	state.edp.is_synchronised = robot_controller_initial_state_tmp.is_synchronised;
+}
+
 const lib::robot_name_t UiRobot::getName()
 {
 	return robot_name;
@@ -239,10 +263,9 @@ const lib::robot_name_t UiRobot::getName()
 
 void UiRobot::close_all_windows()
 {
-	BOOST_FOREACH(wgt_pair_t &wgt, wgts)
-			{
-				wgt.second->dwgt->close();
-			}
+	BOOST_FOREACH(wgt_pair_t &wgt, wgts){
+	wgt.second->dwgt->close();
+}
 
 }
 
@@ -253,7 +276,7 @@ void UiRobot::abort_thread()
 	tid = NULL;
 }
 
-void UiRobot::connect_to_reader()
+int UiRobot::connect_to_reader()
 {
 	short tmp = 0;
 	// kilka sekund  (~1) na otworzenie urzadzenia
@@ -263,9 +286,10 @@ void UiRobot::connect_to_reader()
 			boost::this_thread::sleep(lib::CONNECT_DELAY);
 		} else {
 			perror("blad odwolania do READER");
-			break;
+			return 0;
 		}
 	}
+	return 1;
 }
 
 bool UiRobot::pulse_reader_start_exec_pulse()
@@ -309,7 +333,7 @@ void UiRobot::pulse_reader_execute(int code, int value)
 	}
 }
 
-void UiRobot::connect_to_ecp_pulse_chanell()
+void UiRobot::connect_to_ecp_pulse_channel()
 {
 	short tmp = 0;
 	// kilka sekund  (~1) na otworzenie urzadzenia
@@ -318,8 +342,7 @@ void UiRobot::connect_to_ecp_pulse_chanell()
 	while ((state.ecp.trigger_fd = messip::port_connect(state.ecp.network_trigger_attach_point)) == NULL
 
 	) {
-		if (errno == EINTR
-		)
+		if (errno == EINTR)
 			break;
 		if ((tmp++) < lib::CONNECT_RETRY) {
 			boost::this_thread::sleep(lib::CONNECT_DELAY);
@@ -362,7 +385,7 @@ void UiRobot::pulse_ecp()
 {
 	if (state.edp.is_synchronised) { // o ile ECP dziala (sprawdzanie poprzez dzialanie odpowiedniego EDP)
 		if (state.ecp.trigger_fd == lib::invalid_fd) {
-			connect_to_ecp_pulse_chanell();
+			connect_to_ecp_pulse_channel();
 		}
 
 		if (state.ecp.trigger_fd != lib::invalid_fd) {
@@ -487,7 +510,7 @@ bool UiRobot::is_edp_loaded()
 	return ((state.edp.state == UI_EDP_WAITING_TO_START_READER) || (state.edp.state == UI_EDP_WAITING_TO_STOP_READER));
 }
 
-int UiRobot::ui_get_edp_pid()
+pid_t UiRobot::ui_get_edp_pid() const
 {
 	return ui_ecp_robot->ecp->get_EDP_pid();
 }
@@ -593,60 +616,59 @@ void UiRobot::reload_configuration()
 						boost::tokenizer <boost::char_separator <char> > tokens(text, sep);
 
 						int j = 0;
-						BOOST_FOREACH(std::string t, tokens)
-								{
+						BOOST_FOREACH(std::string t, tokens){
 
-									if (i < 3) {
-										//value = boost::lexical_cast<double>(my_string);
+						if (i < 3) {
+							//value = boost::lexical_cast<double>(my_string);
 
-										state.edp.preset_position[i][j] = boost::lexical_cast <double>(t);
-									} else {
-										state.edp.front_position[j] = boost::lexical_cast <double>(t);
-									}
-
-									if (j == number_of_servos) {
-										break;
-									}
-									j++;
-								}
-
-					} else {
-						for (int j = 0; j < number_of_servos; j++) {
-							if (i < 3) {
-								state.edp.preset_position[i][j] = 0.0;
-							} else {
-								state.edp.front_position[j] = 0.0;
-								printf("nie zdefiniowano front_position w common.ini\n");
-							}
-
+							state.edp.preset_position[i][j] = boost::lexical_cast <double>(t);
+						} else {
+							state.edp.front_position[j] = boost::lexical_cast <double>(t);
 						}
+
+						if (j == number_of_servos) {
+							break;
+						}
+						j++;
+					}
+
+				} else {
+					for (int j = 0; j < number_of_servos; j++) {
+						if (i < 3) {
+							state.edp.preset_position[i][j] = 0.0;
+						} else {
+							state.edp.front_position[j] = 0.0;
+							printf("nie zdefiniowano front_position w common.ini\n");
+						}
+
 					}
 				}
+			}
 
-				if (interface.config->exists(lib::ROBOT_TEST_MODE, state.edp.section_name))
-					state.edp.test_mode = interface.config->value <int>(lib::ROBOT_TEST_MODE, state.edp.section_name);
-				else
-					state.edp.test_mode = 0;
+			if (interface.config->exists(lib::ROBOT_TEST_MODE, state.edp.section_name))
+			state.edp.test_mode = interface.config->value <int>(lib::ROBOT_TEST_MODE, state.edp.section_name);
+			else
+			state.edp.test_mode = 0;
 
-				state.edp.hardware_busy_attach_point = interface.config->get_edp_hardware_busy_file(robot_name);
+			state.edp.hardware_busy_attach_point = interface.config->get_edp_hardware_busy_file(robot_name);
 
-				state.edp.network_resourceman_attach_point =
-						interface.config->get_edp_resourceman_attach_point(robot_name);
+			state.edp.network_resourceman_attach_point =
+			interface.config->get_edp_resourceman_attach_point(robot_name);
 
-				state.edp.network_reader_attach_point = interface.config->get_edp_reader_attach_point(robot_name);
+			state.edp.network_reader_attach_point = interface.config->get_edp_reader_attach_point(robot_name);
 
-				if (!interface.config->exists("node_name", state.edp.section_name)) {
-					state.edp.node_name = "localhost";
-				} else {
-					state.edp.node_name = interface.config->value <std::string>("node_name", state.edp.section_name);
-				}
-				break;
+			if (!interface.config->exists("node_name", state.edp.section_name)) {
+				state.edp.node_name = "localhost";
+			} else {
+				state.edp.node_name = interface.config->value <std::string>("node_name", state.edp.section_name);
+			}
+			break;
 			case UI_EDP_WAITING_TO_START_READER:
 			case UI_EDP_WAITING_TO_STOP_READER:
-				// nie robi nic bo EDP pracuje
-				break;
+			// nie robi nic bo EDP pracuje
+			break;
 			default:
-				break;
+			break;
 		}
 
 	} else {
@@ -654,14 +676,14 @@ void UiRobot::reload_configuration()
 		{
 			case UI_EDP_INACTIVE:
 			case UI_EDP_OFF:
-				state.edp.state = UI_EDP_INACTIVE;
-				break;
+			state.edp.state = UI_EDP_INACTIVE;
+			break;
 			case UI_EDP_WAITING_TO_START_READER:
 			case UI_EDP_WAITING_TO_STOP_READER:
-				// nie robi nic bo EDP pracuje
-				break;
+			// nie robi nic bo EDP pracuje
+			break;
 			default:
-				break;
+			break;
 		}
 	}
 

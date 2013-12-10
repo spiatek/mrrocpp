@@ -203,7 +203,7 @@ public:
 	 * @param _ecp_task ecp task object reference.
 	 */
 	_generator(task_t & _ecp_task) :
-			generator_base(_ecp_task), the_robot(boost::shared_dynamic_cast <ECP_ROBOT_T>(ecp_t.ecp_m_robot))
+			generator_base(_ecp_task), the_robot(boost::dynamic_pointer_cast <ECP_ROBOT_T>(ecp_t.ecp_m_robot))
 	{
 	}
 

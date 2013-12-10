@@ -17,6 +17,8 @@
 #include "base/edp/edp_e_manip.h"
 #include "robot/irp6p_m/const_irp6p_m.h"
 
+#include <boost/thread.hpp>
+
 namespace mrrocpp {
 namespace edp {
 namespace irp6p_m {
@@ -33,8 +35,14 @@ protected:
 	// Metoda tworzy modele kinematyczne dla robota IRp-6 na postumencie.
 	virtual void create_kinematic_models_for_given_robot(void);
 
+	boost::thread vs_tid;
+	boost::thread imu_tid;
+
 public:
 	effector(common::shell &_shell);
+
+	~effector();
+
 	common::servo_buffer *return_created_servo_buffer();
 
 	void set_robot_model(const lib::c_buffer &);
@@ -42,7 +50,7 @@ public:
 	void move_arm(const lib::c_buffer &);
 	void get_arm_position(bool, lib::c_buffer &);
 
-	void master_order(common::MT_ORDER nm_task, int nm_tryb);
+	void master_order(common::MT_ORDER nm_task, int nm_tryb, lib::c_buffer &instruction);
 
 	/*!
 	 * \brief The particular type of instruction send form ECP to EDP

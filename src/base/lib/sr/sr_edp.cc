@@ -18,7 +18,7 @@ namespace mrrocpp {
 namespace lib {
 
 sr_edp::sr_edp(process_type_t process_type, const std::string & process_name, const std::string & sr_name) :
-	sr(process_type, process_name, sr_name)
+		sr(process_type, process_name, sr_name)
 {
 }
 
@@ -97,7 +97,7 @@ void sr_edp::interpret(char * description, error_class_t message_type, uint64_t 
 			switch (s_error & 0xFF00000000000000ULL)
 			{
 				case OK:
-					break;// OK
+					break; // OK
 				case INVALID_INSTRUCTION_TYPE:
 					strcat(description, "INVALID_INSTRUCTION_TYPE");
 					break;
@@ -301,6 +301,9 @@ void sr_edp::interpret(char * description, error_class_t message_type, uint64_t 
 					break;
 				case NOT_A_NUMBER_JOINT_VALUE_THETA7:
 					strcat(description, "NOT_A_NUMBER_JOINT_VALUE_THETA7");
+					break;
+				case DIRECT_INVERSE_KINEMATIC_MISMATCH:
+					strcat(description, "DIRECT_INVERSE_KINEMATIC_MISMATCH");
 					break;
 				default:
 					strcat(description, "UNIDENTIFIED_ERROR");

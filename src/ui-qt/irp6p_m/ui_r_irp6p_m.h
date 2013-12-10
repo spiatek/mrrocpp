@@ -47,6 +47,7 @@ public:
 
 	void synchronise();
 
+
 	/*
 	 * opens move window on mp or ecp request
 	 * 	 * C_MOTOR variant

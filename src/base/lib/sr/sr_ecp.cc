@@ -14,7 +14,7 @@ namespace mrrocpp {
 namespace lib {
 
 sr_ecp::sr_ecp(process_type_t process_type, const std::string & process_name, const std::string & sr_name) :
-	sr(process_type, process_name, sr_name)
+		sr(process_type, process_name, sr_name)
 {
 }
 
@@ -79,6 +79,9 @@ void sr_ecp::interpret(char * description, error_class_t message_type, uint64_t 
 				case ECP_ERRORS:
 					sprintf(description, "ecp ERRORS");
 					break;
+				case ROBOT_NOT_ACTIVATED:
+					sprintf(description, "ecp ROBOT_NOT_ACTIVATED");
+					break;
 				case INVALID_COMMAND_TO_EDP:
 					sprintf(description, "INVALID COMMAND TO EDP");
 					break;
@@ -131,7 +134,6 @@ void sr_ecp::interpret(char * description, error_class_t message_type, uint64_t 
 			break;
 	} // end: switch (message_type)
 }
-
 
 } // namespace lib
 } // namespace mrrocpp

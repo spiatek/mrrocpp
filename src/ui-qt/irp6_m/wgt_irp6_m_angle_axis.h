@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include <QDockWidget>
 #include <QVector>
-#include "ui_wgt_absolute_template.h"
+
 #include "../base/WgtAbsoluteBase.h"
 
 #include "robot/irp6ot_m/const_irp6ot_m.h"
@@ -26,16 +26,16 @@ class UiRobot;
 
 class wgt_irp6_m_angle_axis : public WgtAbsoluteBase
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 	wgt_irp6_m_angle_axis(QString _widget_label, mrrocpp::ui::common::Interface& _interface, mrrocpp::ui::common::UiRobot *_robot, QWidget *parent =
 			0);
 	~wgt_irp6_m_angle_axis();
-	virtual void setup_ui(QGridLayout *layout, int _rows_number);
+	void setup_ui(QGridLayout *layout, int _rows_number);
 
 private:
-	Ui::wgt_absolute_template ui;
+
 	mrrocpp::ui::irp6_m::UiRobot *robot;
 
 	void init();

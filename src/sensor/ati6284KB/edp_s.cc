@@ -35,7 +35,8 @@ ATI6284_force::ATI6284_force(common::manip_effector &_master) :
 
 	conversion_scale << 4.5511972116989, 4.5511972116989, 1.41244051397552, 84.8843245576086, 84.8843245576086, 80.9472037525247;
 
-	sensor_frame = lib::Homog_matrix(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0.09);
+	force_sensor_frame = lib::Homog_matrix(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0.09);
+	imu_frame = lib::Homog_matrix(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);
 	force_sensor_name = edp::sensor::FORCE_SENSOR_ATI6284;
 
 }

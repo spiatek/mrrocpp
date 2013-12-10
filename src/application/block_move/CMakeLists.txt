@@ -1,4 +1,4 @@
-option (LIB_GECODE "Use Gecode library" ON)
+option (LIB_GECODE "Use Gecode library" OFF)
 
 add_executable(ecp_block_move
 	ecp_t_block_move.cc
@@ -34,4 +34,5 @@ else (LIB_GECODE)
 	target_link_libraries(mp_block_move mp)
 endif (LIB_GECODE)
 
+install(TARGETS ecp_block_move DESTINATION bin)
 install(TARGETS mp_block_move DESTINATION bin)

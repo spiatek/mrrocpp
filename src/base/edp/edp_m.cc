@@ -57,9 +57,15 @@ void catch_signal(int sig)
 			}
 			exit(EXIT_SUCCESS);
 			break;
+		case SIGUSR2:
+			if (edp_shell) {
+				edp_shell->msg->message(lib::SYSTEM_ERROR, "edp terminated unexpectecly");
+			}
+			exit(EXIT_SUCCESS);
+			break;
 		case SIGSEGV:
 			fprintf(stderr, "Segmentation fault in EDP process\n");
-			signal(SIGSEGV, SIG_DFL);
+			signal(SIGSEGV, SIG_DFL );
 			break;
 	} // end: switch
 }
@@ -83,9 +89,9 @@ int main(int argc, char *argv[])
 		signal(SIGTERM, &edp::common::catch_signal);
 		signal(SIGHUP, &edp::common::catch_signal);
 		signal(SIGSEGV, &edp::common::catch_signal);
-
+		signal(SIGUSR2, &edp::common::catch_signal);
 		// avoid transporting Ctrl-C signal from UI console
-		signal(SIGINT, SIG_IGN);
+		signal(SIGINT, SIG_IGN );
 
 		// create configuration object
 		lib::configurator _config(argv[1], argv[2], argv[3]);
@@ -99,7 +105,7 @@ int main(int argc, char *argv[])
 #if defined(HAVE_MLOCKALL)
 		// Try to lock memory to avoid swapping whlie executing in real-time
 		if (mlockall(MCL_CURRENT | MCL_FUTURE) == -1) {
-			perror("No real-time warrany: mlockall() failed");
+			perror("No real-time warranty: mlockall() failed");
 		}
 #endif /* HAVE_MLOCKALL */
 
@@ -113,6 +119,9 @@ int main(int argc, char *argv[])
 		edp::common::master->create_threads();
 
 		edp::common::master->msg->message("edp loaded");
+
+		// checks kernel version
+		edp::common::master->check_kernel_version();
 
 		//	printf("1\n");
 		//	delay (20000);

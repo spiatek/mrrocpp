@@ -95,6 +95,9 @@ private:
 	//! Cached hostname
 	char hostname[128];
 
+	// previous sr message
+	sr_package_t previous_sr_message;
+
 protected:
 	//! Interpret the status code into a text message
 	virtual void interpret(char * description, error_class_t message_type, uint64_t error_code0, uint64_t error_code1 = 0) = 0;
