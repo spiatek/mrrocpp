@@ -30,6 +30,8 @@
 #include "generator/ecp/tff_gripper_approach/ecp_mp_g_tff_gripper_approach.h"
 
 #include "generator/ecp/bias_edp_force/ecp_mp_g_bias_edp_force.h"
+#include "ecp_mp_g_block_reaching.h"
+#include "ecp_mp_g_position_board.h"
 
 #include "../visual_servoing/visual_servoing.h"
 #include "../visual_servoing_demo/ecp_mp_g_visual_servo_tester.h"
@@ -209,7 +211,7 @@ void block_move::main_task_algorithm(void)
 
 			sr_ecp_msg->message("Board localization - servovision");
 
-			set_next_ecp_state(ecp_mp::generator::ECP_GEN_VISUAL_SERVO_TEST, BOARD_COLOR, "", lib::irp6ot_m::ROBOT_NAME);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, BOARD_COLOR, "", lib::irp6ot_m::ROBOT_NAME);
 			wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 			if (robot_m[lib::irp6ot_m::ROBOT_NAME]->ecp_reply_package.variant == 1) {
@@ -232,9 +234,8 @@ void block_move::main_task_algorithm(void)
 
 		sr_ecp_msg->message("Start position");
 
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6ot_m::ROBOT_NAME);
-		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
-
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start_track.trj", lib::irp6ot_m::ROBOT_NAME);
+		//set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6p_m::ROBOT_NAME);
 		wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 		int block_localization = config.value <int>("block_localization", "[mp_block_move]");
@@ -248,14 +249,15 @@ void block_move::main_task_algorithm(void)
 
 				sr_ecp_msg->message("Start position");
 
-				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6ot_m::ROBOT_NAME);
+				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start_track.trj", lib::irp6ot_m::ROBOT_NAME);
+				//set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/block_move/trjs/pos_search_area_start.trj", lib::irp6ot_m::ROBOT_NAME);
 				wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 				wait_ms(1000);
 
 				sr_ecp_msg->message("Block localization - servovision");
 
-				set_next_ecp_state(ecp_mp::generator::ECP_GEN_VISUAL_SERVO_TEST, present_color, "", lib::irp6ot_m::ROBOT_NAME);
+				set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, present_color, "", lib::irp6ot_m::ROBOT_NAME);
 				wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
 
 				if (robot_m[lib::irp6p_m::ROBOT_NAME]->ecp_reply_package.variant == 1) {
@@ -263,10 +265,7 @@ void block_move::main_task_algorithm(void)
 					break;
 				}
 
-				sr_ecp_msg->message("Block not localizehostname=irp6 name=edp_irp6ot_m
-		FT3084KB created !!!
-
-d!!!");
+				sr_ecp_msg->message("Block not localized!!!");
 			}
 
 			wait_ms(1000);

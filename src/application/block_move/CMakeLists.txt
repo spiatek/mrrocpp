@@ -1,4 +1,4 @@
-option (LIB_GECODE "Use Gecode library" ON)
+option (LIB_GECODE "Use Gecode library" OFF)
 
 add_executable(ecp_block_move
 	ecp_t_block_move.cc
