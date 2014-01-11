@@ -29,6 +29,10 @@ clg_connection_exception::clg_connection_exception(const std::string& arg) :
 int clg_proxy::process(Message msg) {
 	std::string action = std::string(msg.action);
 	std::vector<std::string> parameters;
+	int result;
+
+	printf("clg_proxy::process()\n");
+
 	for(int i = 0; i < 4; i++) {
 		parameters.push_back(std::string(msg.params[i]));
 	}
@@ -37,12 +41,14 @@ int clg_proxy::process(Message msg) {
 			//boost::thread* thr = new boost::thread(&action_manager::observe_color, p);
 			//tgroup.add_thread(thr);
 			tgroup.create_thread(boost::bind(&action_manager::observe_color, manager, boost::ref(parameters)));
+			result = 1;				//tu musi być zwracany wynik z wątku!!!
 		}
 		else {
 			throw clg_exception("clg_proxy()::process(): unknown observation type");
 		}
 	}
 	else if(msg.type == ACTION) {
+		result = -1;
 		if(action == "OBSERV") {
 			//boost::thread* thr = new boost::thread(&action_manager::observ, p);
 			//tgroup.add_thread(thr);
@@ -73,20 +79,29 @@ int clg_proxy::process(Message msg) {
 	return 0;
 }
 
-void clg_proxy::communicate(int sockfd)
+void clg_proxy::communicate()
 {
 	int n, anwser;
 	Message msg;
-    while(1) {
+
+	printf("clg_proxy::communicate()\n");
+
+	while(1) {
     	msg.type = NOTHING;
 		strcpy(msg.action, "");
+
+		printf("clg_proxy::communicate() - loop begin\n");
+
 		for(int i = 0; i < 4; i++) {
 			strcpy(msg.params[i], "");
 		}
-		n = read(sockfd, (void*) &msg, sizeof(msg));
+		n = read(comm_sockfd, (void*) &msg, sizeof(msg));
 		if(n < 0) {
 		   throw clg_connection_exception("clg_proxy(): read() " + std::string(strerror(errno)));
 		}
+
+		printf("clg_proxy::communicate() - after read()\n");
+
 		if(msg.type != NOTHING) {
 		   std::cout << "Here is the message: " << msg.type << " " << msg.action << " ";
 		   for(int i = 0; i < 4; i++) {
@@ -94,26 +109,33 @@ void clg_proxy::communicate(int sockfd)
 		   }
 		   std::cout << std::endl;
 		}
-		anwser = 1;//process(msg);
+
+		process(msg);
+
 		if(msg.type == OBSERVATION) {
-		   n = write(sockfd, (void*) &anwser, sizeof(int));
-		}
-		if(n < 0) {
-		   throw clg_connection_exception("clg_proxy(): write() " + std::string(strerror(errno)));
+			n = write(comm_sockfd, (void*) &anwser, sizeof(int));
+			if(n < 0) {
+			   throw clg_connection_exception("clg_proxy(): write() " + std::string(strerror(errno)));
+			}
+
+			printf("clg_proxy::communicate() - after write()\n");
 		}
 	}
 
 }
 
 
-void clg_proxy::execute(int portnr)
+void clg_proxy::connect(int portnr)
 {
 	logger::log_dbg("clg_proxy::execute(): Server started\n");
+	printf("clg_proxy::execute()\n");
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0) {
        throw clg_connection_exception("clg_proxy(): socket() " + std::string(strerror(errno)));
     }
+
+	printf("clg_proxy::execute() - after socket\n");
 
     sockaddr_in serv_addr;
     bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -125,10 +147,14 @@ void clg_proxy::execute(int portnr)
     	throw clg_connection_exception("clg_proxy(): bind() " + std::string(strerror(errno)));
     }
 
+	printf("clg_proxy::execute() - after bind\n");
+
     n = listen(sockfd,5);
     if(n < 0) {
     	throw clg_connection_exception("clg_proxy(): listen() " + std::string(strerror(errno)));
     }
+
+	printf("clg_proxy::execute() - after listen\n");
 
     sockaddr_in cli_addr;
     socklen_t clilen = sizeof(cli_addr);
@@ -136,6 +162,8 @@ void clg_proxy::execute(int portnr)
     if(comm_sockfd < 0) {
     	throw clg_connection_exception("clg_proxy(): accept() " + std::string(strerror(errno)));
     }
+
+	printf("clg_proxy::execute() - after accept\n");
 }
 
 

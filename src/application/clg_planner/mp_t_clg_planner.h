@@ -10,6 +10,7 @@
 
 #include "base/mp/mp_task.h"
 #include "base/lib/configurator.h"
+#include "clg_proxy.h"
 
 namespace mrrocpp {
 namespace mp {
@@ -26,7 +27,7 @@ public:
 
 private:
 	std::string robot_name;
-	boost::shared_ptr<clg_proxy> proxy;
+	boost::shared_ptr<clg_proxy> cproxy;
 };
 
 } // namespace task

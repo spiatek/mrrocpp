@@ -15,7 +15,6 @@
 #include "robot/irp6ot_m/const_irp6ot_m.h"
 #include "robot/irp6ot_m/mp_r_irp6ot_m.h"
 
-#include "clg_proxy.h"
 #include "mp_t_clg_planner.h"
 
 namespace mrrocpp {
@@ -55,12 +54,11 @@ void mp_t_clg_planner::create_robots()
 
 void mp_t_clg_planner::main_task_algorithm()
 {
-	int clg_port = config.value <int>("board_localization", "[mp_block_move]");
-	proxy = (boost::shared_ptr<clg_proxy>) new clg_proxy();
-	//boost::thread::attributes attrs;
-	//attrs.set_stack_size(4096*10);
-	//pthread_attr_setschedpolicy(attrs.get_native_handle(), SCHED_RR);
-	boost::thread t1(&clg_proxy::execute, proxy, boost::ref(clg_port));
+	int clg_port = config.value <int>("clg_port", "[mp_clg_planner]");
+	cproxy = (boost::shared_ptr<clg_proxy>) new clg_proxy();
+	sr_ecp_msg->message("Before thread call...");
+	cproxy->connect(clg_port);
+	cproxy->communicate();
 }
 
 } // namespace task

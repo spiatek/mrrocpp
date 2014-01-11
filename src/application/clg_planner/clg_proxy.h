@@ -53,9 +53,9 @@ public:
 	clg_proxy();
 	virtual ~clg_proxy();
 
+	void connect(int);
+	void communicate();
 	int process(Message msg);
-	void communicate(int);
-	void execute(int);
 	void close_connection();
 
 private:
