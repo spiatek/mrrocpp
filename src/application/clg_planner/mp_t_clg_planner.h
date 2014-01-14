@@ -108,7 +108,7 @@ private:
 	bool check_color(std::string);
 
 	int compute_position_for_position_board_generator(std::string);
-	std::string get_trajectory_file_name(lib::robot_name_t, std::string, int);
+	std::string get_trajectory_file_name(lib::robot_name_t, char, int);
 	int color_string_to_int(std::string);
 
 	int sockfd;					/* connection socket descriptor */

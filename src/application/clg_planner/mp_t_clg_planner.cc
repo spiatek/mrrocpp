@@ -290,7 +290,7 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		for(int step = 0; step < 1; ++step) {		/* DOCELOWO STALA - tyle krokow ile mozliwych obrazow startowych */
 			for(number_of_servo_tries = 0; number_of_servo_tries < 5; ++number_of_servo_tries) {
 
-				trj_file_str = get_trajectory_file_name(robot_name, "TABLE", step);
+				trj_file_str = get_trajectory_file_name(robot_name, 'T', step);
 
 				sr_ecp_msg->message("mp_t_clg_planner::observe_color() - servo run");
 
@@ -358,7 +358,8 @@ bool mp_t_clg_planner::move(ArgumentClass &args)
 		throw std::runtime_error("Action Manager: bad position received from CLG Planner");
 	}
 
-	trj_file_str = get_trajectory_file_name(robot_name, position_to, 0);
+	char zero_position = position_to[0];
+	trj_file_str = get_trajectory_file_name(robot_name, zero_position, 0);
 
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, trj_file_str, robot_name);
 	wait_for_task_termination(false, robot_name);
@@ -366,7 +367,6 @@ bool mp_t_clg_planner::move(ArgumentClass &args)
 
 	sr_ecp_msg->message("mp_t_clg_planner::move() - basic move done");
 
-	char zero_position = position_to[0];
 	/** additional move due to reach more specified position_to **/
 	if(zero_position == 'P') {
 
@@ -525,20 +525,20 @@ int mp_t_clg_planner::compute_position_for_position_board_generator(std::string 
  * @step - number of table view (0 for P)
  * returns name of a trajectory file which will be sent to SMOOTH_JOINT_FILE_FROM_MP generator
  */
-std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_name, std::string area_str, int step)
+std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_name, char area, int step)
 {
 	sr_ecp_msg->message("mp_t_clg_planner::get_trajectory_file_name()");
-	std::cout << "Area str: " << area_str << ", step: " << step << std::endl;
+	std::cout << "Area str: " << area << ", step: " << step << std::endl;
 
 	std::string trj_file_str;
 	if(robot_name == lib::irp6ot_m::ROBOT_NAME) {
-		if(area_str == "TABLE" && step == 0) {
+		if(area == 'T' && step == 0) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_1.trj";
 		}
-		else if(area_str == "TABLE" && step == 1) {
+		else if(area == 'T' && step == 1) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_2.trj";
 		}
-		else if(area_str == "P") {
+		else if(area == 'P') {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_build_start_track.trj";
 		}
 		else {
@@ -546,13 +546,13 @@ std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_n
 		}
 	}
 	else if(robot_name == lib::irp6p_m::ROBOT_NAME) {
-		if(area_str == "TABLE" && step == 0) {
+		if(area == 'T' && step == 0) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_1.trj";
 		}
-		else if(area_str == "TABLE" && step == 1) {
+		else if(area == 'T' && step == 1) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_2.trj";
 		}
-		else if(area_str == "P") {
+		else if(area == 'P') {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_build_start_postument.trj";
 		}
 		else {
