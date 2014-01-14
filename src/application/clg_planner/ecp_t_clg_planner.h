@@ -16,6 +16,11 @@
 #include "generator/ecp/smooth_file_from_mp/ecp_g_smooth_file_from_mp.h"
 #include "generator/ecp/bias_edp_force/ecp_g_bias_edp_force.h"
 
+#include "application/block_move/ecp_g_position_board.h"
+#include "application/block_move/ecp_g_block_reaching.h"
+
+#include "generators/ecp_g_reach_already_localized_block.h"
+
 namespace mrrocpp {
 namespace ecp {
 namespace common {

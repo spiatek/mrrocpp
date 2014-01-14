@@ -7,12 +7,15 @@
 
 #include <iostream>
 
+#include <boost/thread.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
+
 #include "ecp_g_block_reaching.h"
 
 #define BOARD_COLOR 5
 
-
-
+using namespace boost::interprocess;
 
 namespace mrrocpp {
 namespace ecp {
@@ -103,6 +106,21 @@ void block_reaching::conditional_execution() {
 
 	logger::log_dbg("In block_reaching::conditional_execution()\n");
 
+	/* preparing shared arrays */
+	managed_shared_memory segment(open_only, "ClgSharedMemory");
+
+	std::pair<int*, size_t> sm_cont_o = segment.find<int>("ObjectsArray");
+	int* objects_array;
+	if(sm_cont_o.second != 0) {
+		objects_array = sm_cont_o.first;
+	}
+
+	std::pair<double*, size_t> sm_cont_c = segment.find<double>("CoordinatesArray");
+	double* coordinates_array;
+	if(sm_cont_c.second != 0) {
+		coordinates_array = sm_cont_c.first;
+	}
+
 	try {
 		ds_rpc->configure_sensor();
 
@@ -162,10 +180,15 @@ void block_reaching::conditional_execution() {
 			//	sr_ecp_msg.message("get_position_vector is empty");
 			//}
 
+			int index;
+			int object_int = objects_array[0];
+
 			//printing position
 			std::cout << "POSITION" << std::endl;
 			for (size_t i = 0; i < position_vector.size(); ++i) {
 				std::cout << position_vector[i] << std::endl;
+				index = ((object_int - 1) * 7) + i;
+				coordinates_array[index] = position_vector[i];
 			}
 			std::cout << std::endl;
 		}

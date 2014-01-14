@@ -1,5 +1,8 @@
 add_executable(ecp_clg_planner
 	ecp_t_clg_planner.cc
+	generators/ecp_g_reach_already_localized_block.cc
+	../block_move/ecp_g_block_reaching.cc
+	../block_move/ecp_g_position_board.cc
     ../visual_servoing/ib_eih_visual_servo.cc
     ../visual_servoing/visual_servo.cc
     ../visual_servoing/visual_servo_manager.cc
@@ -16,8 +19,6 @@ target_link_libraries(ecp_clg_planner ecp_robot visual_servoing)
 
 add_executable(mp_clg_planner
 	mp_t_clg_planner.cc
-	clg_proxy.cc
-	action_manager.cc	
 )
 target_link_libraries(mp_clg_planner mp)
 
