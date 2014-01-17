@@ -33,7 +33,7 @@ clg_planner::clg_planner(lib::configurator &_config) :
 	register_generator(new common::generator::smooth_file_from_mp(*this, lib::ECP_JOINT, ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, true));
 	register_generator(new common::generator::smooth_file_from_mp(*this, lib::ECP_XYZ_ANGLE_AXIS, ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, true));
 	register_generator(new common::generator::position_board(*this));
-	//register_generator(new common::generator::block_reaching(*this));
+	register_generator(new common::generator::block_reaching(*this));
 	register_generator(new common::generator::reach_already_localized_block(*this));
 
 	sr_ecp_msg->message("ecp CLG PLANNER loaded");

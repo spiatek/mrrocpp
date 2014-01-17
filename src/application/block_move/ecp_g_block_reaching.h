@@ -50,7 +50,7 @@ protected:
 	boost::shared_ptr<common::generator::single_visual_servo_manager> sm;
 	boost::shared_ptr<servovision::visual_servo> vs;
 	boost::shared_ptr<servovision::visual_servo_regulator> reg;
-	boost::shared_ptr<ecp_mp::sensor::discode::discode_sensor> ds_rpc, ds;
+	boost::shared_ptr<ecp_mp::sensor::discode::discode_sensor> ds, ds_rpc;
 
 	boost::shared_ptr<servovision::termination_condition> object_reached_term_cond;
 	boost::shared_ptr<servovision::termination_condition> timeout_term_cond;

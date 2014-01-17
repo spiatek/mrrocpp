@@ -300,13 +300,13 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 				wait_for_task_termination(false, robot_name);
 				wait_ms(1000);
 
-				//set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
-				//wait_for_task_termination(false, robot_name);
-				flag=1;
-				//if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
-				//	flag = 1;
-				//	break;
-				//}
+				set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
+				wait_for_task_termination(false, robot_name);
+				//flag=1;
+				if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
+					flag = 1;
+					break;
+				}
 			}
 			if(number_of_servo_tries != 4 || flag == 1) {	/* SPRAWDZENIE CZY POTRZEBNE JEST WYSZUKIWANIE W INNYM WIDOKU */
 				break;

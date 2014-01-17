@@ -87,8 +87,6 @@ block_reaching::block_reaching(task::task & _ecp_t) : common::generator::generat
 	sm->configure();
 	sr_ecp_msg.message("Servo manager configured");
 
-	logger::log_dbg("Servo manager configured\n");
-
 	sr_ecp_msg.message("block_reaching::conditional_execution()");
 	gp = (boost::shared_ptr<common::generator::get_position>) new get_position(ecp_t, lib::ECP_XYZ_ANGLE_AXIS, 6);
 
@@ -97,7 +95,13 @@ block_reaching::block_reaching(task::task & _ecp_t) : common::generator::generat
 	//creating discode sensor for rpc communication
 	sr_ecp_msg.message("Creating discode sensor...");
 	ds_config_section_name = "[discode_sensor]";
-	ds_rpc = (boost::shared_ptr <ecp_mp::sensor::discode::discode_sensor>) new ecp_mp::sensor::discode::discode_sensor(ecp_t.config, ds_config_section_name);
+
+	logger::log_dbg("Servo manager configured\n");
+
+	ds_rpc = (boost::shared_ptr <ecp_mp::sensor::discode::discode_sensor>)
+					new ecp_mp::sensor::discode::discode_sensor(ecp_t.config, ds_config_section_name);
+
+	ds_rpc->configure_sensor();
 
 	logger::log_dbg("Discode sensor created\n");
 }
@@ -122,20 +126,20 @@ void block_reaching::conditional_execution() {
 	}
 
 	try {
-		ds_rpc->configure_sensor();
+
 
 		logger::log_dbg("Discode sensor configured\n");
 
 		ecp_mp::sensor::discode::discode_sensor::discode_sensor_state st;
-				st = ds_rpc->get_state();
+		st = ds_rpc->get_state();
 
-				if(st == 0) sr_ecp_msg.message("sensor state 0");
-				if(st == 1) sr_ecp_msg.message("sensor state 1");
-				if(st == 2) sr_ecp_msg.message("sensor state 2");
-				if(st == 3) sr_ecp_msg.message("sensor state 3");
-				if(st == 4) sr_ecp_msg.message("sensor state 4");
+		if(st == 0) sr_ecp_msg.message("sensor state 0");
+		if(st == 1) sr_ecp_msg.message("sensor state 1");
+		if(st == 2) sr_ecp_msg.message("sensor state 2");
+		if(st == 3) sr_ecp_msg.message("sensor state 3");
+		if(st == 4) sr_ecp_msg.message("sensor state 4");
 
-				logger::log_dbg("Discode sensor state: %d\n", st);
+		logger::log_dbg("Discode sensor state: %d\n", st);
 	}
 	catch(mrrocpp::ecp_mp::sensor::discode::ds_exception e){
 		sr_ecp_msg.message("configure_discode error");
@@ -147,7 +151,7 @@ void block_reaching::conditional_execution() {
 	uint32_t param = (int) ecp_t.mp_command.ecp_next_state.variant;
 	Types::Mrrocpp_Proxy::BReading br;
 	br = ds_rpc->call_remote_procedure <Types::Mrrocpp_Proxy::BReading>((int) param);
-	if (br.rpcReceived) {
+	if(br.rpcReceived) {
 		sr_ecp_msg.message("Rpc received");
 	}
 
