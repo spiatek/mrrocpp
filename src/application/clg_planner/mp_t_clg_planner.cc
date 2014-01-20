@@ -127,7 +127,7 @@ void mp_t_clg_planner::communicate()
 	managed_shared_memory segment(create_only, "ClgSharedMemory", 65536);
 
 	objects_sma = segment.construct<int>("ObjectsArray")[12](UNKNOWN);
-	coordinates_sma = segment.construct<double>("CoordinatesArray")[12*7](-1.0);
+	//coordinates_sma = segment.construct<double>("CoordinatesArray")[12*7](-1.0);
 
 	while(1) {
     	msg.type = NOTHING;
@@ -299,6 +299,21 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, trj_file_str, robot_name);
 				wait_for_task_termination(false, robot_name);
 				wait_ms(1000);
+
+				/* preparing shared arrays */
+				managed_shared_memory segment(open_only, "ClgSharedMemory");
+
+				std::pair<int*, size_t> sm_cont_o = segment.find<int>("ObjectsArray");
+				int* objects_array;
+				if(sm_cont_o.second != 0) {
+					objects_array = sm_cont_o.first;
+				}
+
+				std::pair<double*, size_t> sm_cont_c = segment.find<double>("CoordinatesArray");
+				double* coordinates_array;
+				if(sm_cont_c.second != 0) {
+					coordinates_array = sm_cont_c.first;
+				}
 
 				set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
 				wait_for_task_termination(false, robot_name);

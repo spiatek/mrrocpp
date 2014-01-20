@@ -101,35 +101,19 @@ block_reaching::block_reaching(task::task & _ecp_t) : common::generator::generat
 	ds_rpc = (boost::shared_ptr <ecp_mp::sensor::discode::discode_sensor>)
 					new ecp_mp::sensor::discode::discode_sensor(ecp_t.config, ds_config_section_name);
 
-	ds_rpc->configure_sensor();
-
 	logger::log_dbg("Discode sensor created\n");
+
 }
 
 void block_reaching::conditional_execution() {
 
 	logger::log_dbg("In block_reaching::conditional_execution()\n");
 
-	/* preparing shared arrays */
-	managed_shared_memory segment(open_only, "ClgSharedMemory");
+	ds_rpc->configure_sensor();
 
-	std::pair<int*, size_t> sm_cont_o = segment.find<int>("ObjectsArray");
-	int* objects_array;
-	if(sm_cont_o.second != 0) {
-		objects_array = sm_cont_o.first;
-	}
-
-	std::pair<double*, size_t> sm_cont_c = segment.find<double>("CoordinatesArray");
-	double* coordinates_array;
-	if(sm_cont_c.second != 0) {
-		coordinates_array = sm_cont_c.first;
-	}
+	logger::log_dbg("Discode sensor configured\n");
 
 	try {
-
-
-		logger::log_dbg("Discode sensor configured\n");
-
 		ecp_mp::sensor::discode::discode_sensor::discode_sensor_state st;
 		st = ds_rpc->get_state();
 
@@ -172,31 +156,29 @@ void block_reaching::conditional_execution() {
 
 		logger::log_dbg("Object reached term condition met\n");
 
-		if (param == BOARD_COLOR) {
+		//getting position in ANGLE_AXIS coordinates
+		gp->Move();
+		position_vector = gp->get_position_vector();
 
-			//getting position in ANGLE_AXIS coordinates
-			gp->Move();
-			position_vector = gp->get_position_vector();
-
-			logger::log_dbg("Got position\n");
+		logger::log_dbg("Got position\n");
 
 			//if (!position.size()) {
 			//	sr_ecp_msg.message("get_position_vector is empty");
 			//}
 
-			int index;
-			int object_int = objects_array[0];
+		//int index;
+		//int object_int = objects_array[0];
 
 			//printing position
-			std::cout << "POSITION" << std::endl;
-			for (size_t i = 0; i < position_vector.size(); ++i) {
-				std::cout << position_vector[i] << std::endl;
-				index = ((object_int - 1) * 7) + i;
-				coordinates_array[index] = position_vector[i];
-			}
-			std::cout << std::endl;
+		std::cout << "POSITION" << std::endl;
+		for (size_t i = 0; i < position_vector.size(); ++i) {
+			std::cout << position_vector[i] << std::endl;
+			//index = ((object_int - 1) * 7) + i;
+			//coordinates_array[index] = position_vector[i];
 		}
-	} else {
+		std::cout << std::endl;
+	}
+	else {
 		sr_ecp_msg.message("object_reached_term_cond IS NOT MET");
 	}
 
