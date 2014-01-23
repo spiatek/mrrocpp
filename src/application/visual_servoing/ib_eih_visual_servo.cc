@@ -51,9 +51,10 @@ lib::Homog_matrix ib_eih_visual_servo::compute_position_change(const lib::Homog_
 	e.setZero();
 
 	Eigen::Matrix <double, Types::ImagePosition::elementsSize, 1> imagePosition(reading.imagePosition.elements);
-	e.block(0, 0, 4, 1) = imagePosition - desired_position;
+	e.block(0, 0, 4, 1) = desired_position - imagePosition;
 
 	log_dbg("reading.imagePosition.elements = [%g; %g; %g; %g]\n", reading.imagePosition.elements[0], reading.imagePosition.elements[1], reading.imagePosition.elements[2], reading.imagePosition.elements[3]);
+	log_dbg("desiredPosition.elements = [%g; %g; %g; %g]\n", desired_position(0, 0), desired_position(1, 0), desired_position(2, 0), desired_position(3, 0));
 
 	error = e;
 

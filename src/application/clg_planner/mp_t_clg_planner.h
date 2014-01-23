@@ -23,6 +23,9 @@
 #include "base/lib/impconst.h"
 #include "base/lib/configurator.h"
 
+#include "base/ecp/ecp_generator.h"
+#include "generator/ecp/get_position/ecp_g_get_position.h"
+
 #define NOTHING			-1
 #define	OBSERVATION		0
 #define ACTION			1

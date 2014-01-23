@@ -283,8 +283,22 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		sr_ecp_msg->message("mp_t_clg_planner::observe_color() - color is unknown");
 		std::string trj_file_str;
 		lib::robot_name_t robot_name = args.get_robot_name();
-		std::cout << "Robot name: " << robot_name << std::endl;
-		objects_array[0] = object_int;
+
+		/* preparing shared arrays */
+		managed_shared_memory segment(open_only, "ClgSharedMemory");
+
+		std::pair<int*, size_t> sm_cont_o = segment.find<int>("ObjectsArray");
+		int* objects_array;
+		if(sm_cont_o.second != 0) {
+			objects_array = sm_cont_o.first;
+		}
+
+		std::pair<double*, size_t> sm_cont_c = segment.find<double>("CoordinatesArray");
+		double* coordinates_array;
+		if(sm_cont_c.second != 0) {
+			coordinates_array = sm_cont_c.first;
+		}
+
 		int flag = 0;
 		int number_of_servo_tries;					/* DOCELOWO STALA - ile prob odpalenia serwomechanizmu */
 		for(int step = 0; step < 1; ++step) {		/* DOCELOWO STALA - tyle krokow ile mozliwych obrazow startowych */
@@ -300,24 +314,9 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 				wait_for_task_termination(false, robot_name);
 				wait_ms(1000);
 
-				/* preparing shared arrays */
-				managed_shared_memory segment(open_only, "ClgSharedMemory");
-
-				std::pair<int*, size_t> sm_cont_o = segment.find<int>("ObjectsArray");
-				int* objects_array;
-				if(sm_cont_o.second != 0) {
-					objects_array = sm_cont_o.first;
-				}
-
-				std::pair<double*, size_t> sm_cont_c = segment.find<double>("CoordinatesArray");
-				double* coordinates_array;
-				if(sm_cont_c.second != 0) {
-					coordinates_array = sm_cont_c.first;
-				}
-
 				set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
 				wait_for_task_termination(false, robot_name);
-				//flag=1;
+
 				if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
 					flag = 1;
 					break;
@@ -329,6 +328,35 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		}
 		if(flag == 1) {
 			sr_ecp_msg->message("mp_t_clg_planner::observe_color() - computed true value");
+
+			//lib::Homog_matrix current_position_matrix(the_robot->reply_package.arm.pf_def.arm_frame);
+			//lib::Xyz_Angle_Axis_vector current_position_vector;
+			//current_position_matrix.get_xyz_angle_axis(current_position_vector);
+
+			//printing position
+			//std::cout << "POSITION" << std::endl;
+			//int index;
+			//for (size_t i = 0; i < 6; ++i) {
+			//	std::cout << current_position_vector[i] << std::endl;
+			//	index = ((object_int - 1) * 7) + i;
+			//	coordinates_array[index] = current_position_vector[i];
+			//}
+			//std::cout << std::endl;
+
+			/*sr_ecp_msg->message("Get position generator run...\n");
+			gp->Move();
+			position_vector = gp->get_position_vector();
+
+			//printing position
+			std::cout << "POSITION" << std::endl;
+			int index;
+			for (size_t i = 0; i < position_vector.size(); ++i) {
+				std::cout << position_vector[i] << std::endl;
+				index = ((object_int - 1) * 7) + i;
+				coordinates_array[index] = position_vector[i];
+			}
+			std::cout << std::endl;*/
+
 			objects_array[object_int] = color_int;
 			args.set_return_value(true);
 		}
