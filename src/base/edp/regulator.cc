@@ -72,6 +72,7 @@ regulator::regulator(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, c
 	reg_abs_current_motor_pos = 0;
 	reg_abs_desired_motor_pos = 0;
 
+
 }
 /*-----------------------------------------------------------------------*/
 
@@ -293,6 +294,7 @@ void NL_regulator::compute_set_value_final_computations()
 									<< "\tmeas. current: " << measured_current << " desired_pwm: " << output_value << " kp: "
 											<< measured_current / output_value << std::endl;
 
+
 			}
 
 		}
@@ -319,6 +321,7 @@ void NL_regulator::compute_set_value_final_computations()
 				std::cout << "desired pos.: " << des << "\tcurrent pos.: " << cur << "\tdeviation: " << dev
 						<< "\tdev_integral: " << abs_pos_dev_int << "\tdes. current: " << output_value
 						<< "\tmeas. current: " << measured_current << "\n";
+				//std::cout << "output: " << output_value << "set_value: " << set_value_new << "current_reg_kp: " << current_reg_kp << std::endl;
 			}
 
 		}
@@ -335,6 +338,7 @@ void NL_regulator::compute_set_value_final_computations()
 
 	abs_pos_dev_old = abs_pos_dev;
 	abs_pos_dev_int_old = abs_pos_dev_int;
+	previous_abs_position = reg_abs_current_motor_pos;
 }
 
 NL_regulator::~NL_regulator()

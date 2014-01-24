@@ -16,12 +16,15 @@ namespace mrrocpp {
 namespace kinematics {
 namespace sarkofag {
 
+
+
+
 class model : public common::kinematic_model
 {
 protected:
 
 	// Zmienne opisujace przekladnie dla wszystkich stopni swobody.
-	double gear;
+
 	double theta;
 
 	// Zakresy ruchu walow silnikow w radianach.
@@ -31,10 +34,7 @@ protected:
 	double lower_limit_joint;
 	double upper_limit_joint;
 
-	// Polozenia synchronizacji (polozenia walow silnikow).
-	double synchro_motor_position;
-	// Polozenia synchronizacji (polozenia we wspolrzednych wewnetrznych).
-	double synchro_joint_position;
+
 
 	// Zmienne zwiazane z obliczeniami zwarcia/rozwarcia chwytaka.
 	double dir_a_7;
@@ -49,6 +49,15 @@ protected:
 	void check_motor_position(const lib::MotorArray & motor_position) const;
 
 public:
+
+	double gear;
+
+		// Polozenia synchronizacji (polozenia walow silnikow).
+			double synchro_motor_position;
+			// Polozenia synchronizacji (polozenia we wspolrzednych wewnetrznych).
+			double synchro_joint_position;
+
+
 	// Konstruktor.
 	model(void);
 

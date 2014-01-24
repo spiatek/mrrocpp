@@ -22,6 +22,8 @@
 
 #include "robot/sarkofag/edp_e_sarkofag.h"
 
+#include "robot/sarkofag/kinematic_model_sarkofag.h"
+
 namespace mrrocpp {
 namespace edp {
 namespace sarkofag {
@@ -32,14 +34,18 @@ NL_regulator_8_sarkofag::NL_regulator_8_sarkofag(uint8_t _axis_number, uint8_t r
 {
 // pzredefiniwoane na potrzeby eksperymentþów
 	strict_current_mode = true;
-
 	desired_velocity_limit = 0.5;
 	reg_state = next_reg_state = prev_reg_state = lib::GRIPPER_START_STATE;
 	sum_of_currents = current_index = 0;
-
 	display = 0;
 	deviation = 0;
 	deviation_integral = 0;
+	m = master.config.value <float>("weight", "[edp_sarkofag]");
+	dl = master.config.value <float>("weight_pos", "[edp_sarkofag]");
+	an = 0.105- 0.1*0.105;
+	q = 9.81;
+	pozycja_joint = 0;
+
 
 	// Konstruktor regulatora konkretnego
 	// Przy inicjacji nalezy dopilnowac, zeby numery algorytmu regulacji oraz zestawu jego parametrow byly
@@ -50,6 +56,15 @@ NL_regulator_8_sarkofag::NL_regulator_8_sarkofag(uint8_t _axis_number, uint8_t r
 /*-----------------------------------------------------------------------*/
 uint8_t NL_regulator_8_sarkofag::compute_set_value(void)
 {
+
+
+	//m - masa,
+	//p - przekladania silnika,
+	//an - parametr silnika,
+	//dl - odleglosc od punktu obrotu do punktu srodka ciezkosci,
+	//q - przyspieszenie ziemskie.
+	//zero - pozycja pi/2 w motors,
+
 	//	static long iteracja = 0;
 
 	// algorytm regulacji dla serwomechanizmu
@@ -140,6 +155,8 @@ uint8_t NL_regulator_8_sarkofag::compute_set_value(void)
 						b0 = 0.9017 * 1.5;
 						b1 = 0.7701 * 1.5;
 						k_feedforward = 0.35;
+						//////////////
+
 						break;
 					case 1: // zestaw parametrow nr 1
 						current_algorithm_parameters_no = algorithm_parameters_no;
@@ -166,6 +183,10 @@ uint8_t NL_regulator_8_sarkofag::compute_set_value(void)
 						b0 = 0;
 						b1 = 0;
 						k_feedforward = 0;
+
+
+												//////////////
+
 						break;
 					case 1: // zestaw parametrow nr 1
 						current_algorithm_parameters_no = algorithm_parameters_no;
@@ -224,13 +245,16 @@ uint8_t NL_regulator_8_sarkofag::compute_set_value(void)
 	b1 = kp;
 	max_output_current = 20000;
 
+
+	double motor;
+
 	switch (algorithm_no)
 	{
 		case 0: {
+
 			// algorytm nr 0
 			current_reg_kp = 100;
 			// obliczenie nowej wartosci wypelnienia PWM algorytm PD + I
-
 			set_value_new = (1 + a) * set_value_old - a * set_value_very_old + b0 * delta_eint - b1 * delta_eint_old;
 			//set_value_new = set_value_old + kp * deviation + ki * delta_eint;
 		}
@@ -238,11 +262,18 @@ uint8_t NL_regulator_8_sarkofag::compute_set_value(void)
 
 		case 1: // algorytm nr 1
 		{
-			current_reg_kp = 1; // zerowe extra wzmocnienie
+			//przekladnia
+			pozycja_joint = master.servo_current_joints[0];//(reg_abs_current_motor_pos - m_kin.synchro_motor_position) / m_kin.gear ;
+
+			current_reg_kp = 1;
+			set_value_new = -(cos(pozycja_joint )*(dl*m*q))/(an*m_kin.gear) * 1000;
+
+			std::cout << "\tvalue: " << set_value_new << "\tjoint.: " << pozycja_joint << std::endl;
+
 			// przepisanie zadanej wartosci pradu
 
-			set_value_new = master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[0];
-			//	printf("set_value_new case 1: %f\n", set_value_new);
+			//set_value_new = master.sb->command.sb_instruction_.arm.pf_def.desired_torque_or_current[0];
+				//printf("set_value_new case 1: %f\n", set_value_new);
 		}
 			break;
 

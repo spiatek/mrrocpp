@@ -160,7 +160,7 @@ protected:
 	 *
 	 * for the single step of servo control
 	 */
-	lib::JointArray servo_current_joints;
+
 
 	/*!
 	 * \brief mutex to handle data set and get of the motor and joint position
@@ -181,7 +181,7 @@ protected:
 	 *
 	 * for the whole macrostep
 	 */
-	lib::JointArray current_joints;
+
 
 	/*!
 	 * \brief desired motor position for the previous macrostep
@@ -202,7 +202,7 @@ protected:
 	 *
 	 * for the whole macrostep
 	 */
-	lib::MotorArray current_motor_pos;
+
 
 	/*!
 	 * \brief Reference to base types of instruction
@@ -214,6 +214,14 @@ protected:
 public:
 
 	bool servo_mode;
+
+
+	lib::JointArray servo_current_joints;
+
+	lib::JointArray current_joints;
+
+	lib::MotorArray current_motor_pos;
+
 
 	/*!
 	 * \brief method to read current joint position stored in global_current_joints

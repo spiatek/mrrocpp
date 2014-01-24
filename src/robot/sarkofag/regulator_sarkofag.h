@@ -10,6 +10,8 @@
 #include "base/edp/edp_typedefs.h"
 #include "base/edp/regulator.h"
 
+#include "robot/sarkofag/kinematic_model_sarkofag.h"
+
 namespace mrrocpp {
 namespace edp {
 namespace sarkofag {
@@ -26,6 +28,13 @@ class NL_regulator_8_sarkofag : public common::NL_regulator
 	int sum_of_currents, current_index;
 	double deviation;
 	double deviation_integral;
+	kinematics::sarkofag::model m_kin;
+	double m; //masa
+	double dl; //punkt srodka masy
+	double an; //stala silnika
+	double q; //przyspieszenie ziemskie
+	double pozycja_joint;
+
 
 public:
 	NL_regulator_8_sarkofag(uint8_t _axis_number, uint8_t reg_no, uint8_t reg_par_no, double aa, double bb0, double bb1, double k_ff, common::motor_driven_effector &_master, common::REG_OUTPUT _reg_output); // konstruktor

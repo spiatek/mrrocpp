@@ -40,9 +40,9 @@ model::model(void)
 void model::set_kinematic_parameters(void)
 {
 
-	gear = 150.0;
+	gear = 158.0;
 
-	synchro_motor_position = -168; // chwytak [-]
+	synchro_motor_position = -165.58;
 
 	synchro_joint_position = synchro_motor_position;
 

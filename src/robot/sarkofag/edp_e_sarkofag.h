@@ -21,7 +21,7 @@ namespace mrrocpp {
 namespace edp {
 namespace sarkofag {
 
-const double INC_PER_REVOLUTION = 32000; // Liczba impulsow enkodera na obrot walu - musi byc float
+const double INC_PER_REVOLUTION = 4000; // Liczba impulsow enkodera na obrot walu - musi byc float
 
 // Klasa reprezentujaca tasmociag.
 class effector : public common::motor_driven_effector
