@@ -7,12 +7,20 @@
 
 #include <string>
 #include <vector>
+
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
+
 #include "base/lib/logger.h"
 
 #include "clg_proxy.h"
 
+namespace mrrocpp {
+namespace mp {
+namespace task {
+
 clg_proxy::clg_proxy() {
-	manager = (boost::shared_ptr<action_manager>) new action_manager();
+	//manager = (boost::shared_ptr<action_manager>) new action_manager();
 }
 
 clg_proxy::~clg_proxy() {
@@ -26,6 +34,14 @@ clg_connection_exception::clg_connection_exception(const std::string& arg) :
 	clg_exception("clg connection exception: " + arg) {
 }
 
+void clg_proxy::set_task(mrrocpp::mp::task::mp_t_clg_planner mrrocpp_clg_task) {
+	mrrocpp_task = mrrocpp_clg_task;
+}
+
+void clg_proxy::set_robot_name(lib::robot_name_t name) {
+	robot_name = name;
+}
+
 int clg_proxy::process(Message msg) {
 	std::string action = std::string(msg.action);
 	std::vector<std::string> parameters;
@@ -33,15 +49,15 @@ int clg_proxy::process(Message msg) {
 
 	printf("clg_proxy::process()\n");
 
+	parameters.push_back(robot_name);
+
 	for(int i = 0; i < 4; i++) {
 		parameters.push_back(std::string(msg.params[i]));
 	}
 	if(msg.type == OBSERVATION) {
 		if(action == "OBSERVE-COLOR") {
-			//boost::thread* thr = new boost::thread(&action_manager::observe_color, p);
-			//tgroup.add_thread(thr);
-			tgroup.create_thread(boost::bind(&action_manager::observe_color, manager, boost::ref(parameters)));
-			result = 1;				//tu musi być zwracany wynik z wątku!!!
+			tgroup.create_thread(boost::bind(&mrrocpp_task::observe_color, manager, boost::ref(parameters)));
+			result = (parameters.back() == "true") ? 1 : ((parameters.back() == "false") ? 0 : -1);
 		}
 		else {
 			throw clg_exception("clg_proxy()::process(): unknown observation type");
@@ -50,24 +66,16 @@ int clg_proxy::process(Message msg) {
 	else if(msg.type == ACTION) {
 		result = -1;
 		if(action == "OBSERV") {
-			//boost::thread* thr = new boost::thread(&action_manager::observ, p);
-			//tgroup.add_thread(thr);
-			tgroup.create_thread(boost::bind(&action_manager::observ, manager, boost::ref(parameters)));
+			tgroup.create_thread(boost::bind(&mp_t_clg_planner::observ, mrrocpp_task, boost::ref(parameters)));
 		}
 		else if(action == "MOVE") {
-			//boost::thread* thr = new boost::thread(&action_manager::move, p);
-			//tgroup.add_thread(thr);
-			tgroup.create_thread(boost::bind(&action_manager::move, manager, boost::ref(parameters)));
+			tgroup.create_thread(boost::bind(&mp_t_clg_planner::move, mrrocpp_task, boost::ref(parameters)));
 		}
 		else if(action == "PICKUP") {
-			//boost::thread* thr = new boost::thread(&action_manager::pickup, p);
-			//tgroup.add_thread(thr);
-			tgroup.create_thread(boost::bind(&action_manager::pickup, manager, boost::ref(parameters)));
+			tgroup.create_thread(boost::bind(&mp_t_clg_planner::pickup, mrrocpp_task, boost::ref(parameters)));
 		}
 		else if(action == "PUTDOWN") {
-			//boost::thread* thr = new boost::thread(&action_manager::putdown, p);
-			//tgroup.add_thread(thr);
-			tgroup.create_thread(boost::bind(&action_manager::putdown, manager, boost::ref(parameters)));
+			tgroup.create_thread(boost::bind(&mp_t_clg_planner::putdown, mrrocpp_task, boost::ref(parameters)));
 		}
 		else {
 			throw clg_exception("clg_proxy()::process(): unknown action type");
@@ -76,15 +84,23 @@ int clg_proxy::process(Message msg) {
 	else {
 		throw clg_exception("clg_proxy()::process(): bad message type");
 	}
-	return 0;
+	return result;
 }
 
 void clg_proxy::communicate()
 {
+	using namespace boost::interprocess;
+
 	int n, anwser;
 	Message msg;
 
 	printf("clg_proxy::communicate()\n");
+
+	shared_memory_object::remove("ClgSharedMemory");
+	managed_shared_memory segment(create_only, "ClgSharedMemory", 65536);
+
+	objects_sma = segment.construct<int>("ObjectsArray")[12](UNKNOWN);
+	coordinates_sma = segment.construct<double>("CoordinatesArray")[12*7](-1.0);
 
 	while(1) {
     	msg.type = NOTHING;
@@ -110,7 +126,7 @@ void clg_proxy::communicate()
 		   std::cout << std::endl;
 		}
 
-		process(msg);
+		anwser = process(msg);
 
 		if(msg.type == OBSERVATION) {
 			n = write(comm_sockfd, (void*) &anwser, sizeof(int));
@@ -122,6 +138,7 @@ void clg_proxy::communicate()
 		}
 	}
 
+	shared_memory_object::remove("ClgSharedMemory");
 }
 
 
@@ -172,4 +189,8 @@ void clg_proxy::close_connection()
 	close(sockfd);
 	close(comm_sockfd);
 	tgroup.join_all();
+}
+
+}
+}
 }

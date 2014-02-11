@@ -22,13 +22,20 @@
 #include <netinet/in.h>
 #include <string>
 
-#include "action_manager.h"
+#include "base/lib/impconst.h"
+#include "base/mp/mp_task.h"
+
+#include "mp_t_clg_planner.h"
 
 #define NOTHING		-1
 #define	OBSERVATION	0
 #define ACTION		1
 
 #define MAX_STR_LEN	32
+
+namespace mrrocpp {
+namespace mp {
+namespace task {
 
 typedef struct message {
      int type;
@@ -53,17 +60,26 @@ public:
 	clg_proxy();
 	virtual ~clg_proxy();
 
+	void set_task(mp::task::task);
+	void set_robot_name(lib::robot_name_t);
 	void connect(int);
 	void communicate();
 	int process(Message msg);
 	void close_connection();
 
 private:
-	boost::shared_ptr<action_manager> manager;
+	boost::shared_ptr<mp::task::mp_t_clg_planner> mrrocpp_task;
 	boost::thread_group tgroup;
+	lib::robot_name_t robot_name;
 	int sockfd;					/* connection socket descriptor */
 	int comm_sockfd;			/* read/write socket descriptor */
 	int mp_execution_flag;		/* flag which specify if there is any active generator at the moment	*/
+	int *objects_sma;
+	double *coordinates_sma;
 };
+
+}
+}
+}
 
 #endif /* CLG_PROXY_H_ */

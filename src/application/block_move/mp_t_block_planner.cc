@@ -147,7 +147,7 @@ void block_planner::move_action(void)
 	int param = 100 * present_position[0] + 10 * present_position[1] + present_position[2];
 
 	sr_ecp_msg->message("Reaching position...");
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_NEWSMOOTH, param, "", lib::irp6p_m::ROBOT_NAME);
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_POSITION_BOARD, param, "", lib::irp6p_m::ROBOT_NAME);
 	wait_for_task_termination(false, lib::irp6p_m::ROBOT_NAME);
 
 	wait_ms(1000);

@@ -40,7 +40,8 @@
 #define DOUBLE_GREEN	7
 #define DOUBLE_YELLOW	8
 
-#define MAX_STR_LEN	16
+#define MAX_STR_LEN			16
+#define MAX_PARAM_NUMBER	12
 
 namespace mrrocpp {
 namespace mp {
@@ -49,7 +50,7 @@ namespace task {
 typedef struct message {
      int type;
      char action[MAX_STR_LEN];
-     char params[4][MAX_STR_LEN];
+     char params[MAX_PARAM_NUMBER][MAX_STR_LEN];
 } Message;
 
 class ArgumentClass {
@@ -64,11 +65,15 @@ public:
 	std::string get_parameter(int index) { return parameters.at(index); }
 	int parameter_vector_size() { return parameters.size(); }
 
+	void set_action_type(std::string type) { action_type = type; }
+	std::string get_action_type() { return action_type; }
+
 	std::string get_robot_name() { return robot_name; }
 	void set_robot_name(std::string name) { robot_name = name; }
 
 private:
 	std::string robot_name;
+	std::string action_type;
 	std::vector<std::string> parameters;
 	bool return_value;
 };
@@ -112,7 +117,7 @@ private:
 
 	int compute_position_for_position_board_generator(std::string);
 	std::string get_trajectory_file_name(lib::robot_name_t, char, int);
-	int color_string_to_int(std::string);
+	int color_string_to_int(ArgumentClass args);
 
 	int sockfd;					/* connection socket descriptor */
 	int comm_sockfd;			/* read/write socket descriptor */

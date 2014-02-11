@@ -147,7 +147,7 @@ void mp_t_clg_planner::communicate()
 
 		if(msg.type != NOTHING) {
 		   std::cout << "Here is the message: " << msg.type << " " << msg.action << " ";
-		   for(int i = 0; i < 4; i++) {
+		   for(int i = 0; i < MAX_PARAM_NUMBER; i++) {
 			   std::cout << msg.params[i] << " ";
 		   }
 		   std::cout << std::endl;
@@ -176,16 +176,17 @@ int mp_t_clg_planner::process(Message msg) {
 
 	ArgumentClass* args = new ArgumentClass();
 	args->set_robot_name(robot_name);
+	args->set_action_type(action);
 
 	std::cout << "Adding: ";
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < MAX_PARAM_NUMBER; i++) {
 		std::cout <<  msg.params[i] << " ";
 		args->add_parameter(msg.params[i]);
 	}
 	std::cout << std::endl;
 
 	if(msg.type == OBSERVATION) {
-		if(action == "OBSERVE-COLOR") {
+		if(action == "OBSERVE-COLOR" || action == "OBSERVE-TYPE") {
 			tgroup.create_thread(boost::bind(&mp_t_clg_planner::observe_color, this, boost::ref(*args)));
 			result = (args->get_return_value()) ? 1 : 0;
 		}
@@ -204,7 +205,9 @@ int mp_t_clg_planner::process(Message msg) {
 		else if(action == "PICKUP") {
 			tgroup.create_thread(boost::bind(&mp_t_clg_planner::pickup, this, boost::ref(*args)));
 		}
-		else if(action == "PUTDOWN") {
+		else if(action == "PUTDOWN" || action == "PUTDOWN-SINGLE" || action == "PUTDOWN-DOUBLE" || action == "PUTDOWN-TRIPLE"
+				    || action == "PDSEW" || action == "PDSNS" || action == "EW" || action == "NS"
+				    || action == "EWD" || action == "NSD") {
 			tgroup.create_thread(boost::bind(&mp_t_clg_planner::putdown, this, boost::ref(*args)));
 		}
 		else {
@@ -231,12 +234,12 @@ void mp_t_clg_planner::close_connection()
  * Uses SMOOTH_JOINT_FILE_FROM_MP generator to reach search start position
  * Uses GEN_BLOCK_REACHING generator to run visual servoing
  * Corresponding to observe_color() CLG Planner action
- * @p - reference to the parameter vector
- * 		p[0] - robot name
- * 		p[1] - color string
- * 		p[2] - object name
- * 		p[3] - return value (boolean)
- * If there is no such object in any of image areas, fills p[3] with "false"
+ * @args - reference to ArgumentClass:
+ * 		action_type: (1) OBSERVE-COLOR (2) OBSERVE-TYPE
+ * 		parameters[0] - object (1)(2)
+ * 		parameters[1] - color (1)(2)
+ * 		parameters[2] - length (2)
+ * If there is no such object in any of image areas, fills return_value with "false"
  */
 bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 {
@@ -257,9 +260,8 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 
 	printf("%d\n", (int) args.parameter_vector_size());
 	/* computing color integer value */
-	std::string color_string = args.get_parameter(0);
 	int color_int = UNKNOWN;
-	color_int = color_string_to_int(color_string);
+	color_int = color_string_to_int(args);
 
 	/* computing object integer value */
 	std::string object_name = args.get_parameter(1);
@@ -381,10 +383,10 @@ bool mp_t_clg_planner::observ(ArgumentClass &args)
  * Uses SMOOTH_JOINT_FILE_FROM_MP to reach the table
  * Uses SMOOTH_JOINT_FILE_FROM_MP and ECP_GEN_POSITION_BOARD to reach position on board
  * Corresponding to move() CLG Planner action
- * @p - reference to the parameter vector
- * 		p[0] - robot name
- * 		p[1] - start position (it should be equal to present robot position)
- * 		p[2] - finish positions
+ * @args - reference to ArgumentClass:
+ * 		action_type: MOVE
+ * 		parameters[0] - start position
+ * 		parameters[1] - finish position
  */
 bool mp_t_clg_planner::move(ArgumentClass &args)
 {
@@ -432,10 +434,10 @@ bool mp_t_clg_planner::move(ArgumentClass &args)
  * Uses TFF_GRIPPER_APPROACH generator to go down
  * Uses REACH_ALREADY_LOCALIZED_BLOCK generator to perform a specific absolute move
  * Corresponding to pickup() CLG Planner action
- * @p - reference to the parameter vector
- * 		p[0] - robot name
- * 		p[1] - object name
- * 		p[2] - position
+ * @args - reference to ArgumentClass:
+ * 		action_type: MOVE
+ * 		parameters[0] - object
+ * 		parameters[1] - position
  */
 bool mp_t_clg_planner::pickup(ArgumentClass &args)
 {
@@ -504,14 +506,51 @@ bool mp_t_clg_planner::putdown(ArgumentClass &args)
 
 	lib::robot_name_t robot_name = args.get_robot_name();
 	std::string object_name = args.get_parameter(0);
-	std::string position_from = args.get_parameter(1);
-	std::string color_string = args.get_parameter(2);
+	std::string position = args.get_parameter(1);
+	std::string action_name = args.get_action_type();
+	//std::string color_string = args.get_parameter(2);
 
-	if(check_position(position_from) == false) {
+	if(check_position(position) == false) {
 		throw std::runtime_error("Action Manager: bad position received from CLG Planner");
 	}
 
 	sr_ecp_msg->message("mp_t_clg_planner::putdown() - after computing params");
+
+	//jeśli trzeba, to przesunięcie o pół lub jeden klocek
+	if(action_name == "EWD" || action_name == "PUTDOWN-DOUBLE") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW single");
+
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_sintr.trj", robot_name);
+		wait_for_task_termination(false, robot_name);
+
+		wait_ms(1000);
+	}
+	else if(action_name == "NSD") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition NS single");
+
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_sintr.trj", robot_name);
+		wait_for_task_termination(false, robot_name);
+
+		wait_ms(1000);
+	}
+	else if(action_name == "PUTDOWN-TRIPLE") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW double");
+
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_doutr.trj", robot_name);
+		wait_for_task_termination(false, robot_name);
+
+		wait_ms(1000);
+	}
+
+	//jeśli trzeba, to obrót o 90 stopni
+	if(action_name.find("EW") != std::string::npos) {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
+
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_rotate.trj", robot_name);
+		wait_for_task_termination(false, robot_name);
+
+		wait_ms(1000);
+	}
 
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.02, 600, 2), robot_name);
 	wait_for_task_termination(false, robot_name);
@@ -610,28 +649,56 @@ std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_n
 
 /**
  * color_string_to_int()
- * @color_string string
+ * @args arguments of observe action
  * returns integer value of string
  */
-int mp_t_clg_planner::color_string_to_int(std::string color_string)
+int mp_t_clg_planner::color_string_to_int(ArgumentClass args)
 {
 	sr_ecp_msg->message("mp_t_clg_planner::color_string_to_int()");
 
 	int color_int;
-	if(color_string == "BLUE" || color_string == "SINGLE_BLUE") {
+	std::string action_type = args.get_action_type();
+	std::string color_string = args.get_parameter(1);
+	std::string length_string = args.get_parameter(2);
+	char color_char = color_string[0];
+
+	if(action_type == "OBSERVE-TYPE") {
+		if(length_string[0] == 'D') {
+			if(color_char == 'B') {
+				color_int = DOUBLE_BLUE;
+			}
+			else if(color_char == 'R') {
+				color_int = DOUBLE_RED;
+			}
+			else if(color_char == 'G') {
+				color_int = DOUBLE_GREEN;
+			}
+			else if(color_char == 'Y') {
+				color_int = DOUBLE_YELLOW;
+			}
+			else {
+				throw std::runtime_error("Action Manager: bad color received from CLG Planner");
+				exit(1);
+			}
+			return color_int;
+		}
+	}
+
+	if(color_char == 'B') {
 		color_int = SINGLE_BLUE;
 	}
-	else if(color_string == "RED" || color_string == "SINGLE_RED") {
+	else if(color_char == 'R') {
 		color_int = SINGLE_RED;
 	}
-	else if(color_string == "GREEN" || color_string == "SINGLE_GREEN") {
+	else if(color_char == 'G') {
 		color_int = SINGLE_GREEN;
 	}
-	else if(color_string == "YELLOW" || color_string =="SINGLE_YELLOW") {
+	else if(color_char == 'Y') {
 		color_int = SINGLE_YELLOW;
 	}
 	else {
 		throw std::runtime_error("Action Manager: bad color received from CLG Planner");
+		exit(1);
 	}
 	return color_int;
 }
