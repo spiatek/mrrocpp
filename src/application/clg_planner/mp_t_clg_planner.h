@@ -29,6 +29,8 @@
 #define NOTHING			-1
 #define	OBSERVATION		0
 #define ACTION			1
+#define SUCCESS			2
+#define FAIL			3
 
 #define UNKNOWN			0
 #define	SINGLE_BLUE		1
@@ -37,7 +39,7 @@
 #define SINGLE_YELLOW	4
 #define	DOUBLE_BLUE		5
 #define DOUBLE_RED		6
-#define DOUBLE_GREEN	7
+#define DOUBLE_GREEN	7failed
 #define DOUBLE_YELLOW	8
 
 #define MAX_STR_LEN			16

@@ -145,7 +145,15 @@ void mp_t_clg_planner::communicate()
 
 		sr_ecp_msg->message("mp_t_clg_planner::communicate() - after read()");
 
-		if(msg.type != NOTHING) {
+		if(msg.type == SUCCESS) {
+			sr_ecp_msg->message("mp_t_clg_planner::communicate() - plan found");
+			return;
+		}
+		else if(msg.type == FAIL) {
+			sr_ecp_msg->message("mp_t_clg_planner::communicate() - unable to find plan");
+			return;
+		}
+		else if(msg.type != NOTHING) {
 		   std::cout << "Here is the message: " << msg.type << " " << msg.action << " ";
 		   for(int i = 0; i < MAX_PARAM_NUMBER; i++) {
 			   std::cout << msg.params[i] << " ";
@@ -188,6 +196,7 @@ int mp_t_clg_planner::process(Message msg) {
 	if(msg.type == OBSERVATION) {
 		if(action == "OBSERVE-COLOR" || action == "OBSERVE-TYPE") {
 			tgroup.create_thread(boost::bind(&mp_t_clg_planner::observe_color, this, boost::ref(*args)));
+			tgroup.join_all();
 			result = (args->get_return_value()) ? 1 : 0;
 		}
 		else {
@@ -213,6 +222,7 @@ int mp_t_clg_planner::process(Message msg) {
 		else {
 			throw clg_exception("clg_proxy()::process(): unknown action type");
 		}
+		tgroup.join_all();
 	}
 	else {
 		throw clg_exception("clg_proxy()::process(): bad message type");
@@ -316,13 +326,14 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 				wait_for_task_termination(false, robot_name);
 				wait_ms(1000);
 
-				set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
-				wait_for_task_termination(false, robot_name);
+				//set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
+				//wait_for_task_termination(false, robot_name);
 
-				if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
+
+				//if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
 					flag = 1;
-					break;
-				}
+				//	break;
+				//}
 			}
 			if(number_of_servo_tries != 4 || flag == 1) {	/* SPRAWDZENIE CZY POTRZEBNE JEST WYSZUKIWANIE W INNYM WIDOKU */
 				break;
@@ -583,12 +594,13 @@ int mp_t_clg_planner::compute_position_for_position_board_generator(std::string 
 	sr_ecp_msg->message("mp_t_clg_planner::compute_position_for_position_board_generator()");
 
 	std::vector<int> position_to;
-	if(position_to.size() == 4) {
+
+	if(position_string.size() == 4) {
 		position_to[0] = position_string[1];
 		position_to[1] = position_string[2];
 		position_to[2] = position_string[3];
 	}
-	if(position_to.size() == 3) {
+	if(position_string.size() == 3) {
 		position_to[0] = position_string[1];
 		position_to[1] = position_string[2];
 	}
@@ -658,9 +670,10 @@ int mp_t_clg_planner::color_string_to_int(ArgumentClass args)
 
 	int color_int;
 	std::string action_type = args.get_action_type();
-	std::string color_string = args.get_parameter(1);
-	std::string length_string = args.get_parameter(2);
+	std::string color_string = args.get_parameter(0);
+	std::string length_string = args.get_parameter(1);
 	char color_char = color_string[0];
+	std::cout << length_string << ", " << color_string << ", " << length_string[0] << ",  " << color_char << std::endl;
 
 	if(action_type == "OBSERVE-TYPE") {
 		if(length_string[0] == 'D') {
