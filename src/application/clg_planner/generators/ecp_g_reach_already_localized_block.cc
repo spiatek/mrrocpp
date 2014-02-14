@@ -51,27 +51,17 @@ void reach_already_localized_block::conditional_execution() {
 	reset();
 	set_absolute();
 
-	/* preparing shared arrays */
-	managed_shared_memory segment(open_only, "ClgSharedMemory");
+	float pos;
+	int mp_array[7];
+	ecp_t.mp_command.ecp_next_state.sg_buf.get(mp_array);
 
-	std::pair<int*, size_t> sm_cont_o = segment.find<int>("ObjectsArray");
-	int* objects_array;
-	if(sm_cont_o.second != 0) {
-		objects_array = sm_cont_o.first;
-	}
-
-	std::pair<double*, size_t> sm_cont_c = segment.find<double>("CoordinatesArray");
-	double* coordinates_array;
-	if(sm_cont_c.second != 0) {
-		coordinates_array = sm_cont_c.first;
-	}
-
-	int object_int = objects_array[0];
-	int index = ((object_int - 1) * 7);
+	std::cout << "REACHING ALREADY LOCALIZED BLOCK ON POSITION: ";
 	for(size_t i = 0; i < 6; ++i) {
-		coordinates_vector[i] = coordinates_array[index];
-		index++;
+		pos = (float) ((mp_array[i]/10000.0) - 5.0);
+		coordinates_vector[i] = pos;
+		std::cout << pos << " ";
 	}
+	std::cout << std::endl;
 
 	load_absolute_angle_axis_trajectory_pose(coordinates_vector);
 

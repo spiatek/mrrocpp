@@ -18,6 +18,7 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/managed_shared_memory.hpp>
 
+#include "base/ecp/ecp_task.h"
 #include "base/mp/mp_robot.h"
 #include "base/mp/mp_task.h"
 #include "base/lib/impconst.h"
@@ -39,11 +40,16 @@
 #define SINGLE_YELLOW	4
 #define	DOUBLE_BLUE		5
 #define DOUBLE_RED		6
-#define DOUBLE_GREEN	7failed
+#define DOUBLE_GREEN	7
 #define DOUBLE_YELLOW	8
 
-#define MAX_STR_LEN			16
-#define MAX_PARAM_NUMBER	12
+#define MAX_STR_LEN					16
+#define MAX_PARAM_NUMBER			12
+#define MAX_BLOCKS_NUMBER			16
+#define COORDINATES_NUMBER			7
+#define BLOCK_TYPE_NUMBER			9
+#define MAX_VIEWS_NUMBER			4
+#define MAX_NUMBER_OF_SERVO_TRIES	3
 
 namespace mrrocpp {
 namespace mp {
@@ -125,7 +131,8 @@ private:
 	int comm_sockfd;			/* read/write socket descriptor */
 	int mp_execution_flag;		/* flag which specify if there is any active generator at the moment	*/
 	int *objects_sma;
-	double *coordinates_sma;
+	int *coordinates_sma;
+	int *counters_sma;
 
 	lib::robot_name_t robot_name;
 	boost::mutex mp_mutex;

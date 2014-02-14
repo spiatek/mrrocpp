@@ -126,8 +126,9 @@ void mp_t_clg_planner::communicate()
 	shared_memory_object::remove("ClgSharedMemory");
 	managed_shared_memory segment(create_only, "ClgSharedMemory", 65536);
 
-	objects_sma = segment.construct<int>("ObjectsArray")[12](UNKNOWN);
-	//coordinates_sma = segment.construct<double>("CoordinatesArray")[12*7](-1.0);
+	objects_sma = segment.construct<int>("ObjectsArray")[MAX_BLOCKS_NUMBER](UNKNOWN);
+	coordinates_sma = segment.construct<int>("CoordinatesArray")[MAX_BLOCKS_NUMBER*COORDINATES_NUMBER](-1.0);
+	counters_sma = segment.construct<int>("CountersArray")[BLOCK_TYPE_NUMBER](0);
 
 	while(1) {
     	msg.type = NOTHING;
@@ -266,6 +267,18 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		objects_array = sm_cont_o.first;
 	}
 
+	std::pair<int*, size_t> sm_cont_c = segment.find<int>("CoordinatesArray");
+	int* coordinates_array;
+	if(sm_cont_c.second != 0) {
+		coordinates_array = sm_cont_c.first;
+	}
+
+	std::pair<int*, size_t> sm_cont_l = segment.find<int>("CountersArray");
+	int* counters_array;
+	if(sm_cont_l.second != 0) {
+		counters_array = sm_cont_l.first;
+	}
+
 	sr_ecp_msg->message("mp_t_clg_planner::observe_color() - after preparing shared arrays");
 
 	printf("%d\n", (int) args.parameter_vector_size());
@@ -279,6 +292,12 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 	std::cout << "PARAMETRY: " << color_int << ", " << object_name << std::endl;
 
 	sr_ecp_msg->message("mp_t_clg_planner::observe_color() - after computing values");
+
+	std::cout << "OBIEKTY WSPOLDZIELONE: ";
+	for(int i = 0; i < 12; i++) {
+		std::cout << objects_array[i] << " ";
+	}
+	std::cout << std::endl;
 
 	/* checks if color is already known and if it matches */
 	if(objects_array[object_int] == color_int) {
@@ -296,79 +315,50 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		std::string trj_file_str;
 		lib::robot_name_t robot_name = args.get_robot_name();
 
-		/* preparing shared arrays */
-		managed_shared_memory segment(open_only, "ClgSharedMemory");
-
-		std::pair<int*, size_t> sm_cont_o = segment.find<int>("ObjectsArray");
-		int* objects_array;
-		if(sm_cont_o.second != 0) {
-			objects_array = sm_cont_o.first;
-		}
-
-		std::pair<double*, size_t> sm_cont_c = segment.find<double>("CoordinatesArray");
-		double* coordinates_array;
-		if(sm_cont_c.second != 0) {
-			coordinates_array = sm_cont_c.first;
+		int view = counters_array[object_int];
+		if(view >= MAX_VIEWS_NUMBER) {
+			sr_ecp_msg->message("mp_t_clg_planner::observe_color() - computed false value (max nr of views exceeded)");
+			args.set_return_value(false);
 		}
 
 		int flag = 0;
 		int number_of_servo_tries;					/* DOCELOWO STALA - ile prob odpalenia serwomechanizmu */
-		for(int step = 0; step < 1; ++step) {		/* DOCELOWO STALA - tyle krokow ile mozliwych obrazow startowych */
-			for(number_of_servo_tries = 0; number_of_servo_tries < 5; ++number_of_servo_tries) {
+		for(number_of_servo_tries = 0; number_of_servo_tries < MAX_NUMBER_OF_SERVO_TRIES; ++number_of_servo_tries) {
 
-				trj_file_str = get_trajectory_file_name(robot_name, 'T', step);
+			trj_file_str = get_trajectory_file_name(robot_name, 'T', view);
 
-				sr_ecp_msg->message("mp_t_clg_planner::observe_color() - servo run");
+			sr_ecp_msg->message("mp_t_clg_planner::observe_color() - servo run");
 
-				wait_ms(1000);
+			wait_ms(1000);
 
-				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, trj_file_str, robot_name);
-				wait_for_task_termination(false, robot_name);
-				wait_ms(1000);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, trj_file_str, robot_name);
+			wait_for_task_termination(false, robot_name);
+			wait_ms(1000);
 
-				//set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
-				//wait_for_task_termination(false, robot_name);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
+			wait_for_task_termination(false, robot_name);
 
-
-				//if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
-					flag = 1;
-				//	break;
-				//}
-			}
-			if(number_of_servo_tries != 4 || flag == 1) {	/* SPRAWDZENIE CZY POTRZEBNE JEST WYSZUKIWANIE W INNYM WIDOKU */
+			if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
+				flag = 1;
 				break;
 			}
 		}
 		if(flag == 1) {
 			sr_ecp_msg->message("mp_t_clg_planner::observe_color() - computed true value");
 
-			//lib::Homog_matrix current_position_matrix(the_robot->reply_package.arm.pf_def.arm_frame);
-			//lib::Xyz_Angle_Axis_vector current_position_vector;
-			//current_position_matrix.get_xyz_angle_axis(current_position_vector);
-
-			//printing position
-			//std::cout << "POSITION" << std::endl;
-			//int index;
-			//for (size_t i = 0; i < 6; ++i) {
-			//	std::cout << current_position_vector[i] << std::endl;
-			//	index = ((object_int - 1) * 7) + i;
-			//	coordinates_array[index] = current_position_vector[i];
-			//}
-			//std::cout << std::endl;
-
-			/*sr_ecp_msg->message("Get position generator run...\n");
-			gp->Move();
-			position_vector = gp->get_position_vector();
-
-			//printing position
-			std::cout << "POSITION" << std::endl;
+			std::cout << "POSITION FROM ECP:" << std::endl;
 			int index;
-			for (size_t i = 0; i < position_vector.size(); ++i) {
-				std::cout << position_vector[i] << std::endl;
+			float position;
+			for(int i = 0; i < 7; ++i) {
+				int ihku = robot_m[robot_name]->ecp_reply_package.sg_buf.data[i];
+				position = (ihku/10000.0) - 5.0;
+				std::cout << position << " ";
 				index = ((object_int - 1) * 7) + i;
-				coordinates_array[index] = position_vector[i];
+				coordinates_array[index] = ihku;
 			}
-			std::cout << std::endl;*/
+			std::cout << std::endl;
+
+			++counters_array[object_int];
 
 			objects_array[object_int] = color_int;
 			args.set_return_value(true);
@@ -465,13 +455,84 @@ bool mp_t_clg_planner::pickup(ArgumentClass &args)
 		objects_array = sm_cont_o.first;
 	}
 
+	std::pair<int*, size_t> sm_cont_c = segment.find<int>("CoordinatesArray");
+	int* coordinates_array;
+	if(sm_cont_c.second != 0) {
+		coordinates_array = sm_cont_c.first;
+	}
+
+	std::pair<int*, size_t> sm_cont_l = segment.find<int>("CountersArray");
+	int* counters_array;
+	if(sm_cont_l.second != 0) {
+		counters_array = sm_cont_l.first;
+	}
+
 	sr_ecp_msg->message("mp_t_clg_planner::pickup() - after preparing shared arrays");
 
 	lib::robot_name_t robot_name = args.get_robot_name();
 
 	std::string object_name = args.get_parameter(0);
-	int object_int = atoi(object_name.substr(2).c_str());
-	objects_array[0] = object_int;
+	int object_int = atoi(object_name.substr(1).c_str());
+	int array_for_generator[7];
+
+	if(objects_array[object_int] == UNKNOWN) {
+
+		sr_ecp_msg->message("mp_t_clg_planner::pickup() - object is unknown");
+
+		std::string trj_file_str;
+		int view = counters_array[object_int];
+		if(view >= MAX_VIEWS_NUMBER) {
+			throw std::runtime_error("mp_t_clg_planner::pickup() - max number of views exceeded");
+		}
+
+		int flag = 0;
+		for(int number_of_servo_tries = 0; number_of_servo_tries < MAX_NUMBER_OF_SERVO_TRIES; ++number_of_servo_tries) {
+
+			trj_file_str = get_trajectory_file_name(robot_name, 'T', view);
+
+			sr_ecp_msg->message("mp_t_clg_planner::pickup() - servo run");
+
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, trj_file_str, robot_name);
+			wait_for_task_termination(false, robot_name);
+			wait_ms(1000);
+
+			//TODO: zaimplementować mechanizm pobierania wszystkich cech z clg i wyznaczania na tej podstawie tego brakującego
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, SINGLE_BLUE, "", robot_name);
+			wait_for_task_termination(false, robot_name);
+
+			if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
+				flag = 1;
+				sr_ecp_msg->message("mp_t_clg_planner::pickup() - servo computed true value");
+				++counters_array[object_int];
+				objects_array[object_int] = SINGLE_BLUE;
+				for(int i = 0; i < 7; ++i) {
+					array_for_generator[i] = robot_m[robot_name]->ecp_reply_package.sg_buf.data[i];
+				}
+				break;
+			}
+		}
+		if(flag == 0) {
+			throw std::runtime_error("mp_t_clg_planner::pickup() - servo failed");
+		}
+	}
+	else {		/* color is already observed */
+		int index = ((object_int - 1) * 7);
+
+		std::cout << "COORDINATES ARRAY: ";
+		for(size_t i = 0; i < 7; ++i) {
+			array_for_generator[i] = coordinates_array[index];
+			std::cout << coordinates_array[index] << " ";
+			//array_for_generator[i] = 10000 + i;
+			index++;
+		}
+		std::cout << std::endl;
+	}
+
+	std::cout << "ALL COORDINATES ARRAY FOR OBJECT " << object_name << ", " << object_name.substr(1) << ", " << object_int << ": ";
+	for(size_t i = 0; i < 12*7; ++i) {
+		std::cout << coordinates_array[i] << " ";
+	}
+	std::cout << std::endl;
 
 	std::string position_str = args.get_parameter(1);
 	if(position_str != "TABLE") {
@@ -480,7 +541,7 @@ bool mp_t_clg_planner::pickup(ArgumentClass &args)
 
 	sr_ecp_msg->message("mp_t_clg_planner::pickup() - after computing params");
 
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_REACH_ALREADY_LOCALIZED_BLOCK, 0, "", robot_name);
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_REACH_ALREADY_LOCALIZED_BLOCK, 0, array_for_generator, robot_name);
 	wait_for_task_termination(false, robot_name);
 	wait_ms(1000);
 
@@ -596,19 +657,26 @@ int mp_t_clg_planner::compute_position_for_position_board_generator(std::string 
 	std::vector<int> position_to;
 
 	if(position_string.size() == 4) {
-		position_to[0] = position_string[1];
-		position_to[1] = position_string[2];
-		position_to[2] = position_string[3];
+		position_to.push_back(static_cast<int>(position_string[1] - '0') - 1);
+		position_to.push_back(static_cast<int>(position_string[2] - '0') - 1);
+		position_to.push_back(static_cast<int>(position_string[3] - '0') - 1);
 	}
 	if(position_string.size() == 3) {
-		position_to[0] = position_string[1];
-		position_to[1] = position_string[2];
+		position_to.push_back(0);
+		position_to.push_back(static_cast<int>(position_string[1] - '0') - 1);
+		position_to.push_back(static_cast<int>(position_string[2] - '0') - 1);
+		std::cout << "Tutaj" << std::endl;
 	}
 	else {
 		throw std::runtime_error("CLG::move(): bad position");
 	}
 
+	sr_ecp_msg->message("mp_t_clg_planner::compute_position_for_position_board_generator() - end");
+
 	int position_int = 100 * position_to[0] + 10 * position_to[1] + position_to[2];
+
+	std::cout << "POSITION INTEGER: " << position_int << std::endl;
+
 	return position_int;
 }
 
