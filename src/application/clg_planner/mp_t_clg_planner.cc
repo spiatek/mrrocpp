@@ -69,8 +69,18 @@ void mp_t_clg_planner::create_robots()
 
 void mp_t_clg_planner::main_task_algorithm()
 {
-	int clg_port = config.value <int>("clg_port", "[mp_clg_planner]");
+	mp_clg_string = "[mp_clg_planner]";
+
+	clg_port = config.value <int>("clg_port", mp_clg_string);
+	max_block_length = config.value <std::string>("max_block_length", mp_clg_string);
+
+	blue_position_number = config.value <int>("blue", mp_clg_string);
+	red_position_number = config.value <int>("red", mp_clg_string);
+	green_position_number = config.value <int>("green", mp_clg_string);
+	yellow_position_number = config.value <int>("yellow", mp_clg_string);
+
 	sr_ecp_msg->message("Clg_Planner run...");
+
 	connect(clg_port);
 	communicate();
 	close_connection();
@@ -315,8 +325,8 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		std::string trj_file_str;
 		lib::robot_name_t robot_name = args.get_robot_name();
 
-		int view = counters_array[object_int];
-		if(view >= MAX_VIEWS_NUMBER) {
+		int view = counters_array[color_int];
+		if(view >= MAX_VIEWS_NUMBER || !check_counters(counters_array, color_int)) {
 			sr_ecp_msg->message("mp_t_clg_planner::observe_color() - computed false value (max nr of views exceeded)");
 			args.set_return_value(false);
 		}
@@ -358,7 +368,13 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 			}
 			std::cout << std::endl;
 
-			++counters_array[object_int];
+			++counters_array[color_int];
+
+			std::cout << "PRINTING COUNTERS:" << std::endl;
+			for(int i = 0; i < BLOCK_TYPE_NUMBER; ++i) {
+				std::cout << counters_array[i] << " ";
+			}
+			std::cout << std::endl;
 
 			objects_array[object_int] = color_int;
 			args.set_return_value(true);
@@ -479,8 +495,10 @@ bool mp_t_clg_planner::pickup(ArgumentClass &args)
 
 		sr_ecp_msg->message("mp_t_clg_planner::pickup() - object is unknown");
 
+		int color_int = compute_color_int_for_pickup(counters_array);
+
 		std::string trj_file_str;
-		int view = counters_array[object_int];
+		int view = counters_array[color_int];
 		if(view >= MAX_VIEWS_NUMBER) {
 			throw std::runtime_error("mp_t_clg_planner::pickup() - max number of views exceeded");
 		}
@@ -497,14 +515,14 @@ bool mp_t_clg_planner::pickup(ArgumentClass &args)
 			wait_ms(1000);
 
 			//TODO: zaimplementować mechanizm pobierania wszystkich cech z clg i wyznaczania na tej podstawie tego brakującego
-			set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, SINGLE_BLUE, "", robot_name);
+			set_next_ecp_state(ecp_mp::generator::ECP_GEN_BLOCK_REACHING, color_int, "", robot_name);
 			wait_for_task_termination(false, robot_name);
 
 			if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
 				flag = 1;
 				sr_ecp_msg->message("mp_t_clg_planner::pickup() - servo computed true value");
-				++counters_array[object_int];
-				objects_array[object_int] = SINGLE_BLUE;
+				++counters_array[color_int];
+				objects_array[object_int] = color_int;
 				for(int i = 0; i < 7; ++i) {
 					array_for_generator[i] = robot_m[robot_name]->ecp_reply_package.sg_buf.data[i];
 				}
@@ -645,6 +663,115 @@ bool mp_t_clg_planner::putdown(ArgumentClass &args)
 	return true;
 }
 
+bool mp_t_clg_planner::check_counters(int* &counters_array, int color_int) {
+
+	int max_counter_value, current_counter_value;
+	int color_int_basis = (color_int - 1) % COLOR_NUMBER;
+
+	std::cout << "PRINTING POSITION NUMBERS: " << yellow_position_number << ", " << red_position_number << ", " <<
+			green_position_number << ", " << blue_position_number << ", " << max_block_length << std::endl;
+
+	if(color_int == SINGLE_YELLOW || color_int == DOUBLE_YELLOW) {
+		max_counter_value = yellow_position_number;
+	}
+	else if(color_int == SINGLE_RED || color_int == DOUBLE_RED) {
+		max_counter_value = red_position_number;
+	}
+	else if(color_int == SINGLE_GREEN || color_int == DOUBLE_GREEN) {
+		max_counter_value = green_position_number;
+	}
+	else if(color_int == SINGLE_BLUE || color_int == DOUBLE_BLUE) {
+		max_counter_value = blue_position_number;
+	}
+	else {
+		throw std::runtime_error("mp_t_clg_planner::check_counters(): unknown color");
+	}
+
+	if(max_block_length == "single") {
+		current_counter_value = counters_array[color_int];
+	}
+	else if(max_block_length == "double") {
+		current_counter_value = counters_array[color_int_basis] + 2 * counters_array[color_int_basis + COLOR_NUMBER];
+	}
+	else {
+		throw std::runtime_error("mp_t_clg_planner::check_counters(): unknown block length in config file");
+	}
+
+	if(current_counter_value >= max_counter_value) {
+		return false;
+	}
+
+	return true;
+}
+
+int mp_t_clg_planner::compute_color_int_for_pickup(int* &counters_array) {
+
+	int color_int;
+
+	/* only one color or block remained */
+	if(max_block_length == "single") {	/* only one of colored block counters is lower than a value of position_number in config file */
+		if(counters_array[SINGLE_YELLOW] < yellow_position_number) {
+			color_int = SINGLE_YELLOW;
+		}
+		else if(counters_array[SINGLE_RED] < red_position_number) {
+			color_int = SINGLE_RED;
+		}
+		else if(counters_array[SINGLE_GREEN] < green_position_number) {
+			color_int = SINGLE_GREEN;
+		}
+		else if(counters_array[SINGLE_BLUE] < blue_position_number) {
+			color_int = SINGLE_BLUE;
+		}
+		else {
+			throw std::runtime_error("mp_t_clg_planner::compute_color_int_for_pickup(): position numbers in config file incompatible with CLG problem");
+		}
+	}
+	else if(max_block_length == "double") {
+		int difference = yellow_position_number - 2 * counters_array[DOUBLE_YELLOW] + counters_array[SINGLE_YELLOW];
+		if(difference == 1) {
+			color_int = SINGLE_YELLOW;
+		}
+		else if(difference > 1) {
+			color_int = DOUBLE_YELLOW;
+		}
+		else {
+			difference = red_position_number - 2 * counters_array[DOUBLE_RED] + counters_array[SINGLE_RED];
+			if(difference == 1) {
+				color_int = SINGLE_RED;
+			}
+			else if(difference > 1) {
+				color_int = DOUBLE_RED;
+			}
+			else {
+				difference = green_position_number - 2 * counters_array[DOUBLE_GREEN] + counters_array[SINGLE_GREEN];
+				if(difference == 1) {
+					color_int = SINGLE_GREEN;
+				}
+				else if(difference > 1) {
+					color_int = DOUBLE_GREEN;
+				}
+				else {
+					difference = blue_position_number - 2 * counters_array[DOUBLE_BLUE] + counters_array[SINGLE_BLUE];
+					if(difference == 1) {
+						color_int = SINGLE_BLUE;
+					}
+					else if(difference > 1) {
+						color_int = DOUBLE_BLUE;
+					}
+					else {
+						throw std::runtime_error("mp_t_clg_planner::compute_color_int_for_pickup(): position numbers in config file incompatible with CLG problem");
+					}
+				}
+			}
+		}
+	}
+	else {
+		throw std::runtime_error("mp_t_clg_planner::compute_color_int_for_pickup(): unknown max_block_length value");
+	}
+
+	return color_int;
+}
+
 /**
  * compute_position_for_position_board_generator()
  * @position_string - string received from CLG Planner
@@ -700,6 +827,12 @@ std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_n
 		else if(area == 'T' && step == 1) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_2.trj";
 		}
+		else if(area == 'T' && step == 2) {
+			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_3.trj";
+		}
+		else if(area == 'T' && step == 3) {
+			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_4.trj";
+		}
 		else if(area == 'P') {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_build_start_track.trj";
 		}
@@ -713,6 +846,12 @@ std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_n
 		}
 		else if(area == 'T' && step == 1) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_2.trj";
+		}
+		else if(area == 'T' && step == 2) {
+			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_3.trj";
+		}
+		else if(area == 'T' && step == 3) {
+			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_4.trj";
 		}
 		else if(area == 'P') {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_build_start_postument.trj";

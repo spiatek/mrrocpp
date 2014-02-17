@@ -42,6 +42,7 @@
 #define DOUBLE_RED		6
 #define DOUBLE_GREEN	7
 #define DOUBLE_YELLOW	8
+#define COLOR_NUMBER	4
 
 #define MAX_STR_LEN					16
 #define MAX_PARAM_NUMBER			12
@@ -123,6 +124,8 @@ private:
 	bool check_object(std::string);
 	bool check_color(std::string);
 
+	bool check_counters(int*&, int);
+	int compute_color_int_for_pickup(int*&);
 	int compute_position_for_position_board_generator(std::string);
 	std::string get_trajectory_file_name(lib::robot_name_t, char, int);
 	int color_string_to_int(ArgumentClass args);
@@ -133,6 +136,15 @@ private:
 	int *objects_sma;
 	int *coordinates_sma;
 	int *counters_sma;
+
+	std::string mp_clg_string;
+
+	int clg_port;
+	std::string max_block_length;
+	int blue_position_number;
+	int red_position_number;
+	int green_position_number;
+	int yellow_position_number;
 
 	lib::robot_name_t robot_name;
 	boost::mutex mp_mutex;
