@@ -784,14 +784,14 @@ int mp_t_clg_planner::compute_position_for_position_board_generator(std::string 
 	std::vector<int> position_to;
 
 	if(position_string.size() == 4) {
-		position_to.push_back(static_cast<int>(position_string[1] - '0') - 1);
-		position_to.push_back(static_cast<int>(position_string[2] - '0') - 1);
-		position_to.push_back(static_cast<int>(position_string[3] - '0') - 1);
+		position_to.push_back(static_cast<int>(position_string[2] - '0'));
+		position_to.push_back(static_cast<int>(position_string[3] - '0'));
+		position_to.push_back(static_cast<int>(position_string[1] - '0'));
 	}
 	if(position_string.size() == 3) {
+		position_to.push_back(static_cast<int>(position_string[1] - '0'));
+		position_to.push_back(static_cast<int>(position_string[2] - '0'));
 		position_to.push_back(0);
-		position_to.push_back(static_cast<int>(position_string[1] - '0') - 1);
-		position_to.push_back(static_cast<int>(position_string[2] - '0') - 1);
 		std::cout << "Tutaj" << std::endl;
 	}
 	else {

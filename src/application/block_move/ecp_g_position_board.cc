@@ -26,7 +26,7 @@ void position_board::conditional_execution() {
 	sr_ecp_msg.message("configurate Smooth Generator...");
 
 	//get position compute parameters
-	ecp_bm_config_section_name = "[ecp_block_move]";
+	ecp_bm_config_section_name = "[ecp_position_board]";
 	offset = ecp_t.config.value <6, 1>("offset", ecp_bm_config_section_name);
 	block_size = ecp_t.config.value <6, 1>("block_size", ecp_bm_config_section_name);
 	correction = ecp_t.config.value <6, 1>("correction", ecp_bm_config_section_name);
@@ -88,16 +88,21 @@ void position_board::conditional_execution() {
 		}
 		std::cout << std::endl;
 
+		std::cout << "COORDINATES:" << std::endl;
 		for (size_t i = 0; i < 6; ++i) {
 			coordinates_vector[i] = position(i) + offset(i, 0) + position_on_board(i, 0) * block_size(i, 0)
 					+ correction(i, 0) * correction_weights(i, 0);
+			std::cout << coordinates_vector[i] << " ";
 		}
+		std::cout << std::endl;
 
 		sr_ecp_msg.message("coordinates ready");
+		std::cout << "Coordinates ready" << std::endl;
 
 		load_absolute_angle_axis_trajectory_pose(coordinates_vector);
 
 		sr_ecp_msg.message("pose loaded");
+		std::cout << "Pose loaded" << std::endl;
 
 		if (calculate_interpolate()) {
 			Move();
