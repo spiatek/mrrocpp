@@ -65,6 +65,7 @@ void mp_t_block_putdown::main_task_algorithm()
 
 	mp_block_putdown_string = "[block_putdown]";
 	int position_int = config.value <int>("position_int", mp_block_putdown_string);
+	std::string action = config.value <std::string>("action", mp_block_putdown_string);
 
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_POSITION_BOARD, position_int, "", robot_name);
 	wait_for_task_termination(false, robot_name);
@@ -72,18 +73,53 @@ void mp_t_block_putdown::main_task_algorithm()
 
 	sr_ecp_msg->message("mp_t_clg_planner::move() - additional move done");
 
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.01, 1000, 3), robot_name);
+	if(action == "sinns") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_rotate.trj", robot_name);
+		wait_for_task_termination(false, robot_name);
+	}
+	else if(action == "douns") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_rotate_double.trj", robot_name);
+		wait_for_task_termination(false, robot_name);
+	}
+
+	if(action == "douew") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW single");
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_sintr.trj", robot_name);
+	}
+	else if(action == "douns") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition NS single");
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_sintr.trj", robot_name);
+	}
+	else if(action == "triew") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW double");
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_doutr.trj", robot_name);
+	}
+	wait_for_task_termination(false, robot_name);
+	wait_ms(1000);
+
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.01, 300, 1), robot_name);
 	wait_for_task_termination(false, robot_name);
 	wait_ms(1000);
 
 	sr_ecp_msg->message("mp_t_clg_planner::move() - tff gripper approach done");
 
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build.trj", lib::irp6ot_m::ROBOT_NAME);
+	if(action == "douns" || action == "douew") {
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build_double.trj", lib::irp6ot_m::ROBOT_NAME);
+	}
+	else if(action == "sinns") {
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build_single_ns.trj", lib::irp6ot_m::ROBOT_NAME);
+	}
+	else {
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build.trj", lib::irp6ot_m::ROBOT_NAME);
+	}
 	wait_for_task_termination(false, lib::irp6ot_m::ROBOT_NAME);
+	wait_ms(1000);
 
 	sr_ecp_msg->message("Force approach");
 
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.01, 1000, 3), robot_name);
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.01, 600, 1), robot_name);
 	wait_for_task_termination(false, robot_name);
 	wait_ms(1000);
 

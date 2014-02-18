@@ -606,6 +606,14 @@ bool mp_t_clg_planner::putdown(ArgumentClass &args)
 
 	sr_ecp_msg->message("mp_t_clg_planner::putdown() - after computing params");
 
+	//jeśli trzeba, to obrót o 90 stopni
+	if(action_name.find("NS") != std::string::npos) {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
+
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_rotate.trj", robot_name);
+		wait_for_task_termination(false, robot_name);
+	}
+
 	//jeśli trzeba, to przesunięcie o pół lub jeden klocek
 	if(action_name == "EWD" || action_name == "PUTDOWN-DOUBLE") {
 		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW single");
@@ -632,26 +640,16 @@ bool mp_t_clg_planner::putdown(ArgumentClass &args)
 		wait_ms(1000);
 	}
 
-	//jeśli trzeba, to obrót o 90 stopni
-	if(action_name.find("EW") != std::string::npos) {
-		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
-
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_rotate.trj", robot_name);
-		wait_for_task_termination(false, robot_name);
-
-		wait_ms(1000);
-	}
-
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.02, 600, 2), robot_name);
 	wait_for_task_termination(false, robot_name);
 
-	wait_ms(4000);
+	wait_ms(1000);
 
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build.trj", robot_name);
 	wait_for_task_termination(false, robot_name);
 
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, 1, "", robot_name);
-	wait_for_task_termination(false, robot_name);
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.01, 1000, 3), robot_name);
+		wait_for_task_termination(false, robot_name);
 
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/up_after_pushing.trj", robot_name);
 	wait_for_task_termination(false, robot_name);
