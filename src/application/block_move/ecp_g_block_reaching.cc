@@ -110,7 +110,7 @@ void block_reaching::conditional_execution() {
 
 	logger::log_dbg("In block_reaching::conditional_execution()\n");
 
-/*	try {
+	try {
 		ecp_mp::sensor::discode::discode_sensor::discode_sensor_state st;
 		st = ds_rpc->get_state();
 
@@ -126,28 +126,28 @@ void block_reaching::conditional_execution() {
 		sr_ecp_msg.message("configure_discode error");
 		sr_ecp_msg.message(e.what());
 	}
-*/
+
 	//remote procedure call
 	sr_ecp_msg.message("Calling remote procedure...");
 	uint32_t param = (int) ecp_t.mp_command.ecp_next_state.variant;
-	/*Types::Mrrocpp_Proxy::BReading br;
+	Types::Mrrocpp_Proxy::BReading br;
 	br = ds_rpc->call_remote_procedure <Types::Mrrocpp_Proxy::BReading>((int) param);
 	if(br.rpcReceived) {
 		sr_ecp_msg.message("Rpc received");
 	}
-*/
+
 	logger::log_dbg("RPC called\n");
 
 	//run servo generator
 	sr_ecp_msg.message("Object reaching...");
-	//sm->add_termination_condition(object_reached_term_cond);
-	//sm->add_termination_condition(timeout_term_cond);
-	//sm->Move();
+	sm->add_termination_condition(object_reached_term_cond);
+	sm->add_termination_condition(timeout_term_cond);
+	sm->Move();
 
 	logger::log_dbg("Servovision finished\n");
 
 	//object reached termination condition
-	//if (object_reached_term_cond->is_condition_met()) {
+	if (object_reached_term_cond->is_condition_met()) {
 		sr_ecp_msg.message("object_reached_term_cond is met");
 		ecp_t.ecp_reply.variant = 1;
 
@@ -169,14 +169,14 @@ void block_reaching::conditional_execution() {
 		}
 		std::cout << std::endl;
 		ecp_t.ecp_reply.variant = 1;
-	//}
-	//else {
+	}
+	else {
 		sr_ecp_msg.message("object_reached_term_cond IS NOT MET");
-	//}
+	}
 
 	logger::log_dbg("After object reached termination condition check\n");
 
-/*	//obsługa warunku zakończenia pracy - timeout
+	//obsługa warunku zakończenia pracy - timeout
 	if (timeout_term_cond->is_condition_met()) {
 		sr_ecp_msg.message("timeout_term_cond is met");
 		ecp_t.ecp_reply.variant = 0;
@@ -184,7 +184,7 @@ void block_reaching::conditional_execution() {
 	} else {
 		sr_ecp_msg.message("timeout_term_cond IS NOT MET");
 	}
-*/
+
 	sr_ecp_msg.message("servovision end");
 	logger::log_dbg("Servovision end\n");
 }
