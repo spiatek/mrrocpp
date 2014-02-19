@@ -73,14 +73,14 @@ void mp_t_block_putdown::main_task_algorithm()
 
 	sr_ecp_msg->message("mp_t_clg_planner::move() - additional move done");
 
-	if(action == "sinns") {
+	if(action == "sinew") {
 		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_rotate.trj", robot_name);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_rotate.trj", robot_name);
 		wait_for_task_termination(false, robot_name);
 	}
-	else if(action == "douns") {
+	else if(action == "douew") {
 		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
-		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_rotate_double.trj", robot_name);
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_rotate_double.trj", robot_name);
 		wait_for_task_termination(false, robot_name);
 	}
 
@@ -96,6 +96,10 @@ void mp_t_block_putdown::main_task_algorithm()
 		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW double");
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_doutr.trj", robot_name);
 	}
+	else if(action == "sinns") {
+		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW double");
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_tr.trj", robot_name);
+	}
 	wait_for_task_termination(false, robot_name);
 	wait_ms(1000);
 
@@ -105,8 +109,11 @@ void mp_t_block_putdown::main_task_algorithm()
 
 	sr_ecp_msg->message("mp_t_clg_planner::move() - tff gripper approach done");
 
-	if(action == "douns" || action == "douew") {
+	if(action == "douns") {
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build_double.trj", lib::irp6ot_m::ROBOT_NAME);
+	}
+	else if(action == "douew") {
+		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build_double_ns.trj", lib::irp6ot_m::ROBOT_NAME);
 	}
 	else if(action == "sinns") {
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build_single_ns.trj", lib::irp6ot_m::ROBOT_NAME);
