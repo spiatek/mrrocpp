@@ -332,7 +332,7 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		}
 
 		int flag = 0;
-		int number_of_servo_tries;					/* DOCELOWO STALA - ile prob odpalenia serwomechanizmu */
+		int number_of_servo_tries;
 		for(number_of_servo_tries = 0; number_of_servo_tries < MAX_NUMBER_OF_SERVO_TRIES; ++number_of_servo_tries) {
 
 			trj_file_str = get_trajectory_file_name(robot_name, 'T', view);
@@ -563,9 +563,11 @@ bool mp_t_clg_planner::pickup(ArgumentClass &args)
 	wait_for_task_termination(false, robot_name);
 	wait_ms(1000);
 
-	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.03, 800, 3), robot_name);
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/move_before_pickup.trj", robot_name);
 	wait_for_task_termination(false, robot_name);
-	wait_ms(1000);
+
+	set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.01, 600, 3), robot_name);
+	wait_for_task_termination(false, robot_name);
 
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/up_after_pickup.trj", robot_name);
 	wait_for_task_termination(false, robot_name);
