@@ -163,8 +163,8 @@ void block_reaching::conditional_execution() {
 		//printing position
 		std::cout << "POSITION" << std::endl;
 		for (size_t i = 0; i < position_vector.size(); ++i) {
-			std::cout << position_vector[i] << std::endl;
 			double pvim = (position_vector[i] + 5.0) * 10000;
+			std::cout << position_vector[i] << ", " << pvim << std::endl;
 			ecp_t.ecp_reply.sg_buf.data[i] = (int) pvim;
 		}
 		std::cout << std::endl;

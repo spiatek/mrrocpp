@@ -49,8 +49,7 @@
 #define MAX_BLOCKS_NUMBER			16
 #define COORDINATES_NUMBER			7
 #define BLOCK_TYPE_NUMBER			9
-#define MAX_VIEWS_NUMBER			4
-#define MAX_NUMBER_OF_SERVO_TRIES	3
+#define MAX_VIEWS_NUMBER			4		/* 3 dla single, 1 dla double */
 
 namespace mrrocpp {
 namespace mp {
@@ -127,7 +126,7 @@ private:
 	bool check_counters(int*&, int);
 	int compute_color_int_for_pickup(int*&);
 	int compute_position_for_position_board_generator(std::string);
-	std::string get_trajectory_file_name(lib::robot_name_t, char, int);
+	std::string get_trajectory_file_name(lib::robot_name_t, char, int, int);
 	int color_string_to_int(ArgumentClass args);
 
 	int sockfd;					/* connection socket descriptor */
@@ -136,15 +135,18 @@ private:
 	int *objects_sma;
 	int *coordinates_sma;
 	int *counters_sma;
+	int *views_sma;
 
 	std::string mp_clg_string;
 
 	int clg_port;
 	std::string max_block_length;
+	int problem_domain_nr;
 	int blue_position_number;
 	int red_position_number;
 	int green_position_number;
 	int yellow_position_number;
+	int max_number_of_servo_tries;
 
 	lib::robot_name_t robot_name;
 	boost::mutex mp_mutex;

@@ -33,20 +33,7 @@ void reach_already_localized_block::conditional_execution() {
 
 	sr_ecp_msg.message("executing reach_already_localized_block generator...");
 
-	ecp_ralb_config_section_name = "[ecp_reached_already_localized_block]";
-	std::string robot_name = ecp_t.config.value <std::string>("robot_name", ecp_ralb_config_section_name);
-
-	int coordinates_num;
-	if(robot_name == lib::irp6p_m::ROBOT_NAME) {
-		coordinates_num = 6;
-	}
-	else if(robot_name == lib::irp6ot_m::ROBOT_NAME) {
-		coordinates_num = 7;
-	}
-	else {
-		throw std::runtime_error("ECP GENERATOR: reach_already_localized_block unknown robot");
-	}
-	std::vector <double> coordinates_vector(coordinates_num);
+	std::vector <double> coordinates_vector(6);
 
 	reset();
 	set_absolute();

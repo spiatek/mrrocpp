@@ -27,12 +27,7 @@ namespace generator {
 
 class reach_already_localized_block : public common::generator::newsmooth
 {
-private:
-
-	std::string ecp_ralb_config_section_name;
-
 public:
-
 	reach_already_localized_block(task::task & _ecp_t);
 	void conditional_execution();
 };

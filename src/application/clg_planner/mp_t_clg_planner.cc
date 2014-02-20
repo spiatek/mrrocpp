@@ -73,11 +73,13 @@ void mp_t_clg_planner::main_task_algorithm()
 
 	clg_port = config.value <int>("clg_port", mp_clg_string);
 	max_block_length = config.value <std::string>("max_block_length", mp_clg_string);
+	problem_domain_nr = config.value <int>("problem_domain_nr", mp_clg_string);
 
 	blue_position_number = config.value <int>("blue", mp_clg_string);
 	red_position_number = config.value <int>("red", mp_clg_string);
 	green_position_number = config.value <int>("green", mp_clg_string);
 	yellow_position_number = config.value <int>("yellow", mp_clg_string);
+	max_number_of_servo_tries = config.value <int>("max_number_of_servo_tries", mp_clg_string);
 
 	sr_ecp_msg->message("Clg_Planner run...");
 
@@ -139,6 +141,7 @@ void mp_t_clg_planner::communicate()
 	objects_sma = segment.construct<int>("ObjectsArray")[MAX_BLOCKS_NUMBER](UNKNOWN);
 	coordinates_sma = segment.construct<int>("CoordinatesArray")[MAX_BLOCKS_NUMBER*COORDINATES_NUMBER](-1.0);
 	counters_sma = segment.construct<int>("CountersArray")[BLOCK_TYPE_NUMBER](0);
+	views_sma = segment.construct<int>("ViewsArray")[MAX_VIEWS_NUMBER*MAX_BLOCKS_NUMBER](0);
 
 	while(1) {
     	msg.type = NOTHING;
@@ -208,7 +211,7 @@ int mp_t_clg_planner::process(Message msg) {
 		if(action == "OBSERVE-COLOR" || action == "OBSERVE-TYPE") {
 			tgroup.create_thread(boost::bind(&mp_t_clg_planner::observe_color, this, boost::ref(*args)));
 			tgroup.join_all();
-			result = (args->get_return_value()) ? 1 : 0;
+			result = (args->get_return_value()) ? 0 : 1;
 		}
 		else {
 			throw clg_exception("clg_proxy()::process(): unknown observation type");
@@ -226,7 +229,7 @@ int mp_t_clg_planner::process(Message msg) {
 			tgroup.create_thread(boost::bind(&mp_t_clg_planner::pickup, this, boost::ref(*args)));
 		}
 		else if(action == "PUTDOWN" || action == "PUTDOWN-SINGLE" || action == "PUTDOWN-DOUBLE" || action == "PUTDOWN-TRIPLE"
-				    || action == "PDSEW" || action == "PDSNS" || action == "EW" || action == "NS"
+				    || action == "PDSEW" || action == "PDSNS" || action == "EW" || action == "NS" || action == "E" || action == "N"
 				    || action == "EWD" || action == "NSD") {
 			tgroup.create_thread(boost::bind(&mp_t_clg_planner::putdown, this, boost::ref(*args)));
 		}
@@ -277,16 +280,26 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		objects_array = sm_cont_o.first;
 	}
 
+	std::cout << "TUDU: " << args.get_parameter(0) << ", " << args.get_parameter(1) << ", " << args.get_parameter(2) << std::endl;
+
 	std::pair<int*, size_t> sm_cont_c = segment.find<int>("CoordinatesArray");
 	int* coordinates_array;
 	if(sm_cont_c.second != 0) {
 		coordinates_array = sm_cont_c.first;
 	}
 
+	std::cout << "TADA" << std::endl;
+
 	std::pair<int*, size_t> sm_cont_l = segment.find<int>("CountersArray");
 	int* counters_array;
 	if(sm_cont_l.second != 0) {
 		counters_array = sm_cont_l.first;
+	}
+
+	std::pair<int*, size_t> sm_cont_v = segment.find<int>("ViewsArray");
+	int* views_array;
+	if(sm_cont_v.second != 0) {
+		views_array = sm_cont_v.first;
 	}
 
 	sr_ecp_msg->message("mp_t_clg_planner::observe_color() - after preparing shared arrays");
@@ -297,7 +310,14 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 	color_int = color_string_to_int(args);
 
 	/* computing object integer value */
-	std::string object_name = args.get_parameter(1);
+	std::string object_name;
+	if(problem_domain_nr != 3) {
+		object_name = args.get_parameter(1);
+	}
+	else {
+		object_name = args.get_parameter(0);
+	}
+
 	int object_int = atoi(object_name.substr(1).c_str());
 	std::cout << "PARAMETRY: " << color_int << ", " << object_name << std::endl;
 
@@ -326,16 +346,19 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 		lib::robot_name_t robot_name = args.get_robot_name();
 
 		int view = counters_array[color_int];
-		if(view >= MAX_VIEWS_NUMBER || !check_counters(counters_array, color_int)) {
+		int indx = view*color_int;
+		if(view >= MAX_VIEWS_NUMBER || !check_counters(counters_array, color_int) || views_array[indx] != 0) {
 			sr_ecp_msg->message("mp_t_clg_planner::observe_color() - computed false value (max nr of views exceeded)");
 			args.set_return_value(false);
+			return true;
 		}
 
 		int flag = 0;
 		int number_of_servo_tries;
-		for(number_of_servo_tries = 0; number_of_servo_tries < MAX_NUMBER_OF_SERVO_TRIES; ++number_of_servo_tries) {
+		for(number_of_servo_tries = 0; number_of_servo_tries < max_number_of_servo_tries; ++number_of_servo_tries) {
 
-			trj_file_str = get_trajectory_file_name(robot_name, 'T', view);
+			views_array[indx] = 1;		//w celu uniknięcia dublowania poszukiwań
+			trj_file_str = get_trajectory_file_name(robot_name, 'T', view, color_int);
 
 			sr_ecp_msg->message("mp_t_clg_planner::observe_color() - servo run");
 
@@ -362,9 +385,9 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 			for(int i = 0; i < 7; ++i) {
 				int ihku = robot_m[robot_name]->ecp_reply_package.sg_buf.data[i];
 				position = (ihku/10000.0) - 5.0;
-				std::cout << position << " ";
 				index = ((object_int - 1) * 7) + i;
 				coordinates_array[index] = ihku;
+				std::cout << index << ": " << coordinates_array[index] << ", ";
 			}
 			std::cout << std::endl;
 
@@ -373,6 +396,12 @@ bool mp_t_clg_planner::observe_color(ArgumentClass &args)
 			std::cout << "PRINTING COUNTERS:" << std::endl;
 			for(int i = 0; i < BLOCK_TYPE_NUMBER; ++i) {
 				std::cout << counters_array[i] << " ";
+			}
+			std::cout << std::endl;
+
+			std::cout << "PRINTING COORDINATES:" << std::endl;
+			for(int i = 0; i < MAX_BLOCKS_NUMBER*COORDINATES_NUMBER; ++i) {
+				std::cout << coordinates_array[i] << " ";
 			}
 			std::cout << std::endl;
 
@@ -421,7 +450,7 @@ bool mp_t_clg_planner::move(ArgumentClass &args)
 	}
 
 	char zero_position = position_to[0];
-	trj_file_str = get_trajectory_file_name(robot_name, zero_position, 0);
+	trj_file_str = get_trajectory_file_name(robot_name, zero_position, 0, 0);
 
 	set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, trj_file_str, robot_name);
 	wait_for_task_termination(false, robot_name);
@@ -483,6 +512,12 @@ bool mp_t_clg_planner::pickup(ArgumentClass &args)
 		counters_array = sm_cont_l.first;
 	}
 
+	std::pair<int*, size_t> sm_cont_v = segment.find<int>("ViewsArray");
+	int* views_array;
+	if(sm_cont_v.second != 0) {
+		views_array = sm_cont_v.first;
+	}
+
 	sr_ecp_msg->message("mp_t_clg_planner::pickup() - after preparing shared arrays");
 
 	lib::robot_name_t robot_name = args.get_robot_name();
@@ -499,14 +534,17 @@ bool mp_t_clg_planner::pickup(ArgumentClass &args)
 
 		std::string trj_file_str;
 		int view = counters_array[color_int];
-		if(view >= MAX_VIEWS_NUMBER) {
+		int indx = view*color_int;
+		if(view >= MAX_VIEWS_NUMBER || views_array[indx] != 0) {
 			throw std::runtime_error("mp_t_clg_planner::pickup() - max number of views exceeded");
+			return true;
 		}
 
 		int flag = 0;
-		for(int number_of_servo_tries = 0; number_of_servo_tries < MAX_NUMBER_OF_SERVO_TRIES; ++number_of_servo_tries) {
+		for(int number_of_servo_tries = 0; number_of_servo_tries < max_number_of_servo_tries; ++number_of_servo_tries) {
 
-			trj_file_str = get_trajectory_file_name(robot_name, 'T', view);
+			views_array[indx] = 1;		//w celu uniknięcia dublowania poszukiwań
+			trj_file_str = get_trajectory_file_name(robot_name, 'T', view, color_int);
 
 			sr_ecp_msg->message("mp_t_clg_planner::pickup() - servo run");
 
@@ -599,6 +637,7 @@ bool mp_t_clg_planner::putdown(ArgumentClass &args)
 	lib::robot_name_t robot_name = args.get_robot_name();
 	std::string object_name = args.get_parameter(0);
 	std::string position = args.get_parameter(1);
+	std::string neighbour = args.get_parameter(2);
 	std::string action_name = args.get_action_type();
 	//std::string color_string = args.get_parameter(2);
 
@@ -614,18 +653,18 @@ bool mp_t_clg_planner::putdown(ArgumentClass &args)
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_rotate.trj", robot_name);
 		wait_for_task_termination(false, robot_name);
 	}
-	else if(action_name == "EWD" || action_name == "PUTDOWN-DOUBLE") {
+	else if(action_name == "EWD" || (action_name == "PUTDOWN-DOUBLE" && position[1] == neighbour[1])) {
 		sr_ecp_msg->message("mp_t_clg_planner::putdown() - rotation");
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_rotate_double.trj", robot_name);
 		wait_for_task_termination(false, robot_name);
 	}
 
 	//jeśli trzeba, to przesunięcie o pół lub jeden klocek
-	if(action_name == "EWD" || action_name == "PUTDOWN-DOUBLE") {
+	if(action_name == "EWD" || (action_name == "PUTDOWN-DOUBLE" && position[1] == neighbour[1])) {
 		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition EW single");
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ew_sintr.trj", robot_name);
 	}
-	else if(action_name == "NSD") {
+	else if(action_name == "NSD" || (action_name == "PUTDOWN-DOUBLE" && position[2] == neighbour[2])) {
 		sr_ecp_msg->message("mp_t_clg_planner::putdown() - transition NS single");
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/putdown_ns_sintr.trj", robot_name);
 	}
@@ -644,10 +683,10 @@ bool mp_t_clg_planner::putdown(ArgumentClass &args)
 	wait_for_task_termination(false, robot_name);
 	wait_ms(1000);
 
-	if(action_name == "NSD") {
+	if(action_name == "NSD" || (action_name == "PUTDOWN-DOUBLE" && position[2] == neighbour[2])) {
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build_double.trj", lib::irp6ot_m::ROBOT_NAME);
 	}
-	else if(action_name == "EWD" || action_name == "PUTDOWN-DOUBLE") {
+	else if(action_name == "EWD" || (action_name == "PUTDOWN-DOUBLE" && position[1] == neighbour[1])) {
 		set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_ANGLE_AXIS_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/build_double_ns.trj", lib::irp6ot_m::ROBOT_NAME);
 	}
 	else if(action_name == "N" || action_name == "NS") {
@@ -823,23 +862,23 @@ int mp_t_clg_planner::compute_position_for_position_board_generator(std::string 
  * @step - number of table view (0 for P)
  * returns name of a trajectory file which will be sent to SMOOTH_JOINT_FILE_FROM_MP generator
  */
-std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_name, char area, int step)
+std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_name, char area, int step, int color_int)
 {
 	sr_ecp_msg->message("mp_t_clg_planner::get_trajectory_file_name()");
 	std::cout << "Area str: " << area << ", step: " << step << std::endl;
 
 	std::string trj_file_str;
 	if(robot_name == lib::irp6ot_m::ROBOT_NAME) {
-		if(area == 'T' && step == 0) {
+		if(area == 'T' && color_int >= 5 && step == 0) {		/* oddzielny widok dla double */
+			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_2.trj";
+		}
+		else if(area == 'T' && step == 0) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_1.trj";
 		}
 		else if(area == 'T' && step == 1) {
-			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_2.trj";
-		}
-		else if(area == 'T' && step == 2) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_3.trj";
 		}
-		else if(area == 'T' && step == 3) {
+		else if(area == 'T' && step == 2) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_track_4.trj";
 		}
 		else if(area == 'P') {
@@ -850,16 +889,16 @@ std::string mp_t_clg_planner::get_trajectory_file_name(lib::robot_name_t robot_n
 		}
 	}
 	else if(robot_name == lib::irp6p_m::ROBOT_NAME) {
+		if(area == 'T' && color_int >= 5 && step == 0) {		/* oddzielny widok dla double */
+			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_2.trj";
+		}
 		if(area == 'T' && step == 0) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_1.trj";
 		}
 		else if(area == 'T' && step == 1) {
-			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_2.trj";
-		}
-		else if(area == 'T' && step == 2) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_3.trj";
 		}
-		else if(area == 'T' && step == 3) {
+		else if(area == 'T' && step == 2) {
 			trj_file_str = "../../src/application/clg_planner/trjs/pos_search_area_start_postument_4.trj";
 		}
 		else if(area == 'P') {
@@ -886,10 +925,18 @@ int mp_t_clg_planner::color_string_to_int(ArgumentClass args)
 
 	int color_int;
 	std::string action_type = args.get_action_type();
-	std::string color_string = args.get_parameter(0);
-	std::string length_string = args.get_parameter(1);
+	std::string color_string;
+	std::string length_string;
+	if(problem_domain_nr == 3) {
+		color_string = args.get_parameter(1);
+		length_string = args.get_parameter(2);
+	}
+	else {
+		color_string = args.get_parameter(0);
+		length_string = args.get_parameter(1);
+	}
 	char color_char = color_string[0];
-	std::cout << length_string << ", " << color_string << ", " << length_string[0] << ",  " << color_char << std::endl;
+	std::cout << length_string << ", " << color_string << ", " << length_string[0] << ", " << color_char << std::endl;
 
 	if(action_type == "OBSERVE-TYPE") {
 		if(length_string[0] == 'D') {
