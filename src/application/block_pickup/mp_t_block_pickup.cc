@@ -78,8 +78,14 @@ void mp_t_block_pickup::main_task_algorithm()
 
 		if(robot_m[robot_name]->ecp_reply_package.variant == 1) {		/* POWODZENIE W WYSZUKIWANIU */
 
-			set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/move_before_pickup.trj", robot_name);
-			wait_for_task_termination(false, robot_name);
+			if(color_int >= 5) {
+				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/move_before_pickup_double.trj", robot_name);
+				wait_for_task_termination(false, robot_name);
+			}
+			else {
+				set_next_ecp_state(ecp_mp::generator::ECP_GEN_SMOOTH_JOINT_FILE_FROM_MP, 5, "../../src/application/clg_planner/trjs/move_before_pickup.trj", robot_name);
+				wait_for_task_termination(false, robot_name);
+			}
 
 			set_next_ecp_state(ecp_mp::generator::ECP_GEN_TFF_GRIPPER_APPROACH, (int) ecp_mp::generator::tff_gripper_approach::behaviour_specification, ecp_mp::generator::tff_gripper_approach::behaviour_specification_data_type(0.01, 600, 3), robot_name);
 			wait_for_task_termination(false, robot_name);
